@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://w23cbmgs53r2"]
+
+[ext_resource type="Script" path="res://Scripts/Pickup.cs" id="1_ftxe1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_euoch"]
+albedo_color = Color(0.884363, 0, 0.0102565, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_e8xpv"]
+material = SubResource("StandardMaterial3D_euoch")
+size = Vector3(0.1, 0.1, 0.1)
+
+[node name="Pickup" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000492215, 0.00163203, 0.00161535)
+script = ExtResource("1_ftxe1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.99943, 0.0337483, 0, -0.0337483, 0.99943, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("BoxMesh_e8xpv")
+
+[node name="Label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.276796, 0)
+visibility_range_end = 7.5
+visibility_range_end_margin = 5.0
+visibility_range_fade_mode = 1
+billboard = 1
+double_sided = false
+no_depth_test = true
+text = "Drop"
