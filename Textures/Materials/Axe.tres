@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://d4kpeetxrogj7"]
+
+[ext_resource type="Texture2D" uid="uid://d3gc8wg4gtpip" path="res://Textures/AxeColor.png" id="1_pmad1"]
+[ext_resource type="Texture2D" uid="uid://b8u31je1bve7e" path="res://Textures/AxeRough.png" id="2_kd1k2"]
+
+[resource]
+albedo_texture = ExtResource("1_pmad1")
+roughness_texture = ExtResource("2_kd1k2")
+roughness_texture_channel = 4

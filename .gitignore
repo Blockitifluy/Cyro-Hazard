@@ -2,3 +2,4 @@
 .godot/
 .vscode/
 addons/
+*.blend1

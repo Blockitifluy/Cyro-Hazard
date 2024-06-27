@@ -20,15 +20,24 @@ public partial class CameraPivot : Marker3D
 	/// </summary>
 	[Export] public float QuadB { get; set; } = 1.0f;
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-		if (Follower == null)
-		{
-			GD.PrintErr("Follower doesn't Exist");
-			return;
-		};
+	[Export]
+	[ExportCategory("CameraSettings")]
+	public Vector3 Direction = new(0, 1, 1);
+	
+	[Export]
+	public float Distance = 3.0f;
 
+	private Camera3D Camera;
+
+	public override void _Ready()
+	{
+		base._Ready();
+
+		Camera = GetNode<Camera3D>("Camera");
+	}
+
+	public Vector3 LerpPosition(double delta)
+	{
 		Vector3 followPos = Follower.Position;
 		Vector3 currentPos = Position;
 
@@ -40,6 +49,28 @@ public partial class CameraPivot : Marker3D
 
 		Vector3 posLerp = currentPos + (followPos - currentPos) * cameraLag;
 
+		return posLerp;
+	}
+
+  // Called every frame. 'delta' is the elapsed time since the previous frame.
+  public override void _Process(double delta)
+	{
+		if (Follower == null)
+		{
+			GD.PrintErr("Follower doesn't Exist");
+			return;
+		};
+
+		var posLerp = LerpPosition(delta);
+
 		Position = posLerp;
+
+		// TODO
+		//var cameraDir = Direction.Normalized() * Distance;
+
+		//Camera.GlobalPosition = cameraDir + Follower.Position;
+		//Camera.Basis = Basis.LookingAt(cameraDir);
+
+		//GD.Print($"{cameraDir + Follower.Position} : {Follower.Position}");
 	}
 }

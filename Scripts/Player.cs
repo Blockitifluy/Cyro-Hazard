@@ -16,6 +16,8 @@ public partial class Player : BasicCharacter
   {
     return Input.IsActionPressed("running");
   }
+  
+  public Inventory inventory;
 
   /// <summary>
   /// The action of the player running
@@ -147,7 +149,17 @@ public partial class Player : BasicCharacter
     return new Vector3();
   }
 
-  public override void _PhysicsProcess(double delta)
+    public override void _Ready()
+    {
+      base._Ready();
+
+      inventory = new Inventory(new(10, 10));
+
+      // TODO - This is a test please replace with 'Axe'
+      inventory.AddItem(Items.ItemCode.Wood, new(0, 0), 1);
+    }
+
+    public override void _PhysicsProcess(double delta)
   {
     PickupAction(delta);
 

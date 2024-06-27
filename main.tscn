@@ -1,15 +1,25 @@
-[gd_scene load_steps=7 format=3 uid="uid://bwfly4emjkoa6"]
+[gd_scene load_steps=9 format=3 uid="uid://bwfly4emjkoa6"]
 
 [ext_resource type="PackedScene" uid="uid://cv33llrox6khk" path="res://Scenes/player.tscn" id="1_2fumh"]
 [ext_resource type="Script" path="res://Scripts/CameraPivot.cs" id="2_wh28q"]
 [ext_resource type="PackedScene" uid="uid://w23cbmgs53r2" path="res://Scenes/Pickup.tscn" id="3_vmgn5"]
 [ext_resource type="Script" path="res://Scripts/UIManager.cs" id="4_0dsr3"]
+[ext_resource type="Texture2D" uid="uid://cfpakscu8sb3c" path="res://Textures/Snow.png" id="4_etwp8"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_g8rse"]
-size = Vector3(10, 0.03, 10)
+size = Vector3(50, 0.03, 50)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gu5ol"]
+albedo_color = Color(0.779291, 0.779291, 0.779291, 1)
+albedo_texture = ExtResource("4_etwp8")
+detail_albedo = ExtResource("4_etwp8")
+uv1_scale = Vector3(3, 3, 3)
+texture_filter = 0
+point_size = 0.1
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_2go4e"]
-size = Vector2(10, 10)
+material = SubResource("StandardMaterial3D_gu5ol")
+size = Vector2(50, 50)
 
 [node name="Main" type="Node3D"]
 
@@ -49,10 +59,12 @@ QuadA = 2.0
 QuadB = 3.0
 
 [node name="Camera" type="Camera3D" parent="CameraPivot"]
-transform = Transform3D(1, 0, 0, 0, 0.850738, 0.525591, 0, -0.525591, 0.850738, 0, 3, 3)
+transform = Transform3D(1, 0, 0, 0, 0.850812, 0.525472, 0, -0.525472, 0.850812, 0, 3, 3)
+fov = 45.0
 
 [node name="Light" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 3, 0)
+light_energy = 1.302
 
 [node name="Ground" type="StaticBody3D" parent="."]
 
@@ -68,5 +80,5 @@ Amount = 5
 
 [node name="Pickup2" parent="." groups=["Pickups"] instance=ExtResource("3_vmgn5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00049, 0.00163203, -4.18454)
-ItemCode = 2
+ItemCode = 1
 Amount = 10

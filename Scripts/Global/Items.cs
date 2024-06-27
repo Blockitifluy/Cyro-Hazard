@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Godot;
 
 public class Items
 {
@@ -19,6 +20,8 @@ public class Items
     /// </summary>
     readonly public bool Equipable = false;
 
+    readonly public Vector2I Size;
+
     public override string ToString()
     {
       if (string.IsNullOrWhiteSpace(Name))
@@ -35,7 +38,7 @@ public class Items
       return newText.ToString();
     }
 
-    public ItemData(string name, bool isEquipable, int maxAmount=99)
+    public ItemData(string name, bool isEquipable, Vector2I size, int maxAmount=99)
     {
       if (maxAmount <= 0)
       {
@@ -44,6 +47,7 @@ public class Items
 
       MaxAmount = maxAmount;
       Name = name;
+      Size = size;
       Equipable = isEquipable;
     } 
   }
@@ -73,8 +77,8 @@ public class Items
   /// </summary>
   static readonly public List<ItemData> ItemMap = new()
   {
-    new("Wood", false),
-    new("Stone", false),
-    new("GenTest", true, 1)
+    new("Wood", false, new(2, 1)),
+    new("Stone", false, new(1,1)),
+    new("Axe", true, new(2, 3), 1)
   };
 }
