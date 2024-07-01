@@ -20,13 +20,6 @@ public partial class CameraPivot : Marker3D
 	/// </summary>
 	[Export] public float QuadB { get; set; } = 1.0f;
 
-	[Export]
-	[ExportCategory("CameraSettings")]
-	public Vector3 Direction = new(0, 1, 1);
-	
-	[Export]
-	public float Distance = 3.0f;
-
 	private Camera3D Camera;
 
 	public override void _Ready()
@@ -52,8 +45,8 @@ public partial class CameraPivot : Marker3D
 		return posLerp;
 	}
 
-  // Called every frame. 'delta' is the elapsed time since the previous frame.
-  public override void _Process(double delta)
+	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	public override void _Process(double delta)
 	{
 		if (Follower == null)
 		{
@@ -64,13 +57,5 @@ public partial class CameraPivot : Marker3D
 		var posLerp = LerpPosition(delta);
 
 		Position = posLerp;
-
-		// TODO
-		//var cameraDir = Direction.Normalized() * Distance;
-
-		//Camera.GlobalPosition = cameraDir + Follower.Position;
-		//Camera.Basis = Basis.LookingAt(cameraDir);
-
-		//GD.Print($"{cameraDir + Follower.Position} : {Follower.Position}");
 	}
 }

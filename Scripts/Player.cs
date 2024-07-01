@@ -16,7 +16,7 @@ public partial class Player : BasicCharacter
   {
     return Input.IsActionPressed("running");
   }
-  
+
   public Inventory inventory;
 
   /// <summary>
@@ -35,7 +35,7 @@ public partial class Player : BasicCharacter
     targetVelo = velo;
 
     if (velo != Vector3.Zero) Pivot.Basis = lookAt;
-    
+
     return SpeedToStamina(velo.Length());
   }
 
@@ -46,9 +46,9 @@ public partial class Player : BasicCharacter
   private Pickup GetClosestPickup()
   {
     var Pickups = GetTree().GetNodesInGroup("Pickups");
-    
+
     Vector3 MousePos3D = ScreenPointToRay();
-    
+
     Pickup ClosestPickup = null;
     float closestDistance = 0xffffffff;
     for (int index = 0; index < Pickups.Count; index++)
@@ -67,8 +67,8 @@ public partial class Player : BasicCharacter
       float currentDist = MousePos3D.DistanceSquaredTo(pck.Position),
       distFromPlayer = Position.DistanceSquaredTo(pck.Position);
       bool inRange = distFromPlayer <= MaxPickDistance * MaxPickDistance,
-      isClosest = closestDistance > currentDist; 
-      
+      isClosest = closestDistance > currentDist;
+
       if (inRange && isClosest)
       {
         closestDistance = currentDist;
@@ -81,20 +81,20 @@ public partial class Player : BasicCharacter
 
   private double PickupTimer = 0.0d;
   private bool PickupStarted = false;
-  
+
   /// <summary>
   /// Uses press and hold as it's action. Gets closest pickup, then destroys it.
   /// </summary>
   /// <param name="delta">The time between the previous 2 frames</param>
   private void PickupAction(double delta)
   {
-    if (Input.IsActionJustPressed("pickup")) 
+    if (Input.IsActionJustPressed("pickup"))
       PickupStarted = true;
-    
+
     if (Input.IsActionPressed("pickup") && PickupStarted)
       PickupTimer += delta;
-		
-    
+
+
     if (PickupTimer >= PickupTime && PickupStarted)
     {
       PickupStarted = false;
@@ -135,40 +135,42 @@ public partial class Player : BasicCharacter
 
     var Params = new PhysicsRayQueryParameters3D
     {
-        From = rayOrigin,
-        To = rayEnd,
-        Exclude = new Godot.Collections.Array<Rid>() { GetRid() },
-        HitFromInside = false
+      From = rayOrigin,
+      To = rayEnd,
+      Exclude = new Godot.Collections.Array<Rid>() { GetRid() },
+      HitFromInside = false
     };
 
     var rayArray = spaceState.IntersectRay(Params);
 
     if (rayArray.ContainsKey("position"))
       return (Vector3)rayArray["position"];
-    
+
     return new Vector3();
   }
 
-    public override void _Ready()
-    {
-      base._Ready();
-
-      inventory = new Inventory(new(10, 10));
-
-      // TODO - This is a test please replace with 'Axe'
-      inventory.AddItem(Items.ItemCode.Wood, new(0, 0), 1);
-    }
-
-    public override void _PhysicsProcess(double delta)
+  public override void _Ready()
   {
+    base._Ready();
+
+    inventory = new Inventory(new(10, 10));
+
+    // TODO - This is a test please replace with 'Axe'
+    inventory.AddItem(Items.ItemCode.Wood, new(0, 0), 1);
+  }
+
+  public override void _PhysicsProcess(double delta)
+  {
+    base._PhysicsProcess(delta);
+
     PickupAction(delta);
 
     // Running
     float runStamina = RunAction(delta),
     staminaGen = StaminaRegen * (float)delta;
-    
+
     Stamina -= runStamina;
-    Stamina += + staminaGen;
+    Stamina += staminaGen;
 
     Velocity = targetVelo - Vector3.Down * FallAcceleration;
     MoveAndSlide();

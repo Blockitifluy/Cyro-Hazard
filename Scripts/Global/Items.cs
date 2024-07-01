@@ -25,7 +25,7 @@ public class Items
     public override string ToString()
     {
       if (string.IsNullOrWhiteSpace(Name))
-          return "";
+        return "";
 
       StringBuilder newText = new(Name.Length * 2);
       newText.Append(Name[0]);
@@ -38,27 +38,25 @@ public class Items
       return newText.ToString();
     }
 
-    public ItemData(string name, bool isEquipable, Vector2I size, int maxAmount=99)
+    public ItemData(string name, bool isEquipable, Vector2I size, int maxAmount = 99)
     {
       if (maxAmount <= 0)
-      {
         throw new ArgumentOutOfRangeException(nameof(maxAmount));
-      }
 
       MaxAmount = maxAmount;
       Name = name;
       Size = size;
       Equipable = isEquipable;
-    } 
+    }
   }
 
   public static ItemData CodeToItem(ItemCode code)
   {
     int ItemToCode = (int)code;
-		if (ItemToCode < 0 || ItemToCode > ItemMap.Count)
-			throw new Exception($"{ItemToCode} code doesn't exist for item");
-    
-		return ItemMap[ItemToCode];
+    if (ItemToCode < 0 || ItemToCode > ItemMap.Count)
+      throw new Exception($"{ItemToCode} code doesn't exist for item");
+
+    return ItemMap[ItemToCode];
   }
 
   /// <summary>

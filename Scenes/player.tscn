@@ -2,27 +2,28 @@
 
 [ext_resource type="Script" path="res://Scripts/Player.cs" id="1_c24a7"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_dhf10"]
-size = Vector3(0.25, 0.5, 0.25)
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_pip8v"]
+radius = 0.125
+height = 0.5
 
-[sub_resource type="BoxMesh" id="BoxMesh_wj4gp"]
-size = Vector3(0.25, 0.5, 0.25)
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_dailw"]
+radius = 0.125
+height = 0.5
 
 [node name="Player" type="CharacterBody3D"]
 slide_on_ceiling = false
 script = ExtResource("1_c24a7")
-LookWeight = 0.25
 SpeedPenality = 0.418
 StaminaRegen = 0.25
 
 [node name="Collision" type="CollisionShape3D" parent="."]
-shape = SubResource("BoxShape3D_dhf10")
+shape = SubResource("CapsuleShape3D_pip8v")
 
 [node name="Pivot" type="Node3D" parent="."]
 
 [node name="Character" type="Node3D" parent="Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00311542, -0.0029203, -5.25713e-05)
 
 [node name="Mesh" type="MeshInstance3D" parent="Pivot/Character"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00287795, 0.0094355, 0.000124812)
-mesh = SubResource("BoxMesh_wj4gp")
+mesh = SubResource("CapsuleMesh_dailw")
 skeleton = NodePath("../../..")

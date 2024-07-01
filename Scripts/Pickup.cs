@@ -13,14 +13,16 @@ public partial class Pickup : Node3D
 	/// </summary>
 	[Export] public int Amount { get; set; } = 1;
 
-	public Items.ItemData Item {
+	public Items.ItemData Item
+	{
 		get { return Items.CodeToItem(ItemCode); }
-		set {
+		set
+		{
 			int index = Items.ItemMap.BinarySearch(value);
 			ItemCode = (Items.ItemCode)index;
 		}
 	}
-	
+
 	private Label3D Label;
 	private int LastPickupInput;
 	private MeshInstance3D meshInstance;
@@ -39,7 +41,7 @@ public partial class Pickup : Node3D
 		Mesh mesh = GD.Load<Mesh>(path);
 
 		return mesh;
-	} 
+	}
 
 	static private Mesh GetMeshFromItemCode(Items.ItemCode code)
 	{

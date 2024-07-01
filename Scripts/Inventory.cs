@@ -11,23 +11,22 @@ public class Inventory
     public int Amount;
     public bool Active = false;
 
-    public InventoryItem(Items.ItemCode code, Vector2I startingPos, int amount)
+    internal InventoryItem(Items.ItemCode code, Vector2I startingPos, int amount)
     {
-      // TODO - Do checks if space is taken up
       Position = startingPos;
       ItemCode = code;
       Amount = amount;
     }
-  } 
+  }
 
   public Vector2I Size = new(4, 4);
 
   public Dictionary<Vector2I, InventoryItem> Placements = new();
-  
+
   public bool[,] GetOccupancy()
   {
     bool[,] Occupancy = new bool[Size.X, Size.Y];
-    
+
     foreach (var (pos, inventItem) in Placements)
     {
       Items.ItemData item = Items.CodeToItem(inventItem.ItemCode);
@@ -39,7 +38,7 @@ public class Inventory
         int X = (local % item.Size.X) + pos.X,
         Y = (int)Mathf.Floor(local / item.Size.X) + pos.Y;
 
-        Occupancy[X,Y] = true;
+        Occupancy[X, Y] = true;
       }
     }
 
@@ -56,7 +55,7 @@ public class Inventory
       int X = (local % size.X) + start.X,
       Y = (int)Mathf.Floor(local / size.X) + start.Y;
 
-      bool taken = Occupancy[X,Y];
+      bool taken = Occupancy[X, Y];
 
       if (taken) return true;
     }
@@ -70,7 +69,7 @@ public class Inventory
     Vector2I size = itemData.Size;
 
     if (at.X >= Size.X || at.Y >= Size.Y)
-      throw new Exception("at is out of bounds"); 
+      throw new Exception("at is out of bounds");
 
     if (AreSlotsTakenUp(at, size))
       throw new Exception($"Item {itemData} doesn't fit");
@@ -84,7 +83,7 @@ public class Inventory
     // First Array is y, Second is x
     bool[,] Occupancy = GetOccupancy();
 
-    return Occupancy[slot.X,slot.Y];
+    return Occupancy[slot.X, slot.Y];
   }
 
   public Inventory(Vector2I size)

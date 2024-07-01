@@ -1,25 +1,13 @@
-[gd_scene load_steps=9 format=3 uid="uid://bwfly4emjkoa6"]
+[gd_scene load_steps=7 format=3 uid="uid://bwfly4emjkoa6"]
 
 [ext_resource type="PackedScene" uid="uid://cv33llrox6khk" path="res://Scenes/player.tscn" id="1_2fumh"]
 [ext_resource type="Script" path="res://Scripts/CameraPivot.cs" id="2_wh28q"]
 [ext_resource type="PackedScene" uid="uid://w23cbmgs53r2" path="res://Scenes/Pickup.tscn" id="3_vmgn5"]
 [ext_resource type="Script" path="res://Scripts/UIManager.cs" id="4_0dsr3"]
-[ext_resource type="Texture2D" uid="uid://cfpakscu8sb3c" path="res://Textures/Snow.png" id="4_etwp8"]
+[ext_resource type="Script" path="res://Scripts/Terrain.cs" id="6_uka6n"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_g8rse"]
-size = Vector3(50, 0.03, 50)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gu5ol"]
-albedo_color = Color(0.779291, 0.779291, 0.779291, 1)
-albedo_texture = ExtResource("4_etwp8")
-detail_albedo = ExtResource("4_etwp8")
-uv1_scale = Vector3(3, 3, 3)
-texture_filter = 0
-point_size = 0.1
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_2go4e"]
-material = SubResource("StandardMaterial3D_gu5ol")
-size = Vector2(50, 50)
+[sub_resource type="LabelSettings" id="LabelSettings_km65f"]
+font_color = Color(0, 0, 0, 1)
 
 [node name="Main" type="Node3D"]
 
@@ -36,20 +24,20 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 text = "Stamina: N/A / N/A"
+label_settings = SubResource("LabelSettings_km65f")
 
 [node name="Player" parent="." instance=ExtResource("1_2fumh")]
-transform = Transform3D(0.999848, 0, 0.0174175, 0, 1, 0, -0.0174175, 0, 0.999848, -0.019433, 0.889895, 0.0645752)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0188942, 2, -0.0233326)
+wall_min_slide_angle = 0.872665
+floor_stop_on_slope = false
+floor_constant_speed = true
+floor_block_on_wall = false
+floor_max_angle = 3.14159
 PickupTime = 2.0
 MaxPickDistance = 3.5
-FallAcceleration = -10
-BaseSpeed = 65
 SpeedPenality = 0.5
-RunCost = 3.5
-RunSpeed = 95
-StaminaMax = 100.0
 Stamina = 100.0
-StaminaLower = 50.0
-StaminaRegen = 2.0
+StaminaRegen = 4.0
 
 [node name="CameraPivot" type="Marker3D" parent="." node_paths=PackedStringArray("Follower") groups=["CameraPivot"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00801802, 1.19209e-07, -0.00977802)
@@ -66,19 +54,20 @@ fov = 45.0
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 3, 0)
 light_energy = 1.302
 
-[node name="Ground" type="StaticBody3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
-shape = SubResource("BoxShape3D_g8rse")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0492969, -0.0963001, -0.0676548)
-mesh = SubResource("PlaneMesh_2go4e")
-
 [node name="Pickup" parent="." groups=["Pickups"] instance=ExtResource("3_vmgn5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000492215, 3.00163, 0.00161535)
 Amount = 5
 
 [node name="Pickup2" parent="." groups=["Pickups"] instance=ExtResource("3_vmgn5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00049, 0.00163203, -4.18454)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.00049, 3.00163, -4.18454)
 ItemCode = 1
 Amount = 10
+
+[node name="Terrain" type="Node3D" parent="."]
+process_mode = 3
+process_priority = -1
+script = ExtResource("6_uka6n")
+TerrainHeight = 5.0
+MinFloor = -0.45
+Debug = true
+RenderRadius = 7

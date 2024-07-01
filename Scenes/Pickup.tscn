@@ -8,10 +8,6 @@
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000492215, 0.00163203, 0.00161535)
 script = ExtResource("1_ftxe1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.99943, 0.0337483, 0, -0.0337483, 0.99943, 0, 0, 0, 1, 0, 0, 0)
-mesh = ExtResource("2_npykv")
-
 [node name="Label" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.276796, 0)
 visibility_range_end = 7.5
@@ -23,3 +19,7 @@ no_depth_test = true
 text = "Drop"
 font = ExtResource("3_4crwu")
 uppercase = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.99943, 0.0337483, 0, -0.0337483, 0.99943, 0, 0, 0, 1, 0, 0, 0)
+mesh = ExtResource("2_npykv")
