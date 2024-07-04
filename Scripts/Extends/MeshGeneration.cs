@@ -10,7 +10,7 @@ public abstract partial class MeshGeneration : Node
   /// <summary>
   /// A node with it last position stored, commonly used if the node moved to another chunk. 
   /// </summary>
-  public struct FollowerData
+  public struct Follower
   {
     /// <summary>
     /// The node that is being Tracked
@@ -38,7 +38,7 @@ public abstract partial class MeshGeneration : Node
       return lastChunk != newChunk;
     }
 
-    public FollowerData(Node3D node, Vector3 lastPosition)
+    public Follower(Node3D node, Vector3 lastPosition)
     {
       Node = node;
       LastPosition = lastPosition;
@@ -48,7 +48,7 @@ public abstract partial class MeshGeneration : Node
   /// <summary>
   /// A tile's type, position and height 
   /// </summary>
-  public struct TileData
+  public struct Tile
   {
     /// <summary>
     /// The tile's type, e.g. Snow,
@@ -68,7 +68,7 @@ public abstract partial class MeshGeneration : Node
     /// <summary>
     /// The tile's type e.g. Snow.
     /// </summary>
-    public TileType Tile;
+    public TileType Type;
 
     /// <summary>
     /// 1. Top Left.
@@ -143,11 +143,28 @@ public abstract partial class MeshGeneration : Node
       return new Vector2I[4] { tl, tr, bl, br };
     }
 
-    public TileData(Vector2I pos, TileType tile, Vector4 height)
+    public Tile(Vector2I pos, TileType type, Vector4 height)
     {
       Position = pos;
-      Tile = tile;
+      Type = type;
       TileHeight = height;
+    }
+  }
+
+  public readonly struct Corner
+  {
+    public readonly float Height;
+    public readonly Vector2I Position2D;
+
+    public readonly Vector3 ChunkPosition
+    {
+      get { return new(Position2D.X, Height, Position2D.Y); }
+    }
+
+    public Corner(float height, Vector2I pos2D)
+    {
+      Height = height;
+      Position2D = pos2D;
     }
   }
 
@@ -179,14 +196,21 @@ public abstract partial class MeshGeneration : Node
   /// The chunk rendering radius
   /// </summary>
   [ExportGroup("Rendering")]
-  [Export] public int RenderRadius = 4;
+  [Export] public int RenderRadius = 5;
   /// <summary>
   /// How mesh's faces displayed
   /// </summary>
   [Export] public Mesh.PrimitiveType primitiveType = Mesh.PrimitiveType.Triangles;
 
-  private FollowerData Follower;
-  private StandardMaterial3D SnowMaterial;
+  [ExportGroup("Materials")]
+  [Export] public StandardMaterial3D SnowMaterial;
+  [Export] public StandardMaterial3D StoneMaterial;
+
+  public int ChunkArea { get { return ChunkSize * ChunkSize; } }
+  public int ChunkLoaded { get { return RenderRadius * RenderRadius; } }
+
+  private readonly Dictionary<Tile.TileType, StandardMaterial3D> MaterialMap = new();
+  private Follower NodeFollower;
 
   /// <summary>
   /// Gets a tile's data based on position
@@ -195,7 +219,21 @@ public abstract partial class MeshGeneration : Node
   /// <param name="chunkPos">Chunk's non scaled position</param>
   /// <returns>The tile's infomation</returns>
   /// <exception cref="ArgumentOutOfRangeException">TilePos is bigger than the chunk size</exception>
-  public abstract TileData GetTile(Vector2I tilePos, Vector2I chunkPos);
+  protected abstract Tile GetTile(Vector2I tilePos, Vector2I chunkPos);
+
+  /// <summary>
+  /// Generates a vertex
+  /// </summary>
+  /// <param name="st">The surface tool</param>
+  /// <param name="height">The height of the vertex</param>
+  /// <param name="pos2D">The plane position of the vertex</param>
+  /// <param name="i">The index</param>
+  /// <param name="normal">The face normal</param>
+  private void AddVertex(SurfaceTool st, Corner corner)
+  {
+    st.SetUV((Vector2)corner.Position2D / ChunkSize);
+    st.AddVertex(corner.ChunkPosition);
+  }
 
   /// <summary>
   /// Clears and deletes all chunks
@@ -214,76 +252,60 @@ public abstract partial class MeshGeneration : Node
     return keptPos;
   }
 
-  /// <summary>
-  /// Generates a vertex
-  /// </summary>
-  /// <param name="st">The surface tool</param>
-  /// <param name="height">The height of the vertex</param>
-  /// <param name="pos2D">The plane position of the vertex</param>
-  /// <param name="i">The index</param>
-  /// <param name="normal">The face normal</param>
-  private Vector3 AddVertex(SurfaceTool st, float height, Vector2I pos2D)
+  public Vector2I[] ChunkMapping()
   {
-    st.SetUV((Vector2)pos2D / ChunkSize);
-    st.SetMaterial(SnowMaterial);
+    Vector2I[] chunkMapping = new Vector2I[ChunkLoaded];
 
-    Vector3 pos = new(pos2D.X, height, pos2D.Y);
-
-    st.AddVertex(pos);
-
-    return pos;
-  }
-
-  public List<Vector2I> ChunkMapping()
-  {
-    List<Vector2I> chunkMapping = new();
-    for (int i = 0; i < RenderRadius * RenderRadius; i++)
+    Parallel.For(0, ChunkLoaded, i =>
     {
       int X = i % RenderRadius,
-      Y = (int)Mathf.Floor(i / RenderRadius);
+      Y = Mathf.FloorToInt(i / RenderRadius);
 
-      chunkMapping.Add(new(X - RenderRadius / 2, Y - RenderRadius / 2));
-    }
+      chunkMapping[i] = new(X - RenderRadius / 2, Y - RenderRadius / 2);
+    });
 
     return chunkMapping;
   }
 
-  public List<Vector2I> ChunkMapping(Vector2I pos)
+  public Vector2I[] ChunkMapping(Vector2I pos)
   {
-    List<Vector2I> chunkMapping = new();
-    for (int i = 0; i < RenderRadius * RenderRadius; i++)
+    Vector2I[] chunkMapping = new Vector2I[ChunkLoaded];
+
+    int i = 0;
+    do
     {
       int X = i % ChunkSize,
-      Y = (int)Mathf.Floor(i / ChunkSize);
+      Y = Mathf.FloorToInt(i / ChunkSize);
 
       Vector2I chunkPos = new(X - RenderRadius / 2, Y - RenderRadius / 2);
-      chunkMapping.Add(chunkPos + pos);
-    }
+      chunkMapping[i] = chunkPos + pos;
+      i++;
+    } while (i < ChunkLoaded);
 
     return chunkMapping;
   }
 
-  private void LoadTile(int tileIndex, Vector2I chunkPos, SurfaceTool surfaceTool)
+  private void LoadTile(int tileIndex, Vector2I chunkPos, SurfaceTool st)
   {
     int X = tileIndex % ChunkSize,
-      Y = (int)Mathf.Floor(tileIndex / ChunkSize);
+      Y = Mathf.FloorToInt(tileIndex / ChunkSize);
 
     Vector2I tilePos = new(X, Y);
 
-    TileData tile = Debug ? new(tilePos, TileData.TileType.Snow, new(0, 0, 0, 0)) : GetTile(tilePos, chunkPos);
+    Tile tile = Debug ? new(tilePos, Tile.TileType.Snow, new(0, 0, 0, 0)) : GetTile(tilePos, chunkPos);
     Vector4 height = tile.TileHeight;
 
-    Vector2I[] corners = TileData.TileCorners(tilePos);
+    Vector2I[] corners = Tile.TileCorners(tilePos);
 
     // Tri 0
-    AddVertex(surfaceTool, height.X, corners[0]);
-    AddVertex(surfaceTool, height.Y, corners[1]);
-    AddVertex(surfaceTool, height.Z, corners[2]);
+    AddVertex(st, new(height.X, corners[0]));
+    AddVertex(st, new(height.Y, corners[1]));
+    AddVertex(st, new(height.Z, corners[2]));
 
     // Tri 1
-    AddVertex(surfaceTool, height.Y, corners[1]);
-    AddVertex(surfaceTool, height.W, corners[3]);
-    AddVertex(surfaceTool, height.Z, corners[2]);
+    AddVertex(st, new(height.Y, corners[1]));
+    AddVertex(st, new(height.W, corners[3]));
+    AddVertex(st, new(height.Z, corners[2]));
   }
 
   /// <summary>
@@ -293,17 +315,22 @@ public abstract partial class MeshGeneration : Node
   /// <returns>A mesh</returns>
   private ArrayMesh GenerateChunk(Vector2I chunkPos)
   {
-    SurfaceTool surfaceTool = new();
-    surfaceTool.Begin(primitiveType);
+    SurfaceTool st = new();
+    st.Begin(primitiveType);
+    st.SetMaterial(SnowMaterial);
 
-    for (int i = 0; i < ChunkSize * ChunkSize; i++)
-      LoadTile(i, chunkPos, surfaceTool);
+    int i = 0;
+    do
+    {
+      LoadTile(i, chunkPos, st);
+      i++;
+    } while (i < ChunkArea);
 
-    surfaceTool.Index();
+    st.Index();
     if (primitiveType == Mesh.PrimitiveType.Triangles)
-      surfaceTool.GenerateNormals();
+      st.GenerateNormals();
 
-    return surfaceTool.Commit(flags: 256 | 1);
+    return st.Commit();
   }
 
   /// <summary>
@@ -325,16 +352,21 @@ public abstract partial class MeshGeneration : Node
 
     ArrayMesh mesh = GenerateChunk(chunkPos);
 
+    /*
+    ConvexPolygonShape3D collisionShape = mesh.CreateConvexShape(clean: true, simplify: false);
+    collisionShape.Margin = 0.1f;
+   */
+
     MeshInstance3D meshInstance = new()
     {
-      Mesh = mesh
+      Mesh = mesh,
+      CastShadow = GeometryInstance3D.ShadowCastingSetting.On
     };
     chunk.AddChild(meshInstance);
 
     CollisionShape3D collision = new()
     {
-      Shape = mesh.CreateConvexShape(clean: false, simplify: false),
-      ProcessPriority = -2
+      Shape = mesh.CreateConvexShape(),
     };
 
     chunk.AddChild(collision);
@@ -345,29 +377,30 @@ public abstract partial class MeshGeneration : Node
   /// <summary>
   /// Clears all pre-existing chunks, and generates chunks surrounding and under the follower
   /// </summary>
-  public List<StaticBody3D> GenerateChunks()
+  public StaticBody3D[] GenerateChunks()
   {
-    Node3D Node = Follower.Node;
-    Vector2I chunkPos = PositionToChunk(ChunkSize, Node.GlobalPosition);
+    Vector2I chunkPos = PositionToChunk(ChunkSize, NodeFollower.Node.GlobalPosition);
     GD.Print($"Follower moved {chunkPos}");
 
     CleanChunks();
 
-    List<StaticBody3D> loaded = new();
-    List<Vector2I> chunkMapping = ChunkMapping();
+    StaticBody3D[] chunks = new StaticBody3D[ChunkLoaded];
+    Vector2I[] chunkMapping = ChunkMapping();
 
     ulong timeStarted = Time.GetTicksMsec();
-    foreach (var Map in chunkMapping)
+
+    int i = 0;
+    do
     {
-      StaticBody3D chk = MakeChunk(Map + chunkPos);
-      loaded.Add(chk);
-    };
+      chunks[i] = MakeChunk(chunkMapping[i] + chunkPos);
+      i++;
+    } while (i < ChunkLoaded);
 
-    ulong timeTaken = Time.GetTicksMsec() - timeStarted;
-    int chunksGenerated = chunkMapping.Count;
-    GD.Print($"Generated {chunksGenerated} Chunks in {timeTaken}ms ({timeTaken / (ulong)chunksGenerated} ms per Chunk)");
+    ulong timeTaken = Time.GetTicksMsec() - timeStarted,
+    timePerChunk = timeTaken / (ulong)ChunkLoaded;
+    GD.Print($"Generated {ChunkLoaded} Chunks in {timeTaken}ms ({timePerChunk} ms per Chunk)");
 
-    return loaded;
+    return chunks;
   }
 
   public override void _Ready()
@@ -375,12 +408,13 @@ public abstract partial class MeshGeneration : Node
     base._Ready();
 
     Node3D player = GetNode<Node3D>("/root/Main/Player");
-    Follower = new(player, player.GlobalPosition);
+    NodeFollower = new(player, player.GlobalPosition);
 
-    SnowMaterial = GD.Load<StandardMaterial3D>("res://Textures/Materials/Snow.tres");
+    MaterialMap.Add(Tile.TileType.Snow, SnowMaterial);
+    MaterialMap.Add(Tile.TileType.Stone, StoneMaterial);
+    MaterialMap.Add(Tile.TileType.Dirt, new());
 
-    var chunks = GenerateChunks();
-    foreach (var chk in chunks)
+    foreach (var chk in GenerateChunks())
       AddChild(chk);
   }
 
@@ -388,18 +422,12 @@ public abstract partial class MeshGeneration : Node
   {
     base._Process(delta);
 
-    bool didMove = Follower.IfMoved(ChunkSize);
-
-    if (!didMove)
+    if (!NodeFollower.IfMoved(ChunkSize))
       return;
 
-    GetTree().Paused = true;
-
-    var chunks = GenerateChunks();
-    foreach (var chk in chunks)
+    foreach (var chk in GenerateChunks())
     {
       AddChild(chk);
     }
-    GetTree().Paused = false;
   }
 }

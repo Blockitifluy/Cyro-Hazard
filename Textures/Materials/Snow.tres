@@ -6,4 +6,5 @@
 albedo_color = Color(0.912289, 0.912289, 0.912289, 1)
 albedo_texture = ExtResource("1_xr2xp")
 roughness = 0.5
+uv1_scale = Vector3(4, 4, 4)
 texture_filter = 0

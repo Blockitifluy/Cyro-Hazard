@@ -2,3 +2,6 @@
 
 # CA1050: Declare types in namespaces
 dotnet_diagnostic.CA1050.severity = none
+
+# IDE0270: Use coalesce expression
+dotnet_style_coalesce_expression = false

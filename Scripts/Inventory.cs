@@ -36,7 +36,7 @@ public class Inventory
       for (int local = 0; local < area; local++)
       {
         int X = (local % item.Size.X) + pos.X,
-        Y = (int)Mathf.Floor(local / item.Size.X) + pos.Y;
+        Y = Mathf.FloorToInt(local / item.Size.X) + pos.Y;
 
         Occupancy[X, Y] = true;
       }
@@ -53,7 +53,7 @@ public class Inventory
     for (int local = 0; local < slotArea; local++)
     {
       int X = (local % size.X) + start.X,
-      Y = (int)Mathf.Floor(local / size.X) + start.Y;
+      Y = Mathf.FloorToInt(local / size.X) + start.Y;
 
       bool taken = Occupancy[X, Y];
 

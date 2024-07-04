@@ -1,13 +1,14 @@
 using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Godot;
 
 public partial class Terrain : MeshGeneration
 {
   [ExportGroup("Trees")]
-  [Export] public float TreeDensity = 0.25f;
+  [Export(PropertyHint.Range, "0,1")] public float TreeDensity = 0.25f;
   [Export] public float TreeSpawnScale = 2;
-
-  private FastNoiseLite TreeNoise = new();
+  [Export] public FastNoiseLite TreeNoise = new();
 
   /// <summary>
   /// The noise's height
@@ -22,17 +23,25 @@ public partial class Terrain : MeshGeneration
   /// If the noise is lower than MinFloor, then MinFloor is picked
   /// </summary>
   [Export] public float MinFloor = -0.75f;
+  [Export] public FastNoiseLite TerrainNoise = new();
 
-  private FastNoiseLite TerrainNoise = new();
+
+  public bool ShouldLoadTree(Vector2I pos)
+  {
+    Vector2 scaledMap = (Vector2)pos * TreeSpawnScale;
+    float noise = (Mathf.Clamp(TreeNoise.GetNoise2Dv(scaledMap), -1, 1) + 1) / 2;
+
+    return noise <= TreeDensity;
+  }
 
   /// <summary>
   /// Gets the corner's height
   /// </summary>
-  /// <param name="crn">The global corner's position</param>
+  /// <param name="vert">The global corner's position</param>
   /// <returns>The height</returns>
-  public float GetHeightForCorner(Vector2 crn)
+  public float GetHeightForVertex(Vector2 vert)
   {
-    var noise2D = TerrainNoise.GetNoise2Dv(crn * TerrainScale);
+    var noise2D = TerrainNoise.GetNoise2Dv(vert * TerrainScale);
     return Math.Max(noise2D, MinFloor) * TerrainHeight;
   }
 
@@ -44,27 +53,25 @@ public partial class Terrain : MeshGeneration
   public Vector4 GetHeightForTile(Vector2[] crns)
   {
     return new Vector4(
-      GetHeightForCorner(crns[0]),
-      GetHeightForCorner(crns[1]),
-      GetHeightForCorner(crns[2]),
-      GetHeightForCorner(crns[3])
+      GetHeightForVertex(crns[0]),
+      GetHeightForVertex(crns[1]),
+      GetHeightForVertex(crns[2]),
+      GetHeightForVertex(crns[3])
     );
   }
 
-  public override TileData GetTile(Vector2I tilePos, Vector2I chunkPos)
+  protected override Tile GetTile(Vector2I tilePos, Vector2I chunkPos)
   {
     if (tilePos.X >= ChunkSize || tilePos.Y >= ChunkSize)
       throw new ArgumentOutOfRangeException(nameof(tilePos));
 
     Vector2I globalPos = chunkPos * ChunkSize + tilePos;
 
-    Vector2[] crns = TileData.TileCorners((Vector2)globalPos);
+    Vector2[] crns = MeshGeneration.Tile.TileCorners((Vector2)globalPos);
 
-    Vector4 tileHeight = GetHeightForTile(crns);
+    Tile.TileType tileType = MeshGeneration.Tile.TileType.Snow;
 
-    TileData.TileType tileType = TileData.TileType.Snow;
-
-    TileData Tile = new(tilePos, tileType, tileHeight);
+    Tile Tile = new(tilePos, tileType, GetHeightForTile(crns));
     return Tile;
   }
 
