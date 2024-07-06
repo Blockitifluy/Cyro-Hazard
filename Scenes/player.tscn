@@ -13,7 +13,6 @@ height = 0.5
 [node name="Player" type="CharacterBody3D"]
 slide_on_ceiling = false
 script = ExtResource("1_c24a7")
-SpeedPenality = 0.418
 StaminaRegen = 0.25
 
 [node name="Collision" type="CollisionShape3D" parent="."]

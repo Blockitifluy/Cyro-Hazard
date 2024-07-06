@@ -1,7 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://bwfly4emjkoa6"]
+[gd_scene load_steps=11 format=3 uid="uid://bwfly4emjkoa6"]
 
 [ext_resource type="PackedScene" uid="uid://cv33llrox6khk" path="res://Scenes/player.tscn" id="1_2fumh"]
+[ext_resource type="Theme" uid="uid://bu43bgh6p57ya" path="res://BaseTheme.tres" id="1_rjc8t"]
 [ext_resource type="Script" path="res://Scripts/CameraPivot.cs" id="2_wh28q"]
+[ext_resource type="PackedScene" uid="uid://bbe80tb3e3d0d" path="res://Scenes/backpack.tscn" id="3_cbpee"]
 [ext_resource type="PackedScene" uid="uid://w23cbmgs53r2" path="res://Scenes/Pickup.tscn" id="3_vmgn5"]
 [ext_resource type="Script" path="res://Scripts/UIManager.cs" id="4_0dsr3"]
 [ext_resource type="Material" uid="uid://bmnw30ebxfv0t" path="res://Textures/Materials/Snow.tres" id="6_15161"]
@@ -15,18 +17,24 @@ font_color = Color(0, 0, 0, 1)
 
 [node name="UI" type="Control" parent="." node_paths=PackedStringArray("StaminaLabel")]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_rjc8t")
 script = ExtResource("4_0dsr3")
 StaminaLabel = NodePath("StaminaLabel")
 
 [node name="StaminaLabel" type="Label" parent="UI"]
 layout_mode = 0
-offset_right = 40.0
+offset_right = 146.0
 offset_bottom = 23.0
 text = "Stamina: N/A / N/A"
 label_settings = SubResource("LabelSettings_km65f")
+
+[node name="Backpack" parent="UI" instance=ExtResource("3_cbpee")]
+layout_mode = 1
 
 [node name="Terrain" type="Node3D" parent="."]
 process_mode = 3
@@ -38,12 +46,11 @@ TreeSpawnScale = 10.0
 SnowMaterial = ExtResource("6_15161")
 StoneMaterial = ExtResource("7_ujewj")
 
-[node name="Player" parent="." instance=ExtResource("1_2fumh")]
+[node name="Player" parent="." groups=["Player"] instance=ExtResource("1_2fumh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 floor_constant_speed = true
 PickupTime = 2.0
 MaxPickDistance = 3.5
-SpeedPenality = 0.5
 Stamina = 100.0
 StaminaRegen = 4.0
 

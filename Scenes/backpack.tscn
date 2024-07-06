@@ -1,0 +1,101 @@
+[gd_scene load_steps=4 format=3 uid="uid://bbe80tb3e3d0d"]
+
+[ext_resource type="Theme" uid="uid://bu43bgh6p57ya" path="res://BaseTheme.tres" id="1_a4pw8"]
+[ext_resource type="Script" path="res://Scripts/Backpack.cs" id="2_neqql"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_ellcj"]
+
+[node name="Backpack" type="Panel" node_paths=PackedStringArray("PreviewImage", "ItemName", "Description", "ItemFlow")]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -376.0
+offset_top = -250.0
+offset_right = 374.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_a4pw8")
+script = ExtResource("2_neqql")
+PreviewImage = NodePath("ItemPlacer/Preview/Image")
+ItemName = NodePath("ItemPlacer/Preview/ItemName")
+Description = NodePath("ItemPlacer/Preview/Desciption")
+ItemFramePath = "res://Scenes/item_ui.tscn"
+ItemFlow = NodePath("ItemPlacer/CenterContainer/Items")
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 108.0
+offset_bottom = 23.0
+theme = ExtResource("1_a4pw8")
+theme_type_variation = &"HeaderLarge"
+text = "Backpack
+"
+uppercase = true
+
+[node name="ItemPlacer" type="Control" parent="."]
+layout_mode = 1
+anchor_top = 0.08
+anchor_bottom = 0.08
+offset_top = -13.0
+offset_right = 750.0
+offset_bottom = 460.0
+theme = ExtResource("1_a4pw8")
+
+[node name="Preview" type="Control" parent="ItemPlacer"]
+layout_mode = 2
+anchors_preset = 0
+offset_left = 535.0
+offset_right = 749.0
+offset_bottom = 460.0
+theme = ExtResource("1_a4pw8")
+
+[node name="Image" type="TextureRect" parent="ItemPlacer/Preview"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = -0.037
+anchor_bottom = -0.037
+offset_top = 12.02
+offset_right = 201.0
+offset_bottom = 200.02
+texture = SubResource("CanvasTexture_ellcj")
+
+[node name="ItemName" type="Label" parent="ItemPlacer/Preview"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.441
+anchor_bottom = 0.441
+offset_top = -2.86
+offset_right = 214.0
+offset_bottom = 27.14
+theme_type_variation = &"HeaderMedium"
+text = "[none]"
+uppercase = true
+
+[node name="Desciption" type="Label" parent="ItemPlacer/Preview"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -230.0
+offset_right = 214.0
+offset_bottom = 12.0
+grow_vertical = 0
+theme = ExtResource("1_a4pw8")
+theme_type_variation = &"GraphNodeTitleLabel"
+text = "[Please Select an item]
+"
+autowrap_mode = 2
+justification_flags = 227
+clip_text = true
+
+[node name="CenterContainer" type="CenterContainer" parent="ItemPlacer"]
+layout_mode = 0
+offset_right = 535.0
+offset_bottom = 472.0
+
+[node name="Items" type="HFlowContainer" parent="ItemPlacer/CenterContainer"]
+custom_minimum_size = Vector2(500, 500)
+layout_mode = 2

@@ -1,0 +1,13 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://bu43bgh6p57ya"]
+
+[ext_resource type="FontFile" uid="uid://bwnvvgjen250x" path="res://Fonts/static/PixelifySans-Regular.ttf" id="1_2n2wi"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ft8y0"]
+bg_color = Color(0.886275, 0.886275, 0.886275, 0.392157)
+
+[resource]
+default_font = ExtResource("1_2n2wi")
+Label/colors/font_color = Color(0, 0, 0, 1)
+Label/fonts/font = ExtResource("1_2n2wi")
+Label/styles/normal = null
+Panel/styles/panel = SubResource("StyleBoxFlat_ft8y0")

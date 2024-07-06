@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using Godot;
 
+[GlobalClass]
 public abstract partial class BasicCharacter : CharacterBody3D
 {
   /// <summary>

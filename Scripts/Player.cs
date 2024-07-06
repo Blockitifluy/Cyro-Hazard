@@ -1,6 +1,7 @@
 using System;
 using Godot;
 
+[GlobalClass]
 public partial class Player : BasicCharacter
 {
   /// <summary>
@@ -17,7 +18,7 @@ public partial class Player : BasicCharacter
     return Input.IsActionPressed("running");
   }
 
-  public Inventory inventory;
+  public Inventory inventory = new(new(10, 10));
 
   /// <summary>
   /// The action of the player running
@@ -50,7 +51,7 @@ public partial class Player : BasicCharacter
     Vector3 MousePos3D = ScreenPointToRay();
 
     Pickup ClosestPickup = null;
-    float closestDistance = 0xffffffff;
+    float closestDistance = float.MaxValue;
     for (int index = 0; index < Pickups.Count; index++)
     {
       Pickup pck;
@@ -82,6 +83,30 @@ public partial class Player : BasicCharacter
   private double PickupTimer = 0.0d;
   private bool PickupStarted = false;
 
+  private bool AddPickupToInventory(Pickup pickup)
+  {
+    Items.ItemData baseItem = Items.CodeToItem(pickup.ItemCode);
+
+    try
+    {
+      Vector2I at = inventory.FindSpaceFor(baseItem.Size);
+      if (at == Vector2I.MinValue) return false;
+
+      inventory.AddItem(pickup.ItemCode, at, pickup.Amount);
+      return true;
+    }
+    catch (ArgumentOutOfRangeException exception)
+    {
+      GD.PrintErr($"{exception.ParamName} was out of range");
+    }
+    catch (Inventory.DoesNotFitException)
+    {
+      GD.Print($"No spce found for {baseItem}");
+    }
+
+    return false;
+  }
+
   /// <summary>
   /// Uses press and hold as it's action. Gets closest pickup, then destroys it.
   /// </summary>
@@ -101,11 +126,15 @@ public partial class Player : BasicCharacter
       PickupTimer = 0;
 
       // Actual Pickup Logic
-      var ClosestPickup = GetClosestPickup();
-      if (ClosestPickup != null)
+      var closestPickup = GetClosestPickup();
+      if (closestPickup != null)
       {
-        GD.Print($"Picked up {ClosestPickup.Item}");
-        ClosestPickup?.QueueFree(); // TODO - Logic Destroys Pickup for now
+        GD.Print($"Picked up {closestPickup.Item}");
+
+        bool successful = AddPickupToInventory(closestPickup);
+
+        if (successful)
+          closestPickup?.QueueFree();
       }
     }
 
@@ -153,10 +182,8 @@ public partial class Player : BasicCharacter
   {
     base._Ready();
 
-    inventory = new Inventory(new(10, 10));
-
     // TODO - This is a test please replace with 'Axe'
-    inventory.AddItem(Items.ItemCode.Wood, new(0, 0), 1);
+    inventory.AddItem(Items.ItemCode.Axe, new(0, 0), 1);
   }
 
   public override void _PhysicsProcess(double delta)

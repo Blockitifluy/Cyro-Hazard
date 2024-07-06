@@ -16,10 +16,8 @@ public partial class UIManager : Control
 	private void UpdateStamina()
 	{
 		if (StaminaLabel == null)
-		{
-			throw new Exception("StaminaLabel doesn't exist");
-		}
-		
+			throw new NullReferenceException("StaminaLabel doesn't exist");
+
 		float stamina = Mathf.Round(ConnectedPlayer.Stamina),
 		staminaMax = Mathf.Round(ConnectedPlayer.StaminaMax);
 

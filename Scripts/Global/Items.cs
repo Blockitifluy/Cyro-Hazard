@@ -5,6 +5,17 @@ using Godot;
 
 public class Items
 {
+  [Serializable]
+  public class InvalidItemCodeException : Exception
+  {
+    public InvalidItemCodeException() { }
+    public InvalidItemCodeException(string message) : base(message) { }
+    public InvalidItemCodeException(string message, Exception inner) : base(message, inner) { }
+    protected InvalidItemCodeException(
+      System.Runtime.Serialization.SerializationInfo info,
+      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+  }
+
   public readonly struct ItemData
   {
     /// <summary>
@@ -19,6 +30,7 @@ public class Items
     /// Is it equipable
     /// </summary>
     readonly public bool Equipable = false;
+    readonly public string Tooltip = "";
 
     readonly public Vector2I Size;
 
@@ -38,7 +50,7 @@ public class Items
       return newText.ToString();
     }
 
-    public ItemData(string name, bool isEquipable, Vector2I size, int maxAmount = 99)
+    public ItemData(string name, bool isEquipable, Vector2I size, string tooltip = "[No Tooltip]", int maxAmount = 99)
     {
       if (maxAmount <= 0)
         throw new ArgumentOutOfRangeException(nameof(maxAmount));
@@ -46,6 +58,7 @@ public class Items
       MaxAmount = maxAmount;
       Name = name;
       Size = size;
+      Tooltip = tooltip;
       Equipable = isEquipable;
     }
   }
@@ -54,7 +67,7 @@ public class Items
   {
     int ItemToCode = (int)code;
     if (ItemToCode < 0 || ItemToCode > ItemMap.Count)
-      throw new Exception($"{ItemToCode} code doesn't exist for item");
+      throw new InvalidItemCodeException($"{ItemToCode} code doesn't exist for item");
 
     return ItemMap[ItemToCode];
   }
@@ -66,7 +79,8 @@ public class Items
   {
     Wood = 0,
     Stone = 1,
-    GenTest = 2,
+    Axe = 2,
+    Snow = 4,
     ThisWillThrowErrorIfUsed = 99999999
   }
 
@@ -75,8 +89,9 @@ public class Items
   /// </summary>
   static readonly public List<ItemData> ItemMap = new()
   {
-    new("Wood", false, new(2, 1)),
-    new("Stone", false, new(1,1)),
-    new("Axe", true, new(2, 3), 1)
+    new("Wood", false, new(2, 1), "A flexible and strong material from trees"),
+    new("Stone", false, new(1,1), "A strong rock mined from underground and grinded by snow"),
+    new("Axe", true, new(2, 3), "Chops Trees", 1),
+    new("Snow", false, new(1,1), "A collection of ice crystals laying on ground that can grinded")
   };
 }
