@@ -259,7 +259,7 @@ public abstract partial class MeshGeneration : Node
     Parallel.For(0, ChunkLoaded, i =>
     {
       int X = i % RenderRadius,
-      Y = Mathf.FloorToInt(i / RenderRadius);
+      Y = i / RenderRadius;
 
       chunkMapping[i] = new(X - RenderRadius / 2, Y - RenderRadius / 2);
     });
@@ -275,7 +275,7 @@ public abstract partial class MeshGeneration : Node
     do
     {
       int X = i % ChunkSize,
-      Y = Mathf.FloorToInt(i / ChunkSize);
+      Y = i / ChunkSize;
 
       Vector2I chunkPos = new(X - RenderRadius / 2, Y - RenderRadius / 2);
       chunkMapping[i] = chunkPos + pos;
@@ -285,10 +285,10 @@ public abstract partial class MeshGeneration : Node
     return chunkMapping;
   }
 
-  private void LoadTile(int tileIndex, Vector2I chunkPos, SurfaceTool st)
+  private void LoadTile(int i, Vector2I chunkPos, SurfaceTool st)
   {
-    int X = tileIndex % ChunkSize,
-      Y = Mathf.FloorToInt(tileIndex / ChunkSize);
+    int X = i % ChunkSize,
+      Y = i / ChunkSize;
 
     Vector2I tilePos = new(X, Y);
 

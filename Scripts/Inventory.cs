@@ -102,7 +102,7 @@ public class Inventory
     for (int i = 0; i < slotArea; i++)
     {
       int X = (i % size.X) + start.X,
-      Y = Mathf.FloorToInt(i / size.X) + start.Y;
+      Y = i / size.X + start.Y;
 
       bool taken = Occupancy[X, Y];
 

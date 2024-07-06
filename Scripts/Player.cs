@@ -184,6 +184,8 @@ public partial class Player : BasicCharacter
 
     // TODO - This is a test please replace with 'Axe'
     inventory.AddItem(Items.ItemCode.Axe, new(0, 0), 1);
+    inventory.AddItem(Items.ItemCode.Axe, new(2, 3), 1);
+    inventory.AddItem(Items.ItemCode.Axe, new(0, 3), 1);
   }
 
   public override void _PhysicsProcess(double delta)

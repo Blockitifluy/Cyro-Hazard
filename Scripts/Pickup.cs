@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Godot;
 
 [GlobalClass]
-public partial class Pickup : Node3D
+public partial class Pickup : RigidBody3D
 {
 	/// <summary>
 	/// The item code of the pickup

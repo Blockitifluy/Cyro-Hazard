@@ -5,7 +5,7 @@
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_ellcj"]
 
-[node name="Backpack" type="Panel" node_paths=PackedStringArray("PreviewImage", "ItemName", "Description", "ItemFlow")]
+[node name="Backpack" type="Panel" node_paths=PackedStringArray("PreviewImage", "ItemName", "Description", "ItemContainer")]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -23,7 +23,7 @@ PreviewImage = NodePath("ItemPlacer/Preview/Image")
 ItemName = NodePath("ItemPlacer/Preview/ItemName")
 Description = NodePath("ItemPlacer/Preview/Desciption")
 ItemFramePath = "res://Scenes/item_ui.tscn"
-ItemFlow = NodePath("ItemPlacer/CenterContainer/Items")
+ItemContainer = NodePath("ItemPlacer/CenterContainer/Items")
 
 [node name="NameLabel" type="Label" parent="."]
 layout_mode = 0
@@ -47,19 +47,20 @@ theme = ExtResource("1_a4pw8")
 [node name="Preview" type="Control" parent="ItemPlacer"]
 layout_mode = 2
 anchors_preset = 0
-offset_left = 535.0
+offset_left = 542.0
 offset_right = 749.0
 offset_bottom = 460.0
 theme = ExtResource("1_a4pw8")
 
 [node name="Image" type="TextureRect" parent="ItemPlacer/Preview"]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = -0.037
-anchor_bottom = -0.037
-offset_top = 12.02
-offset_right = 201.0
-offset_bottom = 200.02
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.5
+offset_right = 100.5
+offset_bottom = 188.0
+grow_horizontal = 2
 texture = SubResource("CanvasTexture_ellcj")
 
 [node name="ItemName" type="Label" parent="ItemPlacer/Preview"]
@@ -93,9 +94,9 @@ clip_text = true
 
 [node name="CenterContainer" type="CenterContainer" parent="ItemPlacer"]
 layout_mode = 0
-offset_right = 535.0
-offset_bottom = 472.0
+offset_right = 500.0
+offset_bottom = 473.0
 
-[node name="Items" type="HFlowContainer" parent="ItemPlacer/CenterContainer"]
-custom_minimum_size = Vector2(500, 500)
+[node name="Items" type="Panel" parent="ItemPlacer/CenterContainer"]
+custom_minimum_size = Vector2(400, 400)
 layout_mode = 2

@@ -12,7 +12,7 @@ public partial class Backpack : Panel
 
   [ExportGroup("Items")]
   [Export] public string ItemFramePath;
-  [Export] public FlowContainer ItemFlow;
+  [Export] public Control ItemContainer;
 
   private Player PlayerController;
   private readonly List<TextureButton> ItemFrames = new();
@@ -27,11 +27,13 @@ public partial class Backpack : Panel
     ItemFrames.Clear();
   }
 
-  private Vector2 Vector2ToContainer(Vector2 pos)
+  private Vector2 Vector2ToContainer(Vector2 vector)
   {
     Inventory inventory = PlayerController.inventory;
 
-    Vector2 scaled = inventory.Size / (pos / ItemFlow.Size);
+    Vector2 ratio = ItemContainer.Size / (Vector2)inventory.Size;
+
+    Vector2 scaled = vector * ratio;
 
     return scaled;
   }
@@ -62,11 +64,11 @@ public partial class Backpack : Panel
 
     // TODO Add images to TextureButton
 
-    Label amountLabel = (Label)itemFrame.GetChild(0);
+    Label amountLabel = itemFrame.GetChild<Label>(0);
     amountLabel.Text = $"{item.Amount}";
 
     ItemFrames.Add(itemFrame);
-    ItemFlow.AddChild(itemFrame);
+    ItemContainer.AddChild(itemFrame);
   }
 
   private void UpdateUI(object sender, EventArgs e)
