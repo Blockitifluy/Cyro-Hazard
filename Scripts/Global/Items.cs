@@ -16,6 +16,17 @@ public class Items
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
   }
 
+  [System.Serializable]
+  public class ItemNotEquipableException : Exception
+  {
+    public ItemNotEquipableException() { }
+    public ItemNotEquipableException(string message) : base(message) { }
+    public ItemNotEquipableException(string message, Exception inner) : base(message, inner) { }
+    protected ItemNotEquipableException(
+      System.Runtime.Serialization.SerializationInfo info,
+      System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+  }
+
   public readonly struct ItemData
   {
     /// <summary>
@@ -50,7 +61,16 @@ public class Items
       return newText.ToString();
     }
 
-    public ItemData(string name, bool isEquipable, Vector2I size, string tooltip = "[No Tooltip]", int maxAmount = 99)
+    /// <summary>
+    /// Creates a new item data 
+    /// </summary>
+    /// <param name="name">The item's name</param>
+    /// <param name="isEquipable">Is the item equipable</param>
+    /// <param name="size">The size of the item in the backpack</param>
+    /// <param name="tooltip">The description of the item</param>
+    /// <param name="maxAmount">The max amount that can be stored in a stack, the default is 99</param>
+    /// <exception cref="ArgumentOutOfRangeException">The maxAmount is less than 0</exception>
+    internal ItemData(string name, bool isEquipable, Vector2I size, string tooltip = "[No Tooltip]", int maxAmount = 99)
     {
       if (maxAmount <= 0)
         throw new ArgumentOutOfRangeException(nameof(maxAmount));
@@ -66,10 +86,15 @@ public class Items
   public static ItemData CodeToItem(ItemCode code)
   {
     int ItemToCode = (int)code;
-    if (ItemToCode < 0 || ItemToCode > ItemMap.Count)
+    if (!ItemMap.ContainsKey(code))
       throw new InvalidItemCodeException($"{ItemToCode} code doesn't exist for item");
 
-    return ItemMap[ItemToCode];
+    return ItemMap[code];
+  }
+
+  public static bool IsCodeValid(ItemCode code)
+  {
+    return ItemMap.ContainsKey(code);
   }
 
   /// <summary>
@@ -80,18 +105,20 @@ public class Items
     Wood = 0,
     Stone = 1,
     Axe = 2,
-    Snow = 4,
+    Snow = 3,
+    Shovel = 4,
     ThisWillThrowErrorIfUsed = 99999999
   }
 
   /// <summary>
   /// A list of every Item
   /// </summary>
-  static readonly public List<ItemData> ItemMap = new()
+  static readonly public Dictionary<ItemCode, ItemData> ItemMap = new()
   {
-    new("Wood", false, new(2, 1), "A flexible and strong material from trees"),
-    new("Stone", false, new(1,1), "A strong rock mined from underground and grinded by snow"),
-    new("Axe", true, new(2, 3), "Chops Trees", 1),
-    new("Snow", false, new(1,1), "A collection of ice crystals laying on ground that can grinded")
+    {ItemCode.Wood, new("Wood", false, new(2, 1), "A flexible and strong material from trees")},
+    {ItemCode.Stone, new("Stone", false, new(1,1), "A strong rock mined from underground and grinded by snow")},
+    {ItemCode.Axe, new("Axe", true, new(2, 3), "Chops Trees", 1)},
+    {ItemCode.Snow, new("Snow", false, new(1,1), "A collection of ice crystals laying on ground that can grinded")},
+    {ItemCode.Shovel, new("CrudeShovel", true, new(1,3), "Can shovel up snow of the ground", 1)}
   };
 }

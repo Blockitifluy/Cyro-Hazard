@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
 [GlobalClass]
@@ -13,12 +14,14 @@ public partial class Player : BasicCharacter
   /// </summary>
   [Export] public float MaxPickDistance = 10.0f;
 
+  private Marker3D Grip;
+
   public override bool IsRunning()
   {
     return Input.IsActionPressed("running");
   }
 
-  public Inventory inventory = new(new(10, 10));
+  public Inventory inventory = new(new Vector2I(10, 10), 3);
 
   /// <summary>
   /// The action of the player running
@@ -182,10 +185,9 @@ public partial class Player : BasicCharacter
   {
     base._Ready();
 
-    // TODO - This is a test please replace with 'Axe'
+    Grip = GetNode<Marker3D>("Pivot/Grip");
+
     inventory.AddItem(Items.ItemCode.Axe, new(0, 0), 1);
-    inventory.AddItem(Items.ItemCode.Axe, new(2, 3), 1);
-    inventory.AddItem(Items.ItemCode.Axe, new(0, 3), 1);
   }
 
   public override void _PhysicsProcess(double delta)

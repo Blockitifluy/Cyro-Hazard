@@ -19,19 +19,71 @@ public class Inventory
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
   }
 
+  public struct Hotbar
+  {
+    public List<InventoryItem> Slots;
+
+    private Tool _CurrentTool = null;
+    public readonly Tool CurrentTool { get { return _CurrentTool; } }
+
+    private int _SlotIndex = 0;
+    public readonly int SlotIndex { get { return _SlotIndex; } }
+
+    public readonly void AddToFromHotbar(InventoryItem inventoryItem, int index)
+    {
+      if (0 >= index! | index > Slots.Capacity)
+        throw new ArgumentOutOfRangeException(nameof(index));
+
+      Items.ItemCode code = inventoryItem.ItemCode;
+
+      Items.ItemData baseItem = Items.CodeToItem(code);
+
+      if (!baseItem.Equipable)
+        throw new Items.ItemNotEquipableException($"baseItem ({code}) is not equipable");
+
+      InventoryItem pastItem = Slots[index];
+      if (pastItem != null) pastItem.Active = false;
+
+      Slots[index] = inventoryItem;
+      inventoryItem.Active = true;
+    }
+
+    public Tool GetToolFromHotbar(int index)
+    {
+      if (0 >= index || index > Slots.Capacity)
+        throw new ArgumentOutOfRangeException(nameof(index));
+
+      InventoryItem inventoryItem = Slots[index];
+
+      if (inventoryItem == null)
+        throw new NullReferenceException($"Hotbar item {index} was null");
+
+      Tool tool = Tool.GetToolFromCode(inventoryItem.ItemCode);
+      _CurrentTool = tool;
+      _SlotIndex = index;
+
+      return tool;
+    }
+
+    public Hotbar(int capacity)
+    {
+      Slots = new(capacity);
+    }
+  }
+
   public event EventHandler OnPlacementsUpdated;
 
   /// <summary>
   /// An item placed in the inventory
   /// </summary>
-  public struct InventoryItem
+  public class InventoryItem
   {
     public Vector2I Position;
     public readonly Items.ItemCode ItemCode;
     public int Amount;
     public bool Active = false;
 
-    public override readonly string ToString()
+    public override string ToString()
     {
       Items.ItemData item = Items.CodeToItem(ItemCode);
       return item.ToString();
@@ -57,6 +109,7 @@ public class Inventory
     return false;
   }
 
+  public Hotbar hotbar;
   public readonly Dictionary<Vector2I, InventoryItem> Placements = new();
 
   /// <summary>
@@ -190,9 +243,10 @@ public class Inventory
     return Vector2I.MinValue;
   }
 
-  public Inventory(Vector2I size)
+  public Inventory(Vector2I size, int hotbarCapacity)
   {
     Size = size;
+    hotbar = new(hotbarCapacity);
   }
 
   public override int GetHashCode()

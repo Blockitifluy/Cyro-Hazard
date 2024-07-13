@@ -1,0 +1,9 @@
+[gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://bgm0ux86y2xua"]
+
+[ext_resource type="Texture2D" uid="uid://djpl4jp03pugr" path="res://Textures/TreeLeafColour.png" id="1_cq5dr"]
+[ext_resource type="Texture2D" uid="uid://cdr55sdfe6806" path="res://Textures/TreeLeafRoughness.png" id="2_foqq0"]
+
+[resource]
+albedo_texture = ExtResource("1_cq5dr")
+roughness_texture = ExtResource("2_foqq0")
+roughness_texture_channel = 4

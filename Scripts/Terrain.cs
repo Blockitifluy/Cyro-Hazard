@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using Godot;
 
 public partial class Terrain : MeshGeneration
@@ -9,6 +7,7 @@ public partial class Terrain : MeshGeneration
   [Export(PropertyHint.Range, "0,1")] public float TreeDensity = 0.25f;
   [Export] public float TreeSpawnScale = 2;
   [Export] public FastNoiseLite TreeNoise = new();
+  [Export] public PackedScene TreeScene;
 
   /// <summary>
   /// The noise's height
@@ -25,6 +24,27 @@ public partial class Terrain : MeshGeneration
   [Export] public float MinFloor = -0.75f;
   [Export] public FastNoiseLite TerrainNoise = new();
 
+  private void LoadTree(Vector2 tilePos, Vector4 tileHeight, Node3D chunk)
+  {
+    GD.Seed((ulong)tilePos.GetHashCode());
+
+    float centerX = tilePos.X + GD.Randf(),
+    centerZ = tilePos.Y + GD.Randf();
+
+
+    float centerY = (tileHeight.Y + tileHeight.W) / 2;
+
+    Vector3 pos = new(centerX, centerY, centerZ);
+    float rotation = (float)GD.RandRange(0.0f, 180.0f);
+
+    StaticBody3D tree = TreeScene.Instantiate<StaticBody3D>();
+    tree.Position = pos;
+    tree.Rotate(Vector3.Up, rotation);
+
+    GD.Randomize();
+
+    chunk.CallDeferred("add_child", tree);
+  }
 
   public bool ShouldLoadTree(Vector2I pos)
   {
@@ -60,19 +80,20 @@ public partial class Terrain : MeshGeneration
     );
   }
 
-  protected override Tile GetTile(Vector2I tilePos, Vector2I chunkPos)
+  protected override Tile GetTile(Vector2I tilePos, Vector2I chunkPos, Node3D chunk)
   {
     if (tilePos.X >= ChunkSize || tilePos.Y >= ChunkSize)
       throw new ArgumentOutOfRangeException(nameof(tilePos));
 
     Vector2I globalPos = chunkPos * ChunkSize + tilePos;
+    Vector2[] crns = Tile.TileCorners((Vector2)globalPos);
+    Tile.TileType tileType = Tile.TileType.Snow;
+    Vector4 TileHeight = GetHeightForTile(crns);
 
-    Vector2[] crns = MeshGeneration.Tile.TileCorners((Vector2)globalPos);
+    if (ShouldLoadTree(globalPos))
+      LoadTree(tilePos, TileHeight, chunk);
 
-    Tile.TileType tileType = MeshGeneration.Tile.TileType.Snow;
-
-    Tile Tile = new(tilePos, tileType, GetHeightForTile(crns));
-    return Tile;
+    return new(tilePos, tileType, TileHeight);
   }
 
   public override void _Ready()

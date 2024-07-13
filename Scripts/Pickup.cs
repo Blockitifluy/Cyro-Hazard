@@ -4,24 +4,27 @@ using Godot;
 [GlobalClass]
 public partial class Pickup : RigidBody3D
 {
+	private Items.ItemCode itemCode;
 	/// <summary>
 	/// The item code of the pickup
 	/// </summary>
-	[Export] public Items.ItemCode ItemCode { get; set; }
+	[Export]
+	public Items.ItemCode ItemCode
+	{
+		get { return itemCode; }
+		set
+		{
+			Item = Items.CodeToItem(value);
+			itemCode = value;
+		}
+	}
+
 	/// <summary>
 	/// The amount of items the pickup stores
 	/// </summary>
 	[Export] public int Amount { get; set; } = 1;
 
-	public Items.ItemData Item
-	{
-		get { return Items.CodeToItem(ItemCode); }
-		set
-		{
-			int index = Items.ItemMap.BinarySearch(value);
-			ItemCode = (Items.ItemCode)index;
-		}
-	}
+	public Items.ItemData Item;
 
 	private Label3D Label;
 	private int LastPickupInput;

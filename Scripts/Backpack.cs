@@ -9,6 +9,7 @@ public partial class Backpack : Panel
   [Export] public TextureRect PreviewImage;
   [Export] public Label ItemName;
   [Export] public Label Description;
+  [Export] public Button EquipButton;
 
   [ExportGroup("Items")]
   [Export] public string ItemFramePath;
@@ -41,8 +42,11 @@ public partial class Backpack : Panel
   private void ChangePreview(Inventory.InventoryItem item)
   {
     Items.ItemData itemData = Items.CodeToItem(item.ItemCode);
+
     ItemName.Text = itemData.Name;
     Description.Text = itemData.Tooltip;
+
+    EquipButton.Visible = itemData.Equipable;
 
     // TODO Preview image
   }
