@@ -1,7 +1,7 @@
 using Godot;
 
 [GlobalClass]
-public partial class Axe : Tool
+public partial class Axe : BaseTool
 {
   // TODO
 
@@ -14,8 +14,8 @@ public partial class Axe : Tool
 
   public override void Unequip()
   {
-    GD.Print("Unequiped Axe");
-
     base.Unequip();
+
+    GD.Print("Unequiped Axe");
   }
 }

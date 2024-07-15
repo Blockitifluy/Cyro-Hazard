@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Threading.Tasks;
 
 public class Inventory
@@ -19,19 +21,41 @@ public class Inventory
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
   }
 
-  public struct Hotbar
+  public class Hotbar
   {
     public List<InventoryItem> Slots;
 
-    private Tool _CurrentTool = null;
-    public readonly Tool CurrentTool { get { return _CurrentTool; } }
+    private BaseTool _CurrentTool;
+    public BaseTool CurrentTool { get { return _CurrentTool; } }
 
     private int _SlotIndex = 0;
-    public readonly int SlotIndex { get { return _SlotIndex; } }
+    public int SlotIndex { get { return _SlotIndex; } }
 
-    public readonly void AddToFromHotbar(InventoryItem inventoryItem, int index)
+    public override string ToString()
     {
-      if (0 >= index! | index > Slots.Capacity)
+      StringBuilder builder = new();
+      builder.Append($"Hotbar {Slots.Capacity} at {_SlotIndex}: ");
+      builder.AppendJoin(',', Slots);
+
+      return builder.ToString();
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (obj == null || obj.GetType() != GetType())
+        return false;
+      return obj.GetHashCode() == GetHashCode();
+    }
+
+    public override int GetHashCode()
+    {
+      return HashCode.Combine(Slots, _SlotIndex);
+    }
+
+    public void AddToFromHotbar(InventoryItem inventoryItem, int index)
+    {
+      bool isIndexInRange = 0 <= index && index < Slots.Capacity;
+      if (!isIndexInRange)
         throw new ArgumentOutOfRangeException(nameof(index));
 
       Items.ItemCode code = inventoryItem.ItemCode;
@@ -41,24 +65,31 @@ public class Inventory
       if (!baseItem.Equipable)
         throw new Items.ItemNotEquipableException($"baseItem ({code}) is not equipable");
 
-      InventoryItem pastItem = Slots[index];
-      if (pastItem != null) pastItem.Active = false;
+      if (index < Slots.Count) Slots[index].Active = false;
 
-      Slots[index] = inventoryItem;
+      GD.PrintRich($"[b][color=PURPLE]Item[/color][/b] Added {inventoryItem} to Slot {index}");
+      Slots.Insert(index, inventoryItem);
       inventoryItem.Active = true;
     }
 
-    public Tool GetToolFromHotbar(int index)
+    public void UnequipCurrent()
     {
-      if (0 >= index || index > Slots.Capacity)
-        throw new ArgumentOutOfRangeException(nameof(index));
+      _CurrentTool?.QueueFree();
+      _CurrentTool = null;
+    }
 
+    public BaseTool GetToolFromHotbar(int index)
+    {
+      bool isIndexInRange = 0 <= index && index < Slots.Capacity;
+      if (!isIndexInRange)
+        throw new ArgumentOutOfRangeException(nameof(index));
       InventoryItem inventoryItem = Slots[index];
 
       if (inventoryItem == null)
         throw new NullReferenceException($"Hotbar item {index} was null");
 
-      Tool tool = Tool.GetToolFromCode(inventoryItem.ItemCode);
+      BaseTool tool = BaseTool.GetToolFromCode(inventoryItem.ItemCode);
+      tool.InventoryItem = inventoryItem;
       _CurrentTool = tool;
       _SlotIndex = index;
 
@@ -67,7 +98,20 @@ public class Inventory
 
     public Hotbar(int capacity)
     {
-      Slots = new(capacity);
+      Slots = new()
+      {
+        Capacity = capacity
+      };
+    }
+
+    public static bool operator ==(Hotbar left, Hotbar right)
+    {
+      return left.Equals(right);
+    }
+
+    public static bool operator !=(Hotbar left, Hotbar right)
+    {
+      return !(left == right);
     }
   }
 
@@ -97,20 +141,21 @@ public class Inventory
     }
   }
 
-  /// <summary>
-  /// The inventory's size
-  /// </summary>
-  public Vector2I Size = new(4, 4);
-
   public override bool Equals(object obj)
   {
-    if (obj is Dictionary<Vector2I, InventoryItem>)
-      return Placements == obj;
-    return false;
+    if (obj == null || obj.GetType() != GetType())
+      return false;
+
+    Inventory other = (Inventory)obj;
+    return other.GetHashCode() == GetHashCode();
   }
 
   public Hotbar hotbar;
   public readonly Dictionary<Vector2I, InventoryItem> Placements = new();
+  /// <summary>
+  /// The inventory's size
+  /// </summary>
+  public Vector2I Size = new(4, 4);
 
   /// <summary>
   /// Gets the occupancy pf the inventory. False is empty; true is taken.
@@ -184,9 +229,10 @@ public class Inventory
   /// <param name="code">The item code</param>
   /// <param name="at">The placement position</param>
   /// <param name="amount">The amount of items in a stack</param>
+  /// <returns>The inventory item</returns>
   /// <exception cref="ArgumentOutOfRangeException">Thrown if the amount is out of range of the max amount or at is out of bounds</exception>
   /// <exception cref="DoesNotFitException">The wanted slot is taken up</exception>
-  public void AddItem(Items.ItemCode code, Vector2I at, int amount)
+  public InventoryItem AddItem(Items.ItemCode code, Vector2I at, int amount)
   {
     Items.ItemData itemData = Items.CodeToItem(code);
     Vector2I size = itemData.Size;
@@ -204,6 +250,8 @@ public class Inventory
     Placements.Add(at, inventoryItem);
 
     OnPlacementsUpdated?.Invoke(this, EventArgs.Empty);
+
+    return inventoryItem;
   }
 
   /// <summary>
@@ -251,6 +299,6 @@ public class Inventory
 
   public override int GetHashCode()
   {
-    return Placements.GetHashCode();
+    return HashCode.Combine(Placements, Size, hotbar);
   }
 }

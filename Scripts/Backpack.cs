@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public partial class Backpack : Panel
 {
-
   [ExportGroup("Preview")]
   [Export] public TextureRect PreviewImage;
   [Export] public Label ItemName;
@@ -12,7 +11,7 @@ public partial class Backpack : Panel
   [Export] public Button EquipButton;
 
   [ExportGroup("Items")]
-  [Export] public string ItemFramePath;
+  [Export] public PackedScene ItemFrame;
   [Export] public Control ItemContainer;
 
   private Player PlayerController;
@@ -39,6 +38,8 @@ public partial class Backpack : Panel
     return scaled;
   }
 
+  public Action LastEquipSub;
+
   private void ChangePreview(Inventory.InventoryItem item)
   {
     Items.ItemData itemData = Items.CodeToItem(item.ItemCode);
@@ -47,29 +48,34 @@ public partial class Backpack : Panel
     Description.Text = itemData.Tooltip;
 
     EquipButton.Visible = itemData.Equipable;
+    if (LastEquipSub != null) EquipButton.Pressed -= LastEquipSub;
 
-    // TODO Preview image
+    void EquipSubscription()
+    {
+      PlayerController.Hotbar.AddToFromHotbar(item, 1);
+    }
+
+    LastEquipSub = EquipSubscription;
+    EquipButton.Pressed += EquipSubscription;
   }
 
   private void LoadItemFrame(Vector2I pos, Inventory.InventoryItem item)
   {
-    PackedScene itemFrameScene = GD.Load<PackedScene>(ItemFramePath);
-
     Items.ItemData itemData = Items.CodeToItem(item.ItemCode);
 
-    TextureButton itemFrame = itemFrameScene.Instantiate<TextureButton>();
+    TextureButton itemFrame = ItemFrame.Instantiate<TextureButton>();
     itemFrame.Position = Vector2ToContainer(pos); //TODO
     itemFrame.Size = Vector2ToContainer(itemData.Size);
     itemFrame.Pressed += () =>
     {
-      GD.Print($"Previewing item {item}");
+      GD.PrintRich($"[b][color=PURPLE]Item[/color][/b] Previewing {item}");
       ChangePreview(item);
     };
 
     // TODO Add images to TextureButton
 
     Label amountLabel = itemFrame.GetChild<Label>(0);
-    amountLabel.Text = $"{item.Amount}";
+    amountLabel.Text = item.Amount.ToString();
 
     ItemFrames.Add(itemFrame);
     ItemContainer.AddChild(itemFrame);
@@ -87,7 +93,7 @@ public partial class Backpack : Panel
       LoadItemFrame(pos, item);
     }
 
-    GD.Print("Updated UI");
+    GD.PrintRich("[b][color=PURPLE]Item[/color][/b] Updated UI");
   }
 
   public override void _Ready()

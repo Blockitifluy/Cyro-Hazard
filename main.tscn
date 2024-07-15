@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bwfly4emjkoa6"]
+[gd_scene load_steps=13 format=3 uid="uid://bwfly4emjkoa6"]
 
 [ext_resource type="PackedScene" uid="uid://cv33llrox6khk" path="res://Scenes/player.tscn" id="1_2fumh"]
 [ext_resource type="Theme" uid="uid://bu43bgh6p57ya" path="res://BaseTheme.tres" id="1_rjc8t"]
@@ -7,9 +7,10 @@
 [ext_resource type="PackedScene" uid="uid://w23cbmgs53r2" path="res://Scenes/Pickup.tscn" id="3_vmgn5"]
 [ext_resource type="Script" path="res://Scripts/UIManager.cs" id="4_0dsr3"]
 [ext_resource type="PackedScene" uid="uid://dluxn514oscok" path="res://Scenes/Tree.tscn" id="5_3ahh1"]
+[ext_resource type="Material" uid="uid://bmnw30ebxfv0t" path="res://Textures/Materials/Snow.tres" id="6_15161"]
 [ext_resource type="Script" path="res://Scripts/Terrain.cs" id="6_uka6n"]
 [ext_resource type="Material" uid="uid://cbygtffo6wwrj" path="res://Textures/Materials/Stone.tres" id="7_ujewj"]
-[ext_resource type="Environment" uid="uid://bf2jw56yi3qwe" path="res://Environment.tres" id="10_se7ei"]
+[ext_resource type="Environment" uid="uid://bf2jw56yi3qwe" path="res://Environment.tres" id="11_32728"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_km65f"]
 font_color = Color(0, 0, 0, 1)
@@ -45,21 +46,21 @@ script = ExtResource("6_uka6n")
 TreeDensity = 0.35
 TreeSpawnScale = 10.0
 TreeScene = ExtResource("5_3ahh1")
-SnowMaterial = ExtResource("7_ujewj")
+SnowMaterial = ExtResource("6_15161")
 StoneMaterial = ExtResource("7_ujewj")
 
 [node name="Player" parent="." groups=["Player"] instance=ExtResource("1_2fumh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-floor_constant_speed = true
 PickupTime = 2.0
 MaxPickDistance = 3.5
 Stamina = 100.0
 StaminaRegen = 4.0
 
 [node name="CameraPivot" type="Marker3D" parent="." node_paths=PackedStringArray("Follower") groups=["CameraPivot"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00801802, 1.19209e-07, -0.00977802)
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.00801802, 1.19209e-07, -0.00977802)
 script = ExtResource("2_wh28q")
 Follower = NodePath("../Player")
+TurnPower = 2.0
 QuadA = 2.0
 QuadB = 3.0
 
@@ -82,4 +83,4 @@ ItemCode = 1
 Amount = 10
 
 [node name="Environment" type="WorldEnvironment" parent="."]
-environment = ExtResource("10_se7ei")
+environment = ExtResource("11_32728")

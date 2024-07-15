@@ -1,17 +1,15 @@
 using Godot;
 
 [GlobalClass]
-public abstract partial class Tool : StaticBody3D
+public abstract partial class BaseTool : StaticBody3D
 {
-  public static Tool GetToolFromCode(Items.ItemCode code)
+  public static BaseTool GetToolFromCode(Items.ItemCode code)
   {
-    switch (code)
+    return code switch
     {
-      case Items.ItemCode.Axe:
-        return new Axe();
-      default:
-        throw new Items.InvalidItemCodeException("code couldn't be matched");
-    }
+      Items.ItemCode.Axe => new Axe(),
+      _ => throw new Items.InvalidItemCodeException("code couldn't be matched"),
+    };
   }
 
   /// <summary>
@@ -48,13 +46,18 @@ public abstract partial class Tool : StaticBody3D
   public virtual void Unequip()
   {
     inventoryItem.Active = false;
-    QueueFree();
   }
 
   public override void _EnterTree()
   {
     base._EnterTree();
     Equip();
+  }
+
+  public override void _ExitTree()
+  {
+    base._ExitTree();
+    Unequip();
   }
 
   public override void _Ready()

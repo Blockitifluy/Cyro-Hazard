@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
 public partial class Terrain : MeshGeneration
@@ -24,13 +25,12 @@ public partial class Terrain : MeshGeneration
   [Export] public float MinFloor = -0.75f;
   [Export] public FastNoiseLite TerrainNoise = new();
 
-  private void LoadTree(Vector2 tilePos, Vector4 tileHeight, Node3D chunk)
+  private Node3D LoadTree(Vector2 tilePos, Vector4 tileHeight)
   {
     GD.Seed((ulong)tilePos.GetHashCode());
 
     float centerX = tilePos.X + GD.Randf(),
     centerZ = tilePos.Y + GD.Randf();
-
 
     float centerY = (tileHeight.Y + tileHeight.W) / 2;
 
@@ -43,7 +43,7 @@ public partial class Terrain : MeshGeneration
 
     GD.Randomize();
 
-    chunk.CallDeferred("add_child", tree);
+    return tree;
   }
 
   public bool ShouldLoadTree(Vector2I pos)
@@ -80,7 +80,26 @@ public partial class Terrain : MeshGeneration
     );
   }
 
-  protected override Tile GetTile(Vector2I tilePos, Vector2I chunkPos, Node3D chunk)
+  protected override HashSet<Node> GetProps(Vector2I chunkPos, Tile[] tiles)
+  {
+    HashSet<Node> props = new();
+
+    for (int i = 0; i < ChunkArea; i++)
+    {
+      int X = i % ChunkSize,
+      Y = i / ChunkSize;
+
+      Vector2I tilePos = new(X, Y);
+      Vector2I globalPos = chunkPos * ChunkSize + tilePos;
+
+      if (ShouldLoadTree(globalPos))
+        props.Add(LoadTree(tilePos, tiles[i].TileHeight));
+    }
+
+    return props;
+  }
+
+  protected override Tile GetTile(Vector2I tilePos, Vector2I chunkPos)
   {
     if (tilePos.X >= ChunkSize || tilePos.Y >= ChunkSize)
       throw new ArgumentOutOfRangeException(nameof(tilePos));
@@ -90,17 +109,16 @@ public partial class Terrain : MeshGeneration
     Tile.TileType tileType = Tile.TileType.Snow;
     Vector4 TileHeight = GetHeightForTile(crns);
 
-    if (ShouldLoadTree(globalPos))
-      LoadTree(tilePos, TileHeight, chunk);
+    Tile tile = new(tilePos, tileType, TileHeight);
 
-    return new(tilePos, tileType, TileHeight);
+    return tile;
   }
 
   public override void _Ready()
   {
     int seed = (int)GD.Randi();
 
-    GD.Print($"Using seed: {seed}");
+    GD.PrintRich($"[b][color=GREEN]Chunk Generation[/color][/b] Using seed {seed}");
 
     TerrainNoise.Seed = seed;
     TreeNoise.Seed = seed;

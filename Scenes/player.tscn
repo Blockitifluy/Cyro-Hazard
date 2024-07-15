@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://Scripts/Player.cs" id="1_c24a7"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wtqqu"]
-size = Vector3(0.35, 0.525, 0.35)
+size = Vector3(0.25, 0.5, 0.25)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_dailw"]
 radius = 0.125
@@ -11,7 +11,9 @@ height = 0.5
 
 [node name="Player" type="CharacterBody3D"]
 collision_layer = 5
-slide_on_ceiling = false
+floor_stop_on_slope = false
+floor_constant_speed = true
+floor_block_on_wall = false
 script = ExtResource("1_c24a7")
 StaminaRegen = 0.25
 

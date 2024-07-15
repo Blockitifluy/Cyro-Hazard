@@ -52,7 +52,6 @@ public abstract partial class MeshGeneration : Node
 		}
 	}
 
-
 	/// <summary>
 	/// A tile's type, position and height 
 	/// </summary>
@@ -171,13 +170,17 @@ public abstract partial class MeshGeneration : Node
 			Primitive = primitive;
 		}
 
-		public void End()
+		public void End(Material material)
 		{
 			SurfaceArray.Resize((int)ArrayType.Max);
 			SurfaceArray[(int)ArrayType.Vertex] = Vertices.ToArray();
 			SurfaceArray[(int)ArrayType.TexUV] = UVs.ToArray();
 			SurfaceArray[(int)ArrayType.Normal] = Normals.ToArray();
+
 			AddSurfaceFromArrays(Primitive, SurfaceArray);
+
+			SurfaceSetMaterial(0, material);
+			SurfaceSetName(0, "Snow");
 		}
 
 		private void DrawPoint(Vector3 position, Vector3 direction, Vector2 uv)
@@ -254,7 +257,9 @@ public abstract partial class MeshGeneration : Node
 	/// <param name="chunkPos">Chunk's non scaled position</param>
 	/// <returns>The tile's infomation</returns>
 	/// <exception cref="ArgumentOutOfRangeException">TilePos is bigger than the chunk size</exception>
-	protected abstract Tile GetTile(Vector2I tilePos, Vector2I chunkPos, Node3D chunk);
+	protected abstract Tile GetTile(Vector2I tilePos, Vector2I chunkPos);
+
+	protected abstract HashSet<Node> GetProps(Vector2I chunkPos, Tile[] tiles);
 
 	/// <summary>
 	/// Clears and deletes all chunks
@@ -298,16 +303,29 @@ public abstract partial class MeshGeneration : Node
 		return chunkMapping;
 	}
 
-	private void LoadTile(int i, Vector2I chunkPos, ChunkFactory cf, Node3D chunk)
+	private Tile[] PreloadTiles(Vector2I chunkPos)
 	{
-		int X = i % ChunkSize,
+		Tile[] tiles = new Tile[ChunkArea];
+
+		Parallel.For(0, ChunkArea, i =>
+		{
+			int X = i % ChunkSize,
 			Y = i / ChunkSize;
 
-		Vector2I tilePos = new(X, Y);
+			Vector2I tilePos = new(X, Y);
 
-		Tile tile = Debug ? new(tilePos, Tile.TileType.Snow, new(0, 0, 0, 0)) : GetTile(tilePos, chunkPos, chunk);
+			if (Debug)
+			{
+				tiles[i] = new(tilePos, Tile.TileType.Snow, new(0, 0, 0, 0));
+				return;
+			}
 
-		cf.DrawTile(tile, i);
+			Tile tile = GetTile(tilePos, chunkPos);
+
+			tiles[i] = tile;
+		});
+
+		return tiles;
 	}
 
 	/// <summary>
@@ -320,14 +338,16 @@ public abstract partial class MeshGeneration : Node
 		ChunkFactory cf = new();
 		cf.Begin(primitiveType);
 
-		int i = 0;
-		do
-		{
-			LoadTile(i, chunkPos, cf, chunk);
-			i++;
-		} while (i < ChunkArea);
+		Tile[] tiles = PreloadTiles(chunkPos);
+		HashSet<Node> props = GetProps(chunkPos, tiles);
 
-		cf.End();
+		for (int i = 0; i < ChunkArea; i++)
+			cf.DrawTile(tiles[i], i);
+
+		foreach (Node prp in props)
+			chunk.AddChild(prp);
+
+		cf.End(SnowMaterial);
 		return cf;
 	}
 
@@ -379,7 +399,6 @@ public abstract partial class MeshGeneration : Node
 
 	{
 		Vector2I chunkPos = PositionToChunk(ChunkSize, NodeFollower.Node.GlobalPosition);
-		GD.Print($"Follower moved {chunkPos}");
 
 		CleanChunks();
 
@@ -397,7 +416,7 @@ public abstract partial class MeshGeneration : Node
 
 		stopwatch.Stop();
 		float timePerChunk = (float)stopwatch.ElapsedMilliseconds / ChunkLoaded;
-		GD.Print($"Generated {ChunkLoaded} Chunks in {stopwatch.ElapsedMilliseconds}ms ({timePerChunk}ms per Chunk)");
+		GD.PrintRich($"[b][color=GREEN]Chunk Generation ({ChunkLoaded})[/color][/b] {stopwatch.ElapsedMilliseconds}ms ({timePerChunk}ms per Chunk)");
 
 		return chunks;
 	}

@@ -6,19 +6,24 @@ public partial class CameraPivot : Marker3D
 	/// The subject the camera follows
 	/// </summary>
 	[Export]
-	public Node3D Follower { get; set; }
+	public Node3D Follower;
+
+	[Export]
+	public float Angle = 180;
+	[Export]
+	public float TurnPower = 10.0f;
 
 	/// <summary>
 	/// The <c>a</c> in the quadatic equation: <c>ax^2+ bx</c>
 	/// </summary>
 	[Export]
 	[ExportCategory("Quadatrics")]
-	public float QuadA { get; set; } = 1.0f;
+	public float QuadA = 1.0f;
 
 	/// <summary>
 	/// The <c>b</c> in the quadatic equation: <c>ax^2+ bx</c>
 	/// </summary>
-	[Export] public float QuadB { get; set; } = 1.0f;
+	[Export] public float QuadB = 1.0f;
 
 	private Camera3D Camera;
 
@@ -45,6 +50,15 @@ public partial class CameraPivot : Marker3D
 		return posLerp;
 	}
 
+	private void TurnPivotFromUser()
+	{
+		float turnPower = Input.GetAxis("camera-right", "camera-left");
+
+		float toRad = Mathf.DegToRad(TurnPower);
+
+		RotateY(turnPower * toRad);
+	}
+
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
@@ -53,6 +67,8 @@ public partial class CameraPivot : Marker3D
 			GD.PrintErr("Follower doesn't Exist");
 			return;
 		};
+
+		TurnPivotFromUser();
 
 		var posLerp = LerpPosition(delta);
 

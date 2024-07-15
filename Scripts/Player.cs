@@ -15,6 +15,7 @@ public partial class Player : BasicCharacter
   [Export] public float MaxPickDistance = 10.0f;
 
   private Marker3D Grip;
+  private Marker3D CameraPivot;
 
   public override bool IsRunning()
   {
@@ -22,6 +23,7 @@ public partial class Player : BasicCharacter
   }
 
   public Inventory inventory = new(new Vector2I(10, 10), 3);
+  public Inventory.Hotbar Hotbar { get { return inventory.hotbar; } }
 
   /// <summary>
   /// The action of the player running
@@ -30,7 +32,12 @@ public partial class Player : BasicCharacter
   /// <returns>The stamina taken when running</returns>
   public float RunAction(double delta)
   {
-    Vector3 unit = InputPlus.GetMoveDir();
+    Vector3 cameraRot = CameraPivot.Rotation;
+
+    Vector2 unit2D = Input.GetVector("move-left", "move-right", "move-forward", "move-backward");
+    Vector3 unit = new Vector3(unit2D.X, 0, unit2D.Y)
+    .Rotated(cameraRot.Normalized(), cameraRot.Length())
+    .Normalized();
 
     if (Stamina == -StaminaLower) return 0.0f;
 
@@ -41,6 +48,39 @@ public partial class Player : BasicCharacter
     if (velo != Vector3.Zero) Pivot.Basis = lookAt;
 
     return SpeedToStamina(velo.Length());
+  }
+
+  /// <summary>
+  /// Check if the user requested a slot change
+  /// </summary>
+  /// <returns>The slot index. Returns <c>-1</c> if no request has been made during the frame.</returns>
+  public int SlotInput()
+  {
+    int slotAmount = Hotbar.Slots.Capacity;
+
+    for (int i = 0; i < slotAmount; i++)
+    {
+      bool isPressed = Input.IsActionJustPressed($"equip-{i + 1}");
+      if (isPressed) return i;
+    }
+
+    return -1; // -1 means it has not been changed
+  }
+
+  public void EquipAction()
+  {
+    int slotIndex = SlotInput();
+    if (slotIndex == -1) return;
+
+    Hotbar.UnequipCurrent();
+
+    try
+    {
+      BaseTool tool = Hotbar.GetToolFromHotbar(slotIndex);
+      Grip.AddChild(tool);
+    }
+    catch (NullReferenceException) { }
+    catch (ArgumentOutOfRangeException) { }
   }
 
   /// <summary>
@@ -70,6 +110,7 @@ public partial class Player : BasicCharacter
 
       float currentDist = MousePos3D.DistanceSquaredTo(pck.Position),
       distFromPlayer = Position.DistanceSquaredTo(pck.Position);
+
       bool inRange = distFromPlayer <= MaxPickDistance * MaxPickDistance,
       isClosest = closestDistance > currentDist;
 
@@ -104,7 +145,7 @@ public partial class Player : BasicCharacter
     }
     catch (Inventory.DoesNotFitException)
     {
-      GD.Print($"No spce found for {baseItem}");
+      GD.Print($"[b][color=PURPLE]Item[/color][/b] No space found for {baseItem}");
     }
 
     return false;
@@ -132,7 +173,7 @@ public partial class Player : BasicCharacter
       var closestPickup = GetClosestPickup();
       if (closestPickup != null)
       {
-        GD.Print($"Picked up {closestPickup.Item}");
+        GD.PrintRich($"[b][color=PURPLE]Item[/color][/b] Picked up {closestPickup.Item}");
 
         bool successful = AddPickupToInventory(closestPickup);
 
@@ -144,7 +185,7 @@ public partial class Player : BasicCharacter
     if (Input.IsActionJustReleased("pickup"))
     {
       if (PickupTimer < PickupTime && PickupStarted)
-        GD.Print("Released Pickup Action");
+        GD.PrintRich("[b][color=GREY]Input[/color][/b] Released Pickup Action");
 
       PickupStarted = false;
       PickupTimer = 0;
@@ -186,8 +227,10 @@ public partial class Player : BasicCharacter
     base._Ready();
 
     Grip = GetNode<Marker3D>("Pivot/Grip");
+    CameraPivot = (Marker3D)GetTree().GetFirstNodeInGroup("CameraPivot");
 
-    inventory.AddItem(Items.ItemCode.Axe, new(0, 0), 1);
+    Inventory.InventoryItem item = inventory.AddItem(Items.ItemCode.Axe, new(0, 0), 1);
+    Hotbar.AddToFromHotbar(item, 0);
   }
 
   public override void _PhysicsProcess(double delta)
@@ -207,5 +250,7 @@ public partial class Player : BasicCharacter
     MoveAndSlide();
 
     PickupTimer += delta;
+
+    EquipAction();
   }
 }

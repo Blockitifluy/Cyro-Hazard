@@ -62,7 +62,7 @@ public partial class Pickup : RigidBody3D
 
 		meshInstance.Mesh = mesh;
 
-		GD.Print($"Item Made {Item}");
+		GD.PrintRich($"[b][color=PURPLE]Item[/color][/b] Made {Item.Name}");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
