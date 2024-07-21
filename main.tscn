@@ -41,7 +41,6 @@ layout_mode = 1
 [node name="Terrain" type="Node3D" parent="."]
 process_mode = 3
 process_priority = -1
-transform = Transform3D(0.999918, 0.00911065, 0.00897498, -0.00893528, 0.999772, -0.0193901, -0.00914959, 0.0193083, 0.999772, -0.103835, 0.0164467, -0.117808)
 script = ExtResource("6_uka6n")
 TreeDensity = 0.35
 TreeSpawnScale = 10.0

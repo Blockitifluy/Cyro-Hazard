@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Godot;
 
+[GlobalClass]
 public abstract partial class MeshGeneration : Node
 {
 	/// <summary>
@@ -115,14 +114,14 @@ public abstract partial class MeshGeneration : Node
 		/// </summary>
 		/// <param name="tilePos">The offset</param>
 		/// <returns>corner + offset</returns>
-		public static Vector2[] TileCorners(Vector2 tilePos)
+		public static Vector2I[] TileCorners(Vector2I tilePos)
 		{
-			Vector2 tl = tilePos,
-				tr = tilePos + new Vector2(1, 0),
-				bl = tilePos + new Vector2(0, 1),
-				br = tilePos + new Vector2(1, 1);
+			Vector2I tl = tilePos,
+				tr = tilePos + Vector2I.Right,
+				bl = tilePos + Vector2I.Down,
+				br = tilePos + Vector2I.One;
 
-			return new Vector2[4] { tl, tr, bl, br };
+			return new Vector2I[4] { tl, tr, bl, br };
 		}
 
 		public Tile(Vector2I pos, TileType type, Vector4 height)
@@ -190,7 +189,7 @@ public abstract partial class MeshGeneration : Node
 			Vertices.Add(position);
 		}
 
-		public void DrawTile(Tile tile, int i)
+		public void DrawTile(Tile tile)
 		{
 			Vector3[] verts = tile.TileVertices;
 
@@ -204,22 +203,6 @@ public abstract partial class MeshGeneration : Node
 			DrawPoint(verts[3], -normal1, Vector2.One);
 			DrawPoint(verts[2], -normal1, Vector2.Down);
 		}
-	}
-
-	/// <summary>
-	/// Transforms a position to a non-scaled chunk position
-	/// </summary>
-	/// <param name="chunkSize">The chunk size</param>
-	/// <param name="pos">The position wanted to be transformed</param>
-	/// <returns>A non-scaled chunk position</returns>
-	public static Vector2I PositionToChunk(int chunkSize, Vector3 pos)
-	{
-		Vector2I flaten = new((int)pos.X, (int)pos.Z);
-		Vector2I chunkPos = flaten / chunkSize;
-
-		Vector2I rounded = new(chunkPos.X, chunkPos.Y);
-
-		return rounded;
 	}
 
 	/// <summary>
@@ -257,9 +240,25 @@ public abstract partial class MeshGeneration : Node
 	/// <param name="chunkPos">Chunk's non scaled position</param>
 	/// <returns>The tile's infomation</returns>
 	/// <exception cref="ArgumentOutOfRangeException">TilePos is bigger than the chunk size</exception>
-	protected abstract Tile GetTile(Vector2I tilePos, Vector2I chunkPos);
+	public abstract Tile GetTile(Vector2I tilePos, Vector2I chunkPos);
 
-	protected abstract HashSet<Node> GetProps(Vector2I chunkPos, Tile[] tiles);
+	public abstract HashSet<Node> GetProps(Vector2I chunkPos, Tile[] tiles);
+
+	/// <summary>
+	/// Transforms a position to a non-scaled chunk position
+	/// </summary>
+	/// <param name="chunkSize">The chunk size</param>
+	/// <param name="pos">The position wanted to be transformed</param>
+	/// <returns>A non-scaled chunk position</returns>
+	public static Vector2I PositionToChunk(int chunkSize, Vector3 pos)
+	{
+		Vector2I flaten = new((int)pos.X, (int)pos.Z);
+		Vector2I chunkPos = flaten / chunkSize;
+
+		Vector2I rounded = new(chunkPos.X, chunkPos.Y);
+
+		return rounded;
+	}
 
 	/// <summary>
 	/// Clears and deletes all chunks
@@ -268,6 +267,48 @@ public abstract partial class MeshGeneration : Node
 	{
 		foreach (var chk in GetTree().GetNodesInGroup("chunks").Cast<StaticBody3D>())
 			chk.QueueFree();
+	}
+
+	public void EditVertexHeight(Chunk chunk, Vector2I vertexPos, float height)
+	{
+		Stopwatch timer = new();
+		timer.Start();
+
+		Tile[] tiles = chunk.Tiles,
+		newTiles = new Tile[ChunkArea];
+
+		Parallel.For(0, ChunkArea, i =>
+		{
+			Tile tle = tiles[i];
+			Vector2I[] corners = Tile.TileCorners(tle.Position);
+
+			for (int j = 0; j < 4; j++)
+			{
+				Vector2I vrtPos = corners[j];
+
+				if (vrtPos != vertexPos)
+				{
+					newTiles[i] = tiles[i];
+					continue;
+				}
+
+				tiles[i].TileHeight[j] = height;
+				newTiles[i] = tiles[i];
+			}
+		});
+
+
+		Chunk newChunk = MakeChunk(chunk.GridPosition, newTiles);
+		AddChild(newChunk);
+		newChunk.Tiles = newTiles;
+
+		chunk.QueueFree();
+
+		foreach (Node prop in GetProps(chunk.GridPosition, tiles))
+			newChunk.AddChild(prop);
+
+		timer.Stop();
+		GD.PrintRich($"[b][color=GREEN]Mesh Generation[/color][/b] Updated chunk in {timer.ElapsedMilliseconds}ms");
 	}
 
 	public Vector2I[] ChunkMapping()
@@ -285,25 +326,12 @@ public abstract partial class MeshGeneration : Node
 		return chunkMapping;
 	}
 
-	public Vector2I[] ChunkMapping(Vector2I pos)
-	{
-		Vector2I[] chunkMapping = new Vector2I[ChunkLoaded];
-
-		int i = 0;
-		do
-		{
-			int X = i % ChunkSize,
-			Y = i / ChunkSize;
-
-			Vector2I chunkPos = new(X - RenderRadius / 2, Y - RenderRadius / 2);
-			chunkMapping[i] = chunkPos + pos;
-			i++;
-		} while (i < ChunkLoaded);
-
-		return chunkMapping;
-	}
-
-	private Tile[] PreloadTiles(Vector2I chunkPos)
+	/// <summary>
+	/// Generates tiles for this use of a mesh
+	/// </summary>
+	/// <param name="chunkPos"></param>
+	/// <returns></returns>
+	public Tile[] GenerateTiles(Vector2I chunkPos)
 	{
 		Tile[] tiles = new Tile[ChunkArea];
 
@@ -329,62 +357,65 @@ public abstract partial class MeshGeneration : Node
 	}
 
 	/// <summary>
-	/// Generates a chunks mesh
+	/// Draws a mesh for a mesh with preloaded tiles.
 	/// </summary>
-	/// <param name="chunkPos">Chunk's non-scaled position</param>
-	/// <returns>A mesh</returns>
-	private ArrayMesh GenerateChunk(Vector2I chunkPos, Node3D chunk)
+	/// <param name="tiles">The tiles used for generation.</param>
+	/// <returns>The mesh for the chunk</returns>
+	private ChunkFactory DrawChunkFromTiles(Tile[] tiles)
 	{
 		ChunkFactory cf = new();
 		cf.Begin(primitiveType);
 
-		Tile[] tiles = PreloadTiles(chunkPos);
-		HashSet<Node> props = GetProps(chunkPos, tiles);
-
 		for (int i = 0; i < ChunkArea; i++)
-			cf.DrawTile(tiles[i], i);
-
-		foreach (Node prp in props)
-			chunk.AddChild(prp);
+			cf.DrawTile(tiles[i]);
 
 		cf.End(SnowMaterial);
 		return cf;
 	}
 
 	/// <summary>
-	/// Creates a chunk based on it's position and generated with it's mesh
+	/// Makes a single chunk at <paramref name="chunkPos"/> with:
+	/// <list type="number">
+	/// <item><see cref="MeshInstance3D"/></item>
+	/// <item><see cref="CollisionShape3D"/></item>
+	/// </list>
+	/// in that order.
 	/// </summary>
-	/// <param name="chunkPos">The chunk's non-scaled position</param>
-	private StaticBody3D MakeChunk(Vector2I chunkPos)
+	/// <param name="chunkPos">The chunk's grid position.</param>
+	/// <param name="tiles">The pre-generated tile to be drawn.</param>
+	/// <returns>A fully generated chunk named: <c>Chunk (X,Y)</c></returns>
+	private Chunk MakeChunk(Vector2I chunkPos, Tile[] tiles)
 	{
 		string chunkName = $"Chunk {chunkPos}";
 
 		Vector3 scaledPos = new(chunkPos.X * ChunkSize, 0, chunkPos.Y * ChunkSize);
 
-		StaticBody3D chunk = new()
+		Chunk chunk = new()
 		{
 			Position = scaledPos,
 			Name = chunkName
 		};
 		chunk.AddToGroup("chunks");
 
-		ArrayMesh mesh = GenerateChunk(chunkPos, chunk);
-
-		/*
-		ConvexPolygonShape3D collisionShape = mesh.CreateConvexShape(clean: true, simplify: false);
-		collisionShape.Margin = 0.1f;
-	 */
+		ChunkFactory mesh = DrawChunkFromTiles(tiles);
+		chunk.Tiles = tiles;
+		chunk.GridPosition = chunkPos;
 
 		MeshInstance3D meshInstance = new()
 		{
 			Mesh = mesh,
-			CastShadow = GeometryInstance3D.ShadowCastingSetting.On
+			CastShadow = GeometryInstance3D.ShadowCastingSetting.On,
+			Name = "MeshInstance"
 		};
 		chunk.AddChild(meshInstance);
 
+		ConvexPolygonShape3D shape = mesh.CreateConvexShape(false);
+		shape.Margin = .2f;
+
 		CollisionShape3D collision = new()
 		{
-			Shape = mesh.CreateConvexShape(),
+			Shape = shape,
+			Name = "CollisionShape",
 		};
 
 		chunk.AddChild(collision);
@@ -392,17 +423,36 @@ public abstract partial class MeshGeneration : Node
 		return chunk;
 	}
 
-	/// <summary>
-	/// Clears all pre-existing chunks, and generates chunks surrounding and under the follower
-	/// </summary>
-	public List<StaticBody3D> GenerateChunks()
+	public Chunk MakeChunkAutomatic(Vector2I chunkPos)
+	{
+		return MakeChunkAutomatic(chunkPos, GenerateTiles(chunkPos));
+	}
 
+	public Chunk MakeChunkAutomatic(Vector2I chunkPos, Tile[] tiles)
+	{
+		HashSet<Node> props = GetProps(chunkPos, tiles);
+
+		Chunk chunk = MakeChunk(chunkPos, tiles);
+
+		foreach (Node prop in props)
+			chunk.AddChild(prop);
+
+		return chunk;
+	}
+
+	/// <summary>
+	/// Clears all the preloaded chunks, generate and make new chunks.
+	/// Also see <see cref="MakeChunk(Vector2I)"/>.
+	/// </summary>
+	/// <remarks>This function also mearsures the time taken to generate.</remarks>
+	/// <returns><c>RenderRadius^2</c> amount of unparented chunks.</returns>
+	public List<Chunk> MakeChunks()
 	{
 		Vector2I chunkPos = PositionToChunk(ChunkSize, NodeFollower.Node.GlobalPosition);
 
 		CleanChunks();
 
-		List<StaticBody3D> chunks = new();
+		List<Chunk> chunks = new();
 		Vector2I[] chunkMapping = ChunkMapping();
 
 		Stopwatch stopwatch = new();
@@ -410,8 +460,9 @@ public abstract partial class MeshGeneration : Node
 
 		for (int i = 0; i < ChunkLoaded; i++)
 		{
-			var map = chunkMapping[i];
-			chunks.Add(MakeChunk(map + chunkPos));
+			Vector2I map = chunkMapping[i] + chunkPos;
+
+			chunks.Add(MakeChunkAutomatic(map));
 		}
 
 		stopwatch.Stop();
@@ -432,7 +483,7 @@ public abstract partial class MeshGeneration : Node
 		MaterialMap.Add(Tile.TileType.Stone, StoneMaterial);
 		MaterialMap.Add(Tile.TileType.Dirt, new());
 
-		foreach (var chk in GenerateChunks())
+		foreach (var chk in MakeChunks())
 			AddChild(chk);
 	}
 
@@ -443,9 +494,7 @@ public abstract partial class MeshGeneration : Node
 		if (!NodeFollower.IfMoved(ChunkSize))
 			return;
 
-		foreach (var chk in GenerateChunks())
-		{
+		foreach (var chk in MakeChunks())
 			AddChild(chk);
-		}
 	}
 }

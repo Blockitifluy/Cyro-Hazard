@@ -31,6 +31,9 @@ public class Inventory
     private int _SlotIndex = 0;
     public int SlotIndex { get { return _SlotIndex; } }
 
+    public event EventHandler HotbarChanged;
+    public event EventHandler SlotIndexChanged;
+
     public override string ToString()
     {
       StringBuilder builder = new();
@@ -70,6 +73,8 @@ public class Inventory
       GD.PrintRich($"[b][color=PURPLE]Item[/color][/b] Added {inventoryItem} to Slot {index}");
       Slots.Insert(index, inventoryItem);
       inventoryItem.Active = true;
+
+      HotbarChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void UnequipCurrent()
@@ -92,6 +97,8 @@ public class Inventory
       tool.InventoryItem = inventoryItem;
       _CurrentTool = tool;
       _SlotIndex = index;
+
+      SlotIndexChanged?.Invoke(this, EventArgs.Empty);
 
       return tool;
     }

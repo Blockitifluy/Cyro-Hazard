@@ -229,8 +229,11 @@ public partial class Player : BasicCharacter
     Grip = GetNode<Marker3D>("Pivot/Grip");
     CameraPivot = (Marker3D)GetTree().GetFirstNodeInGroup("CameraPivot");
 
-    Inventory.InventoryItem item = inventory.AddItem(Items.ItemCode.Axe, new(0, 0), 1);
-    Hotbar.AddToFromHotbar(item, 0);
+    Inventory.InventoryItem axe = inventory.AddItem(Items.ItemCode.Axe, new(0, 0), 1);
+    Hotbar.AddToFromHotbar(axe, 0);
+
+    Inventory.InventoryItem shovel = inventory.AddItem(Items.ItemCode.Shovel, new(2, 0), 1);
+    Hotbar.AddToFromHotbar(shovel, 1);
   }
 
   public override void _PhysicsProcess(double delta)
@@ -252,5 +255,8 @@ public partial class Player : BasicCharacter
     PickupTimer += delta;
 
     EquipAction();
+
+    if (Input.IsActionJustPressed("unequip"))
+      Hotbar.UnequipCurrent();
   }
 }

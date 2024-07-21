@@ -119,6 +119,6 @@ public class Items
     {ItemCode.Stone, new("Stone", false, new(1,1), "A strong rock mined from underground and grinded by snow")},
     {ItemCode.Axe, new("Axe", true, new(2, 3), "Chops Trees", 1)},
     {ItemCode.Snow, new("Snow", false, new(1,1), "A collection of ice crystals laying on ground that can grinded")},
-    {ItemCode.Shovel, new("CrudeShovel", true, new(1,3), "Can shovel up snow of the ground", 1)}
+    {ItemCode.Shovel, new("Shovel", true, new(1,3), "Can shovel up snow of the ground", 1)}
   };
 }

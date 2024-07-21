@@ -8,7 +8,8 @@ public abstract partial class BaseTool : StaticBody3D
     return code switch
     {
       Items.ItemCode.Axe => new Axe(),
-      _ => throw new Items.InvalidItemCodeException("code couldn't be matched"),
+      Items.ItemCode.Shovel => new Shovel(),
+      _ => throw new Items.InvalidItemCodeException("Code couldn't be matched"),
     };
   }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 
+[GlobalClass]
 public partial class Terrain : MeshGeneration
 {
   [ExportGroup("Trees")]
@@ -70,7 +71,7 @@ public partial class Terrain : MeshGeneration
   /// </summary>
   /// <param name="crns">The 4 corner's global position</param>
   /// <returns>A vector4 height map</returns>
-  public Vector4 GetHeightForTile(Vector2[] crns)
+  public Vector4 GetHeightForTile(Vector2I[] crns)
   {
     return new Vector4(
       GetHeightForVertex(crns[0]),
@@ -80,7 +81,7 @@ public partial class Terrain : MeshGeneration
     );
   }
 
-  protected override HashSet<Node> GetProps(Vector2I chunkPos, Tile[] tiles)
+  public override HashSet<Node> GetProps(Vector2I chunkPos, Tile[] tiles)
   {
     HashSet<Node> props = new();
 
@@ -99,13 +100,13 @@ public partial class Terrain : MeshGeneration
     return props;
   }
 
-  protected override Tile GetTile(Vector2I tilePos, Vector2I chunkPos)
+  public override Tile GetTile(Vector2I tilePos, Vector2I chunkPos)
   {
     if (tilePos.X >= ChunkSize || tilePos.Y >= ChunkSize)
       throw new ArgumentOutOfRangeException(nameof(tilePos));
 
     Vector2I globalPos = chunkPos * ChunkSize + tilePos;
-    Vector2[] crns = Tile.TileCorners((Vector2)globalPos);
+    Vector2I[] crns = Tile.TileCorners(globalPos);
     Tile.TileType tileType = Tile.TileType.Snow;
     Vector4 TileHeight = GetHeightForTile(crns);
 
