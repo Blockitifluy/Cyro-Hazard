@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7qbhg614rxm3"]
+
+[ext_resource type="Script" path="res://Items/Tools/Axe/Axe.cs" id="1_hcgse"]
+
+[node name="Axe" type="StaticBody3D"]
+script = ExtResource("1_hcgse")
