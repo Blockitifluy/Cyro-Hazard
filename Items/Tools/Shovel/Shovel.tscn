@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://b0fp8kwpjaaqc"]
+
+[ext_resource type="Script" path="res://Items/Tools/Shovel/Shovel.cs" id="1_5evg7"]
+
+[node name="Shovel" type="Node3D"]
+script = ExtResource("1_5evg7")
+Damage = 5.0
+Range = 25.0
+FireRate = 60.0

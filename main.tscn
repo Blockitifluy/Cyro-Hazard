@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bbe80tb3e3d0d" path="res://UI/backpack.tscn" id="3_cbpee"]
 [ext_resource type="PackedScene" uid="uid://w23cbmgs53r2" path="res://Items/Pickup/Pickup.tscn" id="3_vmgn5"]
 [ext_resource type="Script" path="res://UI/UIManager.cs" id="4_0dsr3"]
-[ext_resource type="PackedScene" uid="uid://dluxn514oscok" path="res://Generation/Props/Tree.tscn" id="5_3ahh1"]
+[ext_resource type="PackedScene" uid="uid://dluxn514oscok" path="res://Generation/Props/Tree/Tree.tscn" id="5_3ahh1"]
 [ext_resource type="Material" uid="uid://bmnw30ebxfv0t" path="res://Generation/Textures/Materials/Snow.tres" id="6_15161"]
 [ext_resource type="Script" path="res://Generation/Terrain.cs" id="6_uka6n"]
 [ext_resource type="Material" uid="uid://cbygtffo6wwrj" path="res://Items/Pickup/Meshs/Stone.tres" id="7_ujewj"]
@@ -39,8 +39,6 @@ label_settings = SubResource("LabelSettings_km65f")
 layout_mode = 1
 
 [node name="Terrain" type="Node3D" parent="."]
-process_mode = 3
-process_priority = -1
 script = ExtResource("6_uka6n")
 TreeDensity = 0.35
 TreeSpawnScale = 10.0
@@ -50,10 +48,7 @@ StoneMaterial = ExtResource("7_ujewj")
 
 [node name="Player" parent="." groups=["Player"] instance=ExtResource("1_2fumh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-PickupTime = 2.0
-MaxPickDistance = 3.5
-Stamina = 100.0
-StaminaRegen = 4.0
+floor_max_angle = 3.14159
 
 [node name="CameraPivot" type="Marker3D" parent="." node_paths=PackedStringArray("Follower") groups=["CameraPivot"]]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.00801802, 1.19209e-07, -0.00977802)
@@ -64,8 +59,12 @@ QuadA = 2.0
 QuadB = 3.0
 
 [node name="Camera" type="Camera3D" parent="CameraPivot"]
-transform = Transform3D(1, 0, 0, 0, 0.850811, 0.525472, 0, -0.525472, 0.850811, 0, 3, 3)
-fov = 45.0
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 5, 7.5)
+projection = 1
+current = true
+fov = 37.8493
+size = 4.0
+near = 0.001
 
 [node name="Light" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 3, 0)

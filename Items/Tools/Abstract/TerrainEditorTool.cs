@@ -1,9 +1,10 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 
 [GlobalClass]
-public partial class TerrianEditorTool : WeaponTool
+abstract public partial class TerrainEditorTool : WeaponTool
 {
   protected class ChunkComponents
   {

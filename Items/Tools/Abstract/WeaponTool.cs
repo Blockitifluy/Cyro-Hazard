@@ -26,33 +26,41 @@ public abstract partial class WeaponTool : BaseTool
 
   protected const string Fire1 = "fire-1";
 
+  [Export]
   /// <summary>
   /// The damage that the hitscan / projectile deals, can be multipled based on factors like headshots.
   /// </summary>
-  public virtual float Damage { get; }
+  public float Damage { get; set; } = 16;
+  [Export]
   /// <summary>
   /// The range of the weapon, on most ranged weapons it is unlimited.
   /// </summary>
-  public virtual float Range { get; } = float.MaxValue;
+  public float Range { get; set; } = float.MaxValue;
 
+  [ExportGroup("Fire Rate")]
+  [Export]
   /// <summary>
   /// The firing type of weapon, such as:
   /// <list type="ol"><item>Single</item> <item>Auto</item> <item>Burst</item></list>
   /// </summary>
-  public virtual FireTypes FiringMode { get; }
+  public FireTypes FiringMode { get; set; } = FireTypes.Single;
+  [Export]
   /// <summary>
   /// The fire rate of the weapon, rounds per minute.  
   /// </summary>
-  public virtual double FireRate { get; }
+  public double FireRate { get; set; } = 32.0d;
 
+  [ExportGroup("Burst")]
+  [Export]
   /// <summary>
   /// The maximum of burst count of an <see cref="FireTypes.Burst"/> weapon.
   /// </summary>
-  public virtual int BurstAmount { get; }
+  public int BurstAmount { get; set; } = 3;
+  [Export]
   /// <summary>
   /// The burst cooldown of an <see cref="FireTypes.Burst"/> weapon.
   /// </summary>
-  public virtual double BurstPeriod { get; }
+  public double BurstPeriod { get; set; } = .25d;
 
   private double _Timer;
   private double _LastFire;
@@ -76,17 +84,31 @@ public abstract partial class WeaponTool : BaseTool
     Vector3 rayOrigin = camera.ProjectRayOrigin(MousePos),
     rayEnd = camera.ProjectRayNormal(MousePos) * 2000;
 
-    var Params = new PhysicsRayQueryParameters3D
-    {
-      From = rayOrigin,
-      To = rayEnd,
-      Exclude = new Godot.Collections.Array<Rid>() { GetRid() },
-      HitFromInside = false
-    };
+    BasicCharacter user = GetUser();
+
+    Godot.Collections.Array<Rid> exclude = new() { user.GetRid() };
+
+    var Params = PhysicsRayQueryParameters3D.Create(rayOrigin, rayEnd, exclude: exclude);
 
     var rayArray = spaceState.IntersectRay(Params);
 
     return rayArray;
+  }
+
+  /// <summary>
+  /// If an position is in range of the user.
+  /// </summary>
+  /// <param name="to">The position.</param>
+  /// <param name="range">The tool's range</param>
+  /// <returns>(bool) Is it in range, (float) Distance -- As a tuple</returns>
+  protected (bool, float) IsInRange(Vector3 to, float range)
+  {
+    BasicCharacter user = GetUser();
+
+    float dist = user.Position.DistanceTo(to);
+    bool isInRange = dist < range;
+
+    return (isInRange, dist);
   }
 
   /// <summary>
@@ -166,7 +188,6 @@ public abstract partial class WeaponTool : BaseTool
 
   public virtual void Fire()
   {
-    GD.Print("Player has fired");
     _LastFire = _Timer;
     _BurstCount++;
   }

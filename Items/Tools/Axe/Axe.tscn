@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7qbhg614rxm3"]
+[gd_scene load_steps=2 format=3 uid="uid://c00nhi6tvo1dd"]
 
 [ext_resource type="Script" path="res://Items/Tools/Axe/Axe.cs" id="1_hcgse"]
 
-[node name="Axe" type="StaticBody3D"]
+[node name="Axe" type="Node3D"]
 script = ExtResource("1_hcgse")
+Damage = 35.0
+Range = 5.0
+FireRate = 45.0

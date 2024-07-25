@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 
 [GlobalClass]
-public abstract partial class MeshGeneration : Node
+public abstract partial class MeshGeneration : Node3D
 {
 	/// <summary>
 	/// A node with it last position stored, commonly used if the node moved to another chunk. 
@@ -260,6 +260,12 @@ public abstract partial class MeshGeneration : Node
 		return rounded;
 	}
 
+	public bool IsVertexOnEdge(Vector2I vert)
+	{
+		Vector2 normalise = (Vector2)vert / ChunkSize; // TODO
+		return Mathf.Round(normalise.X) == normalise.X || Mathf.Round(normalise.Y) == normalise.Y;
+	}
+
 	/// <summary>
 	/// Clears and deletes all chunks
 	/// </summary>
@@ -269,13 +275,69 @@ public abstract partial class MeshGeneration : Node
 			chk.QueueFree();
 	}
 
-	public void EditVertexHeight(Chunk chunk, Vector2I vertexPos, float height)
+	public Vector2I[] GetNeighbouringChunksFromVertex(Vector2I vertPos, Vector2I chunkPos)
+	{
+		// TODO
+		Vector2 normalised = (Vector2)vertPos / ChunkSize;
+		GD.Print(normalised, vertPos);
+		if (IsVertexOnEdge(vertPos))
+			return Array.Empty<Vector2I>();
+
+		const int maxBorderingChunks = 8;
+
+		Vector2 mapPos = normalised * 2 - Vector2.One; // Axi ranges between -1 and 1
+		Vector2I[] borderMap = new Vector2I[maxBorderingChunks]
+		{
+			new (-1, 1),
+			new (0, 1),
+			new(1, 1),
+
+			new(-1, 0),
+			new(1, 0),
+
+			new (-1, -1),
+			new (0, -1),
+			new(1, -1),
+
+		};
+
+		List<Vector2I> bordering = new();
+
+		for (int i = 0; i < maxBorderingChunks; i++)
+		{
+			Vector2I map = borderMap[i];
+
+			GD.Print(map, mapPos);
+
+			if ((map.X == 0 || mapPos.X == map.X) && (map.Y == 0 || mapPos.Y == map.Y))
+				bordering.Add(map + chunkPos);
+		}
+
+		return bordering.ToArray();
+	}
+
+	public void EditVertexHeight(Chunk chunk, Vector2I vertexPos, float height, bool checkNeighbours = true)
 	{
 		Stopwatch timer = new();
 		timer.Start();
 
 		Tile[] tiles = chunk.Tiles,
 		newTiles = new Tile[ChunkArea];
+
+		if (checkNeighbours)
+		{
+			Vector2I[] neighboursPos = GetNeighbouringChunksFromVertex(vertexPos, chunk.GridPosition);
+			List<Chunk> neighbours = new();
+
+			foreach (Chunk chk in GetTree().GetNodesInGroup("Chunks").Cast<Chunk>())
+			{
+				if (!neighboursPos.Contains(chk.GridPosition)) continue;
+
+				EditVertexHeight(chk, Vector2I.One * ChunkSize - vertexPos, height, false);
+
+
+			}
+		}
 
 		Parallel.For(0, ChunkArea, i =>
 		{
@@ -304,8 +366,11 @@ public abstract partial class MeshGeneration : Node
 
 		chunk.QueueFree();
 
-		foreach (Node prop in GetProps(chunk.GridPosition, tiles))
-			newChunk.AddChild(prop);
+		if (!Debug)
+		{
+			foreach (Node prop in GetProps(chunk.GridPosition, tiles))
+				newChunk.AddChild(prop);
+		}
 
 		timer.Stop();
 		GD.PrintRich($"[b][color=GREEN]Mesh Generation[/color][/b] Updated chunk in {timer.ElapsedMilliseconds}ms");

@@ -1,25 +1,32 @@
 using Godot;
 
 [GlobalClass]
-public partial class Axe : WeaponTool
+public partial class Axe : TerrainEditorTool
 {
-  public override float Damage => 15.0f;
-  public override float Range => 5;
-
-  public override double FireRate => 60.0d;
-  public override FireTypes FiringMode => FireTypes.Single;
-
-  protected override void Equip()
+  private void HitTree(TreeProp hit)
   {
-    base.Equip();
+    hit.Health -= Damage;
 
-    GD.Print("Equiped Axe");
+    GD.Print(hit);
   }
 
-  public override void Unequip()
+  public override void Fire()
   {
-    base.Unequip();
+    base.Fire();
 
-    GD.Print("Unequiped Axe");
+    var ray = ScreenPointToRay();
+
+    Node3D hit = (Node3D)ray["collider"];
+    if (hit == null) return;
+
+    Vector3 hitPos = (Vector3)ray["position"];
+
+    var (inRange, _) = IsInRange(hitPos, Range);
+    if (!inRange) return;
+
+    if (hit is TreeProp tree)
+    {
+      HitTree(tree);
+    }
   }
 }

@@ -16,7 +16,7 @@ floor_stop_on_slope = false
 floor_constant_speed = true
 floor_block_on_wall = false
 script = ExtResource("1_c24a7")
-StaminaRegen = 0.25
+Stamina = 100.0
 
 [node name="Collision" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_wtqqu")

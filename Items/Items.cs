@@ -16,7 +16,7 @@ public class Items
       System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
   }
 
-  [System.Serializable]
+  [Serializable]
   public class ItemNotEquipableException : Exception
   {
     public ItemNotEquipableException() { }
@@ -42,6 +42,7 @@ public class Items
     /// </summary>
     readonly public bool Equipable = false;
     readonly public string Tooltip = "";
+    readonly public string ToolScene = "";
 
     readonly public Vector2I Size;
 
@@ -70,7 +71,7 @@ public class Items
     /// <param name="tooltip">The description of the item</param>
     /// <param name="maxAmount">The max amount that can be stored in a stack, the default is 99</param>
     /// <exception cref="ArgumentOutOfRangeException">The maxAmount is less than 0</exception>
-    internal ItemData(string name, bool isEquipable, Vector2I size, string tooltip = "[No Tooltip]", int maxAmount = 99)
+    internal ItemData(string name, bool isEquipable, Vector2I size, string tooltip = "[No Tooltip]", int maxAmount = 99, string toolScene = "")
     {
       if (maxAmount <= 0)
         throw new ArgumentOutOfRangeException(nameof(maxAmount));
@@ -80,6 +81,7 @@ public class Items
       Size = size;
       Tooltip = tooltip;
       Equipable = isEquipable;
+      ToolScene = toolScene;
     }
   }
 
@@ -117,8 +119,8 @@ public class Items
   {
     {ItemCode.Wood, new("Wood", false, new(2, 1), "A flexible and strong material from trees")},
     {ItemCode.Stone, new("Stone", false, new(1,1), "A strong rock mined from underground and grinded by snow")},
-    {ItemCode.Axe, new("Axe", true, new(2, 3), "Chops Trees", 1)},
+    {ItemCode.Axe, new("Axe", true, new(2, 3), "Chops Trees", 1, "res://Items/Tools/Axe/Axe.tscn")},
     {ItemCode.Snow, new("Snow", false, new(1,1), "A collection of ice crystals laying on ground that can grinded")},
-    {ItemCode.Shovel, new("Shovel", true, new(1,3), "Can shovel up snow of the ground", 1)}
+    {ItemCode.Shovel, new("Shovel", true, new(1,3), "Can shovel up snow of the ground", 1, "res://Items/Tools/Shovel/Shovel.tscn")}
   };
 }

@@ -1,16 +1,29 @@
 using Godot;
+using System;
+using System.Collections.Generic;
 
 [GlobalClass]
-public abstract partial class BaseTool : StaticBody3D
+public abstract partial class BaseTool : Node3D
 {
+  private static Dictionary<Items.ItemCode, PackedScene> _ToolCache = new();
+
+  public static T GetToolFromCode<T>(Items.ItemCode code) where T : BaseTool
+  {
+    if (_ToolCache.ContainsKey(code))
+      return _ToolCache[code].Instantiate<T>();
+
+    Items.ItemData itemBase = Items.CodeToItem(code);
+
+    string scenePath = itemBase.ToolScene;
+    PackedScene scene = GD.Load<PackedScene>(scenePath);
+    _ToolCache.Add(code, scene);
+
+    return scene.Instantiate<T>();
+  }
+
   public static BaseTool GetToolFromCode(Items.ItemCode code)
   {
-    return code switch
-    {
-      Items.ItemCode.Axe => new Axe(),
-      Items.ItemCode.Shovel => new Shovel(),
-      _ => throw new Items.InvalidItemCodeException("Code couldn't be matched"),
-    };
+    return GetToolFromCode<BaseTool>(code);
   }
 
   /// <summary>
@@ -41,6 +54,21 @@ public abstract partial class BaseTool : StaticBody3D
     inventoryItem.Active = true;
   }
 
+  protected T GetUser<T>() where T : BasicCharacter
+  {
+    T user = this.GetParentByType<T>();
+
+    if (user == null)
+      throw new NullReferenceException($"User of {Name} was null.");
+
+    return user;
+  }
+
+  protected BasicCharacter GetUser()
+  {
+    return GetUser<BasicCharacter>();
+  }
+
   /// <summary>
   /// Unequips the tool, use after using the node since it will automaticly delete itself.
   /// </summary>
@@ -64,9 +92,5 @@ public abstract partial class BaseTool : StaticBody3D
   public override void _Ready()
   {
     base._Ready();
-
-    // TODO Mesh
-    MeshInstance3D meshInstance = new();
-    CallDeferred("add_child", meshInstance);
   }
 }

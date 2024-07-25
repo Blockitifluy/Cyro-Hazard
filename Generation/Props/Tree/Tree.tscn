@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://dluxn514oscok"]
+[gd_scene load_steps=6 format=3 uid="uid://dluxn514oscok"]
 
 [ext_resource type="Material" uid="uid://8wkj4vxcw1w5" path="res://Generation/Textures/Materials/TreeTrunk.tres" id="1_8g6yc"]
+[ext_resource type="Script" path="res://Generation/Props/Tree/TreeProp.cs" id="1_hihys"]
 [ext_resource type="Material" uid="uid://bgm0ux86y2xua" path="res://Generation/Textures/Materials/Leaves.tres" id="2_h4vxt"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_f20lu"]
@@ -36,6 +37,7 @@ size = Vector3(2, 10.969, 2)
 
 [node name="Tree" type="StaticBody3D"]
 transform = Transform3D(0.124754, 0, 0, 0, 0.124754, 0, 0, 0, 0.124754, 0, 0, 0)
+script = ExtResource("1_hihys")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("ArrayMesh_f20lu")

@@ -38,9 +38,10 @@ public partial class Terrain : MeshGeneration
     Vector3 pos = new(centerX, centerY, centerZ);
     float rotation = (float)GD.RandRange(0.0f, 180.0f);
 
-    StaticBody3D tree = TreeScene.Instantiate<StaticBody3D>();
+    TreeProp tree = TreeScene.Instantiate<TreeProp>();
     tree.Position = pos;
     tree.Rotate(Vector3.Up, rotation);
+    tree.AddToGroup("Trees");
 
     GD.Randomize();
 
