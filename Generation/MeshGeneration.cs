@@ -260,12 +260,6 @@ public abstract partial class MeshGeneration : Node3D
 		return rounded;
 	}
 
-	public bool IsVertexOnEdge(Vector2I vert)
-	{
-		Vector2 normalise = (Vector2)vert / ChunkSize; // TODO
-		return Math.Abs(normalise.X % 1) > Mathf.Epsilon || Math.Abs(normalise.Y % 1) > Mathf.Epsilon;
-	}
-
 	/// <summary>
 	/// Clears and deletes all chunks
 	/// </summary>
@@ -277,9 +271,7 @@ public abstract partial class MeshGeneration : Node3D
 
 	public Vector2I[] GetNeighbouringChunksFromVertex(Vector2I vertPos, Vector2I chunkPos)
 	{
-		// TODO
 		Vector2 normalised = (Vector2)vertPos / ChunkSize;
-		GD.Print(normalised, vertPos);
 
 		const int maxBorderingChunks = 8;
 
