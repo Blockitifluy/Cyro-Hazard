@@ -43,6 +43,7 @@ script = ExtResource("6_uka6n")
 TreeDensity = 0.35
 TreeSpawnScale = 10.0
 TreeScene = ExtResource("5_3ahh1")
+RenderRadius = 3
 SnowMaterial = ExtResource("6_15161")
 StoneMaterial = ExtResource("7_ujewj")
 

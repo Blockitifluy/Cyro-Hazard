@@ -263,7 +263,7 @@ public abstract partial class MeshGeneration : Node3D
 	public bool IsVertexOnEdge(Vector2I vert)
 	{
 		Vector2 normalise = (Vector2)vert / ChunkSize; // TODO
-		return Mathf.Round(normalise.X) == normalise.X || Mathf.Round(normalise.Y) == normalise.Y;
+		return Math.Abs(normalise.X % 1) > Mathf.Epsilon || Math.Abs(normalise.Y % 1) > Mathf.Epsilon;
 	}
 
 	/// <summary>
@@ -280,8 +280,6 @@ public abstract partial class MeshGeneration : Node3D
 		// TODO
 		Vector2 normalised = (Vector2)vertPos / ChunkSize;
 		GD.Print(normalised, vertPos);
-		if (IsVertexOnEdge(vertPos))
-			return Array.Empty<Vector2I>();
 
 		const int maxBorderingChunks = 8;
 
@@ -298,7 +296,6 @@ public abstract partial class MeshGeneration : Node3D
 			new (-1, -1),
 			new (0, -1),
 			new(1, -1),
-
 		};
 
 		List<Vector2I> bordering = new();
@@ -306,9 +303,6 @@ public abstract partial class MeshGeneration : Node3D
 		for (int i = 0; i < maxBorderingChunks; i++)
 		{
 			Vector2I map = borderMap[i];
-
-			GD.Print(map, mapPos);
-
 			if ((map.X == 0 || mapPos.X == map.X) && (map.Y == 0 || mapPos.Y == map.Y))
 				bordering.Add(map + chunkPos);
 		}
@@ -329,13 +323,13 @@ public abstract partial class MeshGeneration : Node3D
 			Vector2I[] neighboursPos = GetNeighbouringChunksFromVertex(vertexPos, chunk.GridPosition);
 			List<Chunk> neighbours = new();
 
-			foreach (Chunk chk in GetTree().GetNodesInGroup("Chunks").Cast<Chunk>())
+			foreach (Chunk chk in GetTree().GetNodesInGroup("chunks").Cast<Chunk>())
 			{
 				if (!neighboursPos.Contains(chk.GridPosition)) continue;
 
-				EditVertexHeight(chk, Vector2I.One * ChunkSize - vertexPos, height, false);
+				Vector2I mirror = chk.GridPosition - chunk.GridPosition;
 
-
+				EditVertexHeight(chk, vertexPos - mirror * ChunkSize, height, false);
 			}
 		}
 
