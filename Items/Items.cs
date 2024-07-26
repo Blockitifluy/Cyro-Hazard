@@ -109,7 +109,10 @@ public class Items
     Axe = 2,
     Snow = 3,
     Shovel = 4,
-    ThisWillThrowErrorIfUsed = 99999999
+    Bat = 5,
+    Pistol = 6,
+
+    ThisWillThrowErrorIfUsed = int.MaxValue
   }
 
   /// <summary>
@@ -119,8 +122,11 @@ public class Items
   {
     {ItemCode.Wood, new("Wood", false, new(2, 1), "A flexible and strong material from trees")},
     {ItemCode.Stone, new("Stone", false, new(1,1), "A strong rock mined from underground and grinded by snow")},
-    {ItemCode.Axe, new("Axe", true, new(2, 3), "Chops Trees", 1, "res://Items/Tools/Axe/Axe.tscn")},
     {ItemCode.Snow, new("Snow", false, new(1,1), "A collection of ice crystals laying on ground that can grinded")},
-    {ItemCode.Shovel, new("Shovel", true, new(1,3), "Can shovel up snow of the ground", 1, "res://Items/Tools/Shovel/Shovel.tscn")}
+
+    {ItemCode.Axe, new("Axe", true, new(2, 3), "Chops Trees", 1, "res://Items/Tools/Axe/Axe.tscn")},
+    {ItemCode.Shovel, new("Shovel", true, new(1,3), "Can shovel up snow of the ground", 1, "res://Items/Tools/Shovel/Shovel.tscn")},
+    {ItemCode.Bat, new("Bat", true, new(1, 3), "", 1, "res://Items/Tools/Bat/Bat.tscn")},
+    {ItemCode.Pistol, new("Pistol", true, new(2, 1), "", 1, "res://Items/Tools/Pistol/Pistol.tscn")}
   };
 }

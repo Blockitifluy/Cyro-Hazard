@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://rurfb751e8yl"]
+
+[ext_resource type="Script" path="res://Items/Tools/Virtual/HitscanWeapon.cs" id="1_1ss7i"]
+
+[node name="Bat" type="Node3D"]
+script = ExtResource("1_1ss7i")
+Damage = 35.0
+Range = 10.0
+FireRate = 25.0

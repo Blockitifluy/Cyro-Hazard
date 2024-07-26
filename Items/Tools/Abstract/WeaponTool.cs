@@ -116,13 +116,13 @@ public abstract partial class WeaponTool : BaseTool
   /// </summary>
   private void AutoHandler()
   {
-    if (Input.IsActionJustReleased(Fire1))
+    if (Input.IsActionJustReleased(Fire1) || ShouldStopFiring())
     {
       _IsActive = false;
       return;
     }
 
-    if (_Timer - _LastFire > 60.0d / FireRate)
+    if (CanFire())
       Fire();
   }
 
@@ -153,6 +153,16 @@ public abstract partial class WeaponTool : BaseTool
       Fire();
   }
 
+  protected virtual bool ShouldStopFiring()
+  {
+    return false;
+  }
+
+  protected virtual bool CanFire()
+  {
+    return _Timer - _LastFire > 60.0d / FireRate;
+  }
+
   /// <summary>
   /// Picks the method on which on how to fire based on the <see cref="FiringMode"/>.
   /// </summary>
@@ -177,7 +187,7 @@ public abstract partial class WeaponTool : BaseTool
   {
     base._Process(delta);
 
-    if (Input.IsActionJustPressed(Fire1) && _Timer - _LastFire > 60.0d / FireRate)
+    if (Input.IsActionJustPressed(Fire1) && CanFire())
       _IsActive = true;
 
     if (_IsActive)

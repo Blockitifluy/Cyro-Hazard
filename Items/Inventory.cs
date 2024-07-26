@@ -261,6 +261,20 @@ public class Inventory
     return inventoryItem;
   }
 
+  /// <inheritdoc cref="AddItem(Items.ItemCode, int)"/>
+  public InventoryItem AddItem(Items.ItemCode code, int amount)
+  {
+    Items.ItemData itemData = Items.CodeToItem(code);
+    Vector2I size = itemData.Size;
+
+    Vector2I at = FindSpaceFor(size);
+
+    if (at == Vector2I.MinValue)
+      throw new DoesNotFitException(nameof(size));
+
+    return AddItem(code, at, amount);
+  }
+
   /// <summary>
   /// Checks if a single slot is taken up.
   /// </summary>

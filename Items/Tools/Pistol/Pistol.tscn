@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxcfbrwaq4p8a"]
+
+[ext_resource type="Script" path="res://Items/Tools/Virtual/RangedWeapon.cs" id="1_8dr1o"]
+
+[node name="Pistol" type="Node3D"]
+script = ExtResource("1_8dr1o")
