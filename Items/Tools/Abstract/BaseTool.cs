@@ -52,6 +52,8 @@ public abstract partial class BaseTool : Node3D
   protected virtual void Equip()
   {
     inventoryItem.Active = true;
+
+    GD.Print($"Equipped tool {Name}");
   }
 
   protected T GetUser<T>() where T : BasicCharacter
@@ -75,6 +77,8 @@ public abstract partial class BaseTool : Node3D
   public virtual void Unequip()
   {
     inventoryItem.Active = false;
+
+    GD.Print($"Unequipped tool ${Name}");
   }
 
   public override void _EnterTree()

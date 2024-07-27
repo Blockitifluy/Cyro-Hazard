@@ -263,10 +263,19 @@ public abstract partial class MeshGeneration : Node3D
 	/// <summary>
 	/// Clears and deletes all chunks
 	/// </summary>
-	private void CleanChunks()
+	private List<Vector2I> CleanChunks(Vector2I pos)
 	{
-		foreach (var chk in GetTree().GetNodesInGroup("chunks").Cast<StaticBody3D>())
-			chk.QueueFree();
+		List<Vector2I> keptChunks = new();
+		Vector2I[] mapping = GetChunkMapping(pos);
+
+		foreach (var chk in GetTree().GetNodesInGroup("chunks").Cast<Chunk>())
+		{
+			if (!mapping.Contains(chk.GridPosition)) chk.QueueFree();
+
+			keptChunks.Add(chk.GridPosition);
+		}
+
+		return keptChunks;
 	}
 
 	public Vector2I[] GetNeighbouringChunksFromVertex(Vector2I vertPos, Vector2I chunkPos)
@@ -319,9 +328,9 @@ public abstract partial class MeshGeneration : Node3D
 			{
 				if (!neighboursPos.Contains(chk.GridPosition)) continue;
 
-				Vector2I mirror = chk.GridPosition - chunk.GridPosition;
+				Vector2I dir = chk.GridPosition - chunk.GridPosition;
 
-				EditVertexHeight(chk, vertexPos - mirror * ChunkSize, height, false);
+				EditVertexHeight(chk, vertexPos - dir * ChunkSize, height, false);
 			}
 		}
 
@@ -362,16 +371,16 @@ public abstract partial class MeshGeneration : Node3D
 		GD.PrintRich($"[b][color=GREEN]Mesh Generation[/color][/b] Updated chunk in {timer.ElapsedMilliseconds}ms");
 	}
 
-	public Vector2I[] ChunkMapping()
+	public Vector2I[] GetChunkMapping(Vector2I add)
 	{
 		Vector2I[] chunkMapping = new Vector2I[ChunkLoaded];
 
 		Parallel.For(0, ChunkLoaded, i =>
 		{
-			int X = i % RenderRadius,
-			Y = i / RenderRadius;
+			int X = (i % RenderRadius) + add.X,
+			Y = (i / RenderRadius) + add.Y;
 
-			chunkMapping[i] = new(X - RenderRadius / 2, Y - RenderRadius / 2);
+			chunkMapping[i] = new Vector2I(X - RenderRadius / 2, Y - RenderRadius / 2);
 		});
 
 		return chunkMapping;
@@ -501,24 +510,29 @@ public abstract partial class MeshGeneration : Node3D
 	{
 		Vector2I chunkPos = PositionToChunk(ChunkSize, NodeFollower.Node.GlobalPosition);
 
-		CleanChunks();
+		List<Vector2I> keptChunks = CleanChunks(chunkPos);
 
 		List<Chunk> chunks = new();
-		Vector2I[] chunkMapping = ChunkMapping();
+		Vector2I[] mapping = GetChunkMapping(chunkPos);
 
 		Stopwatch stopwatch = new();
 		stopwatch.Start();
 
+
+		int loaded = 0;
 		for (int i = 0; i < ChunkLoaded; i++)
 		{
-			Vector2I map = chunkMapping[i] + chunkPos;
+			Vector2I map = mapping[i];
+
+			if (keptChunks.Contains(map)) continue;
 
 			chunks.Add(MakeChunkAutomatic(map));
+			loaded++;
 		}
 
 		stopwatch.Stop();
-		float timePerChunk = (float)stopwatch.ElapsedMilliseconds / ChunkLoaded;
-		GD.PrintRich($"[b][color=GREEN]Chunk Generation ({ChunkLoaded})[/color][/b] {stopwatch.ElapsedMilliseconds}ms ({timePerChunk}ms per Chunk)");
+		float timePerChunk = (float)stopwatch.ElapsedMilliseconds / loaded;
+		GD.PrintRich($"[b][color=GREEN]Chunk Generation ({loaded})[/color][/b] {stopwatch.ElapsedMilliseconds}ms ({timePerChunk}ms per Chunk)");
 
 		return chunks;
 	}

@@ -229,10 +229,10 @@ public partial class Player : BasicCharacter
     Grip = GetNode<Marker3D>("Pivot/Grip");
     CameraPivot = (Marker3D)GetTree().GetFirstNodeInGroup("CameraPivot");
 
-    Inventory.InventoryItem axe = inventory.AddItem(Items.ItemCode.Bat, 1);
+    Inventory.InventoryItem axe = inventory.AddItem(Items.ItemCode.Axe, 1);
     Hotbar.AddToFromHotbar(axe, 0);
 
-    Inventory.InventoryItem shovel = inventory.AddItem(Items.ItemCode.Pistol, 1);
+    Inventory.InventoryItem shovel = inventory.AddItem(Items.ItemCode.Shovel, 1);
     Hotbar.AddToFromHotbar(shovel, 1);
   }
 

@@ -6,13 +6,6 @@ public partial class Shovel : TerrainEditorTool
   [Export]
   public float DigDepth { get; set; } = 1.0f;
 
-  protected override void Equip()
-  {
-    base.Equip();
-
-    GD.Print("Equiped Shovel");
-  }
-
   public override void Fire()
   {
     base.Fire();

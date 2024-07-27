@@ -198,6 +198,7 @@ public abstract partial class WeaponTool : BaseTool
 
   public virtual void Fire()
   {
+    GD.Print($"Fired Weapon {Name}");
     _LastFire = _Timer;
     _BurstCount++;
   }

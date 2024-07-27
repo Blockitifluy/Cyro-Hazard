@@ -134,10 +134,14 @@ public class Inventory
     public int Amount;
     public bool Active = false;
 
+    public Items.ItemData GetItem()
+    {
+      return Items.CodeToItem(ItemCode);
+    }
+
     public override string ToString()
     {
-      Items.ItemData item = Items.CodeToItem(ItemCode);
-      return item.ToString();
+      return GetItem().ToString();
     }
 
     internal InventoryItem(Items.ItemCode code, Vector2I startingPos, int amount)
