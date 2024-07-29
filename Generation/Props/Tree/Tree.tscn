@@ -38,6 +38,8 @@ size = Vector3(2, 10.969, 2)
 [node name="Tree" type="StaticBody3D"]
 transform = Transform3D(0.124754, 0, 0, 0, 0.124754, 0, 0, 0, 0.124754, 0, 0, 0)
 script = ExtResource("1_hihys")
+MaxHealth = 125.0
+Health = 125.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("ArrayMesh_f20lu")

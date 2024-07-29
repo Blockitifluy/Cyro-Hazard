@@ -43,8 +43,8 @@ public abstract partial class BasicCharacter : CharacterBody3D
   [Export]
   public float Stamina
   {
-    get => stamina;
-    set { stamina = Mathf.Clamp(value, -StaminaLower, StaminaMax); }
+    get => _stamina;
+    set { _stamina = Mathf.Clamp(value, -StaminaLower, StaminaMax); }
   }
   /// <summary>
   /// The lower bound of the stamina. If stamina is under 0, the character is exhasted
@@ -55,15 +55,43 @@ public abstract partial class BasicCharacter : CharacterBody3D
   /// </summary>
   [Export] public float StaminaRegen { get; set; } = 4.0f;
 
-  private float stamina = 0.0f;
+  [ExportGroup("Health")]
+  [Export] public float MaxHealth { get; set; } = 100.0f;
+  [Export]
+  public float Health
+  {
+    get { return _health; }
+    set
+    {
+      if (value <= 0)
+      {
+        // TODO - On Death Behaviour
+        GD.Print("Died!");
+        OnDeath();
+        return;
+      }
+
+      if (value > MaxHealth) return;
+
+      _health = value;
+    }
+  }
+
+  private float _health = 100.0f;
+  private float _stamina = 0.0f;
   /// <summary>
   /// The target velocity
   /// </summary>
-  protected Vector3 targetVelo = Vector3.Zero;
+  protected Vector3 TargetVelocity = Vector3.Zero;
   /// <summary>
   /// The charater pivot
   /// </summary>
   protected Node3D Pivot;
+  protected double _Timer = 0.0f;
+
+  protected abstract Vector3 GetMovementDirection();
+
+  protected abstract void OnDeath();
 
   /// <summary>
   /// Gets the falling speed of the character
@@ -106,22 +134,49 @@ public abstract partial class BasicCharacter : CharacterBody3D
   /// <param name="delta">The frame's delta</param>
   /// <param name="unitDir">The walk direction</param>
   /// <returns>The look and velocity</returns>
-  protected (Basis, Vector3) Run(double delta, Vector3 unitDir)
+  protected (Basis, Vector3) GetRunData(double delta, Vector3 unitDir)
   {
     float currentSpeed = GetSpeed() * (float)delta;
 
     Vector3 walkDisplace = unitDir.Normalized() * currentSpeed;
 
-    if (walkDisplace != Vector3.Zero)
+    float staminaGen = StaminaRegen * (float)delta;
+    Stamina += staminaGen;
+
+    if (walkDisplace.X != 0 || walkDisplace.Z != 0)
     {
       Basis LastBasis = Pivot.Basis,
-      LookingAt = Basis.LookingAt(walkDisplace),
+      LookingAt = Basis.LookingAt(new(walkDisplace.X, 0, walkDisplace.Z)),
       LookingLerp = LastBasis.Slerp(LookingAt, LookWeight);
 
       return (LookingLerp, walkDisplace);
     }
 
     return (new Basis(), new Vector3());
+  }
+
+  /// <summary>
+  /// The action of the player running
+  /// </summary>
+  /// <param name="delta">The time distance between the previous 2 frames</param>
+  /// <returns>The stamina taken when running</returns>
+  public float RunAction(double delta)
+  {
+    Vector3 dir = GetMovementDirection();
+
+    if (Stamina == -StaminaLower) return 0.0f;
+
+    var (lookAt, velo) = GetRunData(delta, dir);
+
+    TargetVelocity = velo;
+
+    if (velo != Vector3.Zero) Pivot.Basis = lookAt;
+
+    float runStamina = SpeedToStamina(velo.Length());
+
+    Stamina -= runStamina;
+
+    return runStamina;
   }
 
   /// <summary>
@@ -142,5 +197,23 @@ public abstract partial class BasicCharacter : CharacterBody3D
 
     Stamina = StaminaMax;
     Pivot = GetNode<Node3D>("Pivot");
+  }
+
+  public override void _PhysicsProcess(double delta)
+  {
+    base._PhysicsProcess(delta);
+
+    Velocity = TargetVelocity - Vector3.Down * FallAcceleration;
+    MoveAndSlide();
+  }
+
+  public override void _Process(double delta)
+  {
+    base._Process(delta);
+
+    float staminaGen = StaminaRegen * (float)delta;
+    Stamina += staminaGen;
+
+    _Timer += delta;
   }
 }

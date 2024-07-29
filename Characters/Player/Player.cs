@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Godot;
 
 [GlobalClass]
@@ -25,29 +24,25 @@ public partial class Player : BasicCharacter
   public Inventory inventory = new(new Vector2I(10, 10), 3);
   public Inventory.Hotbar Hotbar { get { return inventory.hotbar; } }
 
-  /// <summary>
-  /// The action of the player running
-  /// </summary>
-  /// <param name="delta">The time distance between the previous 2 frames</param>
-  /// <returns>The stamina taken when running</returns>
-  public float RunAction(double delta)
+  protected override Vector3 GetMovementDirection()
   {
     Vector3 cameraRot = CameraPivot.Rotation;
 
     Vector2 unit2D = Input.GetVector("move-left", "move-right", "move-forward", "move-backward");
-    Vector3 unit = new Vector3(unit2D.X, 0, unit2D.Y)
+    Vector3 unit3D = new(unit2D.X, 0, unit2D.Y);
+
+    if (cameraRot == Vector3.Zero) return unit3D.Normalized();
+
+    Vector3 unit = unit3D
     .Rotated(cameraRot.Normalized(), cameraRot.Length())
     .Normalized();
 
-    if (Stamina == -StaminaLower) return 0.0f;
+    return unit;
+  }
 
-    var (lookAt, velo) = Run(delta, unit);
+  protected override void OnDeath()
+  {
 
-    targetVelo = velo;
-
-    if (velo != Vector3.Zero) Pivot.Basis = lookAt;
-
-    return SpeedToStamina(velo.Length());
   }
 
   /// <summary>
@@ -70,6 +65,9 @@ public partial class Player : BasicCharacter
   public void EquipAction()
   {
     int slotIndex = SlotInput();
+
+    if (Input.IsActionJustPressed("unequip")) Hotbar.UnequipCurrent();
+
     if (slotIndex == -1) return;
 
     Hotbar.UnequipCurrent();
@@ -236,27 +234,20 @@ public partial class Player : BasicCharacter
     Hotbar.AddToFromHotbar(shovel, 1);
   }
 
+  public override void _Process(double delta)
+  {
+    base._Process(delta);
+
+    PickupAction(delta);
+    EquipAction();
+
+    PickupTimer += delta;
+  }
+
   public override void _PhysicsProcess(double delta)
   {
     base._PhysicsProcess(delta);
 
-    PickupAction(delta);
-
-    // Running
-    float runStamina = RunAction(delta),
-    staminaGen = StaminaRegen * (float)delta;
-
-    Stamina -= runStamina;
-    Stamina += staminaGen;
-
-    Velocity = targetVelo - Vector3.Down * FallAcceleration;
-    MoveAndSlide();
-
-    PickupTimer += delta;
-
-    EquipAction();
-
-    if (Input.IsActionJustPressed("unequip"))
-      Hotbar.UnequipCurrent();
+    RunAction(delta);
   }
 }

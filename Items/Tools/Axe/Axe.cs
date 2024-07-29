@@ -28,5 +28,10 @@ public partial class Axe : TerrainEditorTool
     {
       HitTree(tree);
     }
+
+    if (hit is Zombie target) // TODO - Change Later
+    {
+      Attack(target);
+    }
   }
 }

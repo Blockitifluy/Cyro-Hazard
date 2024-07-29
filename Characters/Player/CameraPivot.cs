@@ -52,7 +52,7 @@ public partial class CameraPivot : Marker3D
 
 	private void TurnPivotFromUser()
 	{
-		float turnPower = Input.GetAxis("camera-right", "camera-left");
+		float turnPower = Input.GetAxis("camera-left", "camera-right");
 
 		float toRad = Mathf.DegToRad(TurnPower);
 

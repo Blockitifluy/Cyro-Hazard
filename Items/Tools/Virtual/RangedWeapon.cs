@@ -19,12 +19,8 @@ public partial class RangedWeapon : HitscanWeapon
     return _ammo <= 0;
   }
 
-  public override bool Fire()
+  protected override void HitEffect()
   {
-    bool successful = base.Fire();
-
-    if (successful) _ammo -= 1;
-
-    return false;
+    _ammo -= 1;
   }
 }

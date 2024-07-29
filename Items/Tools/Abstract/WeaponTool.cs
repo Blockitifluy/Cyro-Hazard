@@ -1,3 +1,4 @@
+using System;
 using Godot;
 
 [GlobalClass]
@@ -194,6 +195,11 @@ public abstract partial class WeaponTool : BaseTool
       FireHandle();
 
     _Timer += delta;
+  }
+
+  protected void Attack(BasicCharacter target)
+  {
+    target.Health -= Damage;
   }
 
   public virtual void Fire()

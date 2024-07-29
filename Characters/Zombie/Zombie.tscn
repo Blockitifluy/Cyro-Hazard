@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://s8icoimu6cgo"]
+
+[ext_resource type="Script" path="res://Characters/Zombie/Zombie.cs" id="1_l67tq"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1ps4r"]
+size = Vector3(0.25, 0.5, 0.25)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b4wmc"]
+albedo_color = Color(0, 1, 0, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_j0qp5"]
+material = SubResource("StandardMaterial3D_b4wmc")
+radius = 0.125
+height = 0.5
+
+[node name="Zombie" type="CharacterBody3D"]
+wall_min_slide_angle = 3.14159
+floor_stop_on_slope = false
+floor_constant_speed = true
+floor_block_on_wall = false
+script = ExtResource("1_l67tq")
+WanderRange = 15.0
+SearchRadius = 10.0
+SearchCacheLength = 5.0
+AttackDistance = 1.0
+AttackRange = 1.25
+AttackDamage = 15.0
+AttackRate = 25.0
+BaseSpeed = 75
+RunSpeed = 100
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_1ps4r")
+
+[node name="Pivot" type="Node3D" parent="."]
+
+[node name="Character" type="Node3D" parent="Pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00311542, -0.0029203, -5.25713e-05)
+
+[node name="Mesh" type="MeshInstance3D" parent="Pivot/Character"]
+mesh = SubResource("CapsuleMesh_j0qp5")
+skeleton = NodePath("../../..")

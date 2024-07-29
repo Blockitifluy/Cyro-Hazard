@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Godot;
 
-public class Items
+public static class Items
 {
   [Serializable]
   public class InvalidItemCodeException : Exception

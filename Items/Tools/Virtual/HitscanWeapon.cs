@@ -3,25 +3,27 @@ using Godot;
 [GlobalClass]
 public partial class HitscanWeapon : WeaponTool
 {
-  public new virtual bool Fire()
+  protected virtual void HitEffect()
+  {
+
+  }
+
+  public override void Fire()
   {
     base.Fire();
 
     var ray = ScreenPointToRay();
 
     Node3D hit = (Node3D)ray["collider"];
-    if (hit == null) return false;
+    if (hit == null) return;
 
     Vector3 hitPos = (Vector3)ray["position"];
 
     var (inRange, _) = IsInRange(hitPos, Range);
 
-    if (inRange)
-    {
-      GD.Print(hit);
-      return true;
-    };
+    if (inRange && hit is Zombie target)
+      Attack(target);
 
-    return false;
+    HitEffect();
   }
 }
