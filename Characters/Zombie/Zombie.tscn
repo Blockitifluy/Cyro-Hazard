@@ -25,7 +25,7 @@ SearchCacheLength = 5.0
 AttackDistance = 1.0
 AttackRange = 1.25
 AttackDamage = 15.0
-AttackRate = 25.0
+AttackRate = 15.0
 BaseSpeed = 75
 RunSpeed = 100
 

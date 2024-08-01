@@ -5,6 +5,15 @@ using Godot;
 [GlobalClass]
 public abstract partial class BasicCharacter : CharacterBody3D
 {
+  public enum State
+  {
+    Idle,
+    Walking,
+    Wandering,
+    Chasing,
+    Attacking
+  }
+
   /// <summary>
   /// The fall acceleration of character
   /// </summary>
@@ -13,6 +22,8 @@ public abstract partial class BasicCharacter : CharacterBody3D
   /// The character's look lerp weight
   /// </summary>
   [Export(PropertyHint.Range, "0,1,")] public float LookWeight { get; set; } = 0.25f;
+
+  [Export] public State CurrentState { get; set; } = State.Idle;
 
   /// <summary>
   /// The base walk speed
@@ -170,7 +181,12 @@ public abstract partial class BasicCharacter : CharacterBody3D
 
     TargetVelocity = velo;
 
-    if (velo != Vector3.Zero) Pivot.Basis = lookAt;
+    if (velo != Vector3.Zero)
+    {
+      Pivot.Basis = lookAt;
+      CurrentState = State.Walking;
+    }
+    else CurrentState = State.Idle;
 
     float runStamina = SpeedToStamina(velo.Length());
 

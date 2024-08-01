@@ -4,16 +4,6 @@ using Godot;
 [GlobalClass]
 public partial class Zombie : BasicCharacter
 {
-  public enum ZombieState : uint
-  {
-    Idle,
-    Wandering,
-    Chasing,
-    Attacking
-  }
-
-  [Export] public ZombieState State { get; set; } = ZombieState.Idle;
-
   [ExportGroup("Wander")]
   [Export] public float WanderRange { get; set; }
 
@@ -57,7 +47,7 @@ public partial class Zombie : BasicCharacter
 
     _ToMove = Position + (dir * distance);
 
-    State = ZombieState.Wandering;
+    CurrentState = State.Wandering;
   }
 
   private void Attack(BasicCharacter enemy)
@@ -113,7 +103,7 @@ public partial class Zombie : BasicCharacter
     float spaceBetweenTarget = Mathf.Min(distance, AttackDistance);
 
     if (distance > AttackDistance)
-      State = ZombieState.Chasing;
+      CurrentState = State.Chasing;
 
     _ToMove = enemy.Position - (targetDir * spaceBetweenTarget);
   }

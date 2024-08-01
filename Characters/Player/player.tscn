@@ -1,13 +1,10 @@
 [gd_scene load_steps=4 format=3 uid="uid://cv33llrox6khk"]
 
 [ext_resource type="Script" path="res://Characters/Player/Player.cs" id="1_c24a7"]
+[ext_resource type="PackedScene" uid="uid://c8i364q25tknx" path="res://Characters/Player/character.glb" id="2_og6fs"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wtqqu"]
-size = Vector3(0.25, 0.5, 0.25)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_dailw"]
-radius = 0.125
-height = 0.5
+size = Vector3(0.25, 0.75, 0.25)
 
 [node name="Player" type="CharacterBody3D"]
 collision_layer = 5
@@ -23,12 +20,8 @@ shape = SubResource("BoxShape3D_wtqqu")
 
 [node name="Pivot" type="Node3D" parent="."]
 
-[node name="Character" type="Node3D" parent="Pivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00311542, -0.0029203, -5.25713e-05)
-
-[node name="Mesh" type="MeshInstance3D" parent="Pivot/Character"]
-mesh = SubResource("CapsuleMesh_dailw")
-skeleton = NodePath("../../..")
+[node name="character" parent="Pivot" instance=ExtResource("2_og6fs")]
+transform = Transform3D(-0.100153, 0, -8.75569e-09, 0, 0.100153, 0, 8.75569e-09, 0, -0.100153, 0, 0, 0)
 
 [node name="Grip" type="Marker3D" parent="Pivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16659, 0, 0.16577)

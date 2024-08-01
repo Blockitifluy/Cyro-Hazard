@@ -15,6 +15,12 @@ public partial class Player : BasicCharacter
 
   private Marker3D Grip;
   private Marker3D CameraPivot;
+  private AnimationPlayer Animator;
+
+  private Animation WalkAnim;
+
+  private const string WalkAnimName = "Walk";
+  private const string IdleAnimName = "Idle";
 
   public override bool IsRunning()
   {
@@ -226,6 +232,9 @@ public partial class Player : BasicCharacter
 
     Grip = GetNode<Marker3D>("Pivot/Grip");
     CameraPivot = (Marker3D)GetTree().GetFirstNodeInGroup("CameraPivot");
+    Animator = this.GetChildByType<AnimationPlayer>();
+
+    WalkAnim = Animator.GetAnimation(WalkAnimName);
 
     Inventory.InventoryItem axe = inventory.AddItem(Items.ItemCode.Axe, 1);
     Hotbar.AddToFromHotbar(axe, 0);
@@ -240,6 +249,18 @@ public partial class Player : BasicCharacter
 
     PickupAction(delta);
     EquipAction();
+
+    if (CurrentState == State.Walking)
+    {
+      float speed = GetSpeed(),
+      animSpeed = speed / WalkAnim.Length / 15.0f;
+
+      Animator.Play(WalkAnimName, .5d, animSpeed);
+    }
+    else if (CurrentState == State.Idle)
+    {
+      Animator.Play(IdleAnimName, .5d);
+    }
 
     PickupTimer += delta;
   }

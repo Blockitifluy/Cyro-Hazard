@@ -8,4 +8,4 @@ DigDepth = 0.25
 Damage = 5.0
 Range = 25.0
 FiringMode = 1
-FireRate = 60.0
+FireRate = 180.0
