@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=3 uid="uid://bwfly4emjkoa6"]
 
 [ext_resource type="PackedScene" uid="uid://cv33llrox6khk" path="res://Characters/Player/player.tscn" id="1_2fumh"]
-[ext_resource type="Theme" uid="uid://bu43bgh6p57ya" path="res://BaseTheme.tres" id="1_rjc8t"]
+[ext_resource type="Theme" uid="uid://bu43bgh6p57ya" path="res://UI/BaseTheme.tres" id="1_rjc8t"]
 [ext_resource type="Script" path="res://Characters/Player/CameraPivot.cs" id="2_wh28q"]
 [ext_resource type="PackedScene" uid="uid://bbe80tb3e3d0d" path="res://UI/backpack.tscn" id="3_cbpee"]
 [ext_resource type="PackedScene" uid="uid://w23cbmgs53r2" path="res://Items/Pickup/Pickup.tscn" id="3_vmgn5"]
@@ -10,7 +10,7 @@
 [ext_resource type="Material" uid="uid://bmnw30ebxfv0t" path="res://Generation/Textures/Materials/Snow.tres" id="6_15161"]
 [ext_resource type="Script" path="res://Generation/Terrain.cs" id="6_uka6n"]
 [ext_resource type="Material" uid="uid://cbygtffo6wwrj" path="res://Items/Pickup/Meshs/Stone.tres" id="7_ujewj"]
-[ext_resource type="Environment" uid="uid://bf2jw56yi3qwe" path="res://Environment.tres" id="11_32728"]
+[ext_resource type="Environment" uid="uid://bf2jw56yi3qwe" path="res://Other/Environment.tres" id="11_32728"]
 [ext_resource type="PackedScene" uid="uid://s8icoimu6cgo" path="res://Characters/Zombie/Zombie.tscn" id="12_pf40a"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_km65f"]

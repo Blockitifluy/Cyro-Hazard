@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Godot;
 
 [GlobalClass]
@@ -23,10 +21,7 @@ abstract public partial class TerrainEditorTool : WeaponTool
     get
     {
       MeshGeneration meshGeneration = GetTree().Root
-      .GetChildByType<MeshGeneration>();
-
-      if (meshGeneration == null) throw new NullReferenceException("MeshGeneration doesn't Exist");
-
+      .GetChildByType<MeshGeneration>() ?? throw new NullReferenceException("MeshGeneration doesn't Exist");
       return meshGeneration;
     }
   }

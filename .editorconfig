@@ -2,11 +2,3 @@
 
 # CA1050: Declare types in namespaces
 dotnet_diagnostic.CA1050.severity = none
-
-# IDE0270: Use coalesce expression
-dotnet_style_coalesce_expression = false
-
-dotnet_diagnostic.IDE0044.severity = none
-
-# IDE0025: Use expression body for property
-dotnet_diagnostic.IDE0025.severity = none

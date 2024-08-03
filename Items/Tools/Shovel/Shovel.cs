@@ -6,6 +6,12 @@ public partial class Shovel : TerrainEditorTool
   [Export]
   public float DigDepth { get; set; } = 1.0f;
 
+  [ExportGroup("Drops")]
+  [Export]
+  public Items.ItemCode ItemDrop { get; set; }
+  [Export]
+  public int DropAmount { get; set; } = 1;
+
   private void EditChunk(Vector3 rayHit, ChunkComponents components)
   {
     MeshDataTool meshDataTool = new();
@@ -26,6 +32,8 @@ public partial class Shovel : TerrainEditorTool
     float newHeight = vertex.Y - DigDepth;
 
     TerrainGenerator.EditVertexHeight(components.chunk, vrtPos, newHeight);
+
+    Pickup.DropItem(rayHit + Vector3.Up, ItemDrop, DropAmount, GetTree());
   }
 
   public override void Fire()

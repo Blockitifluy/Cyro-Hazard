@@ -1,9 +1,14 @@
-using System.Collections.Generic;
 using Godot;
 
 public static class GDExtensions
 {
-  //acts like Unity's GetComponent<T> / GetComponentInChildren<T>
+  /// <summary>
+  /// Gets a node child by type.
+  /// </summary>
+  /// <typeparam name="T">Has to be a Node. he type to be searched</typeparam>
+  /// <param name="node"></param>
+  /// <param name="recursive">Look into the children's children, ect.</param>
+  /// <returns>The child node</returns>
   public static T GetChildByType<T>(this Node node, bool recursive = true)
       where T : Node
   {
@@ -26,19 +31,12 @@ public static class GDExtensions
     return null;
   }
 
-  private struct PrintTypeData
-  {
-    public string Color;
-    public string Text;
-
-    public PrintTypeData(string color, string text)
-    {
-      Color = color;
-      Text = text;
-    }
-  }
-
-  //acts like Unity's GetComponentInParent<T>
+  /// <summary>
+  /// Gets a node's parent by type.
+  /// </summary>
+  /// <typeparam name="T">Has to be a Node. he type to be searched</typeparam>
+  /// <param name="node"></param>
+  /// <returns>The child node</returns>
   public static T GetParentByType<T>(this Node node)
       where T : Node
   {

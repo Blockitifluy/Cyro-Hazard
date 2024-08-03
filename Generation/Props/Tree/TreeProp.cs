@@ -1,31 +1,19 @@
 using Godot;
 
 [GlobalClass]
-public partial class TreeProp : StaticBody3D
+public partial class TreeProp : GenProp
 {
   [Export]
-  public float MaxHealth = 35;
-
-  private float _health = 35;
-  [Export]
-  public float Health
+  public int WoodDropAmount { get; set; } = 5;
+  protected override void OnHit(float newHealth)
   {
-    get { return _health; }
-    set
-    {
-      if (value > MaxHealth) return;
-
-      if (_health > value) OnTreeHit(value);
-
-      _health = value;
-    }
+    GD.Print(newHealth);
   }
 
-  private void OnTreeHit(float health)
+  protected override void OnDeath()
   {
-    if (health <= 0)
-    {
-      QueueFree();
-    }
+    Pickup.DropItem(GlobalPosition, Items.ItemCode.Wood, WoodDropAmount, GetTree());
+
+    base.OnDeath();
   }
 }
