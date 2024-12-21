@@ -110,7 +110,7 @@ public class MovementBasics : MonoBehaviour
     public float GetAccelerationSpeed()
     {
         var uncapped = _CurrentMovementSpeed + MovementAcceleration * Time.deltaTime;
-        return Mathf.Min(uncapped, MovementMaxSpeed);
+        return Mathf.Min(Mathf.Pow(uncapped, 2), MovementMaxSpeed);
     }
 
     /// <summary>

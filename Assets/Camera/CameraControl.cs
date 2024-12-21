@@ -38,7 +38,7 @@ public class CameraControl : MonoBehaviour
 
         Vector2 dir2D = currentMouse.value;
         Vector3 dir = new(0, dir2D.x, 0);
-        float magnitude = currentMouse.magnitude * SpinFactor; // TODO
+        float magnitude = currentMouse.magnitude * SpinFactor;
 
         Quaternion newQuat = Quaternion.AngleAxis(magnitude, dir);
         var lerpQuat = Quaternion.Lerp(transform.rotation, newQuat, CameraSmoothing);
