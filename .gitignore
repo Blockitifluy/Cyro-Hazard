@@ -1,9 +1,8 @@
-
-/Library
-/ProjectSettings
-/Temp
+Library
+ProjectSettings
+Temp
+.vscode/
+Logs/*
+UserSettings/*
 Assembly-CSharp.csproj
 Cyro Hazard.sln
-/UserSettings
-/Packages
-/Logs
