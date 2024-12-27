@@ -15,4 +15,9 @@ public static class Helper
 
     return null;
   }
+
+  static public bool IsBitSet(ulong b, int pos)
+  {
+    return (b & (1UL << pos)) != 0UL;
+  }
 }

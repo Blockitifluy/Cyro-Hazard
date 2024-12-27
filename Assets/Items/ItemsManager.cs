@@ -151,6 +151,11 @@ public class ItemManager : MonoBehaviour
     /// </summary>
     public readonly int MaxStack;
 
+    /// <summary>
+    /// The weight in kg per item
+    /// </summary>
+    public readonly float Weight;
+
     public override string ToString()
     {
       return $"{Name} ({ID})";
@@ -159,7 +164,7 @@ public class ItemManager : MonoBehaviour
     internal Item(string id, string name, float maxHealth,
     float spoilageRate, float decayRate, float flamiblity,
     bool @volatile, string description, ItemType type,
-    int maxStack, Vector2Int size
+    int maxStack, Vector2Int size, float weight
     )
     {
       ID = id;
@@ -173,6 +178,7 @@ public class ItemManager : MonoBehaviour
       Type = type;
       MaxStack = maxStack;
       Size = size;
+      Weight = weight;
     }
   }
 
@@ -194,7 +200,8 @@ public class ItemManager : MonoBehaviour
     float health = float.Parse(element.SelectSingleNode("health").InnerText),
     spoilageRate = float.Parse(element.SelectSingleNode("spoilageRate").InnerText),
     decayRate = float.Parse(element.SelectSingleNode("decayRate").InnerText),
-    flamiblity = float.Parse(element.SelectSingleNode("flamiblity").InnerText);
+    flamiblity = float.Parse(element.SelectSingleNode("flamiblity").InnerText),
+    weight = float.Parse(element.SelectSingleNode("weight").InnerText);
 
     int sizeX = int.Parse(element.SelectSingleNode("sizeX").InnerText),
     sizeY = int.Parse(element.SelectSingleNode("sizeY").InnerText),
@@ -224,7 +231,8 @@ public class ItemManager : MonoBehaviour
     Item item = new(
       ID, name, health, spoilageRate,
       decayRate, flamiblity, @volatile,
-      description, type, maxStack, size
+      description, type, maxStack, size,
+      weight
     );
 
     return item;
@@ -257,18 +265,35 @@ public class ItemManager : MonoBehaviour
   private void PreloadAllItems()
   {
     var itemElements = ItemsDocument.DocumentElement.ChildNodes;
+    int loaded = 0;
 
     foreach (XmlElement itemElem in itemElements)
     {
       Item item = XMLToItem(itemElem);
       Items.Add(item.ID, item);
-      Debug.Log($"Loaded item: {item.ID}");
+      loaded++;
     }
+    Debug.Log($"Loaded all {loaded} item(s)");
   }
 
-  public void Start()
+  private void TestForItemGetting()
   {
-    Debug.Log(GetItem("test-item-2"));
+    Debug.Log("Trying to get test-item for testing purposes");
+
+    Item itm;
+
+    try
+    {
+      itm = GetItem("test-item");
+    }
+    catch (NullReferenceException)
+    {
+      Debug.LogError("test-item was null");
+      Application.Quit(1);
+    }
+
+    Debug.Log("SUCCESS!");
+    return;
   }
 
   public void Awake()
@@ -277,5 +302,6 @@ public class ItemManager : MonoBehaviour
     ItemsDocument.Load(PathToItemsXML);
 
     PreloadAllItems();
+    TestForItemGetting();
   }
 }

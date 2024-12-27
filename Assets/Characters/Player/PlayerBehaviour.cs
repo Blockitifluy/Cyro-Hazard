@@ -51,8 +51,8 @@ public class PlayerBehaviour : CharacterControl
     {
         Vector2 dir = _MovementAction.ReadValue<Vector2>();
 
-        movementBasics.UpdateForwardsDir(dir.y);
-        movementBasics.UpdateTurning(dir.x);
+        MovementBasics.UpdateForwardsDir(dir.y);
+        MovementBasics.UpdateTurning(dir.x);
     }
 
     public void Start()

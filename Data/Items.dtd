@@ -1,5 +1,5 @@
 <!ELEMENT root (Item+)>
-<!ELEMENT Item (type, name, description, health, spoilageRate, decayRate, flamiblity, volitile, recipe, maxStack, sizeX, sizeY)>
+<!ELEMENT Item (type, name, description, health, spoilageRate, decayRate, flamiblity, volitile, recipe, maxStack, sizeX, sizeY, weight)>
 <!ATTLIST Item ID ID #REQUIRED>
 <!ELEMENT type (#PCDATA)>
 <!ELEMENT name (#PCDATA)>
@@ -13,6 +13,7 @@
 <!ELEMENT maxStack (#PCDATA)>
 <!ELEMENT sizeX (#PCDATA)>
 <!ELEMENT sizeY (#PCDATA)>
+<!ELEMENT weight (#PCDATA)>
 
 <!ELEMENT ritem (#PCDATA)>
 <!ATTLIST ritem ID CDATA #REQUIRED amount CDATA #REQUIRED>

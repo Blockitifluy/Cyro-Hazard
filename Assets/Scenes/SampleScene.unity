@@ -258,6 +258,7 @@ Transform:
   m_Children:
   - {fileID: 1993485765}
   - {fileID: 597870347}
+  - {fileID: 1482618884}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &131176277
@@ -310,7 +311,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79fabb38bc3c4394e8cf8366f26c5119, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementBasics: {fileID: 131176279}
+  MovementBasics: {fileID: 131176279}
   Controls: {fileID: -944628639613478452, guid: 1cf4a61929affde46bf215ca3494737b, type: 3}
   CharacterPickupDist: 5
   MousePickupDist: 2.5
@@ -1047,6 +1048,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 823232128}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 30}
+--- !u!1 &1482618883
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1482618884}
+  - component: {fileID: 1482618885}
+  m_Layer: 6
+  m_Name: Main Backpack
+  m_TagString: Backpack
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1482618884
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1482618883}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.07352806, y: -0.20789637, z: -0.07709013, w: 0.9723322}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 131176276}
+  m_LocalEulerAnglesHint: {x: -10.081, y: -23.523, z: -6.962}
+--- !u!114 &1482618885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1482618883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31560d76230078c4fbfc9adcc6225823, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Name: Test Backpack
+  Size: {x: 8, y: 8}
+  MaxWeight: 0
 --- !u!1 &1993485764
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,12 +1153,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
+      propertyPath: ID
+      value: test-item
+      objectReference: {fileID: 0}
+    - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: ItemID
       value: test-item
       objectReference: {fileID: 0}
     - target: {fileID: 3913955203937975920, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -8.01
       objectReference: {fileID: 0}
     - target: {fileID: 3913955203937975920, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: m_LocalPosition.y

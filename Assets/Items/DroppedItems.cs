@@ -19,13 +19,13 @@ public class DroppedItems : MonoBehaviour
         set { _Health = Mathf.Clamp(value, 0, Item.MaxHealth); }
     }
 
-    public string ItemID;
+    public string ID;
 
     // Start is called before the first frame update
     public void Start()
     {
         _ItemsManager = ItemManager.GetManager();
-        _Item = _ItemsManager.GetItem(ItemID);
+        _Item = _ItemsManager.GetItem(ID);
     }
 
     // Update is called once per frame

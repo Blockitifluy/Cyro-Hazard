@@ -17,6 +17,7 @@
 		<maxStack>16</maxStack>
 	  <sizeX>2</sizeX>
 	  <sizeY>1</sizeY>
+		<weight>0.05</weight>
   </Item>
 
   <Item ID="test-item">
@@ -34,5 +35,6 @@
 		<maxStack>1</maxStack>
 	  <sizeX>2</sizeX>
 	  <sizeY>1</sizeY>
+		<weight>0.25</weight>
   </Item>
 </root>
