@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/Interface/UIStyle.uss?fileID=7433441132597879392&amp;guid=9c93ae14ef441a44abdc676036a90deb&amp;type=3#UIStyle" />
+    <ui:VisualElement class="background">
+        <ui:Label text="Inventory" name="Label" class="title" style="-unity-font-style: bold;" />
+        <ui:VisualElement name="Main" style="flex-grow: 1; flex-direction: row;">
+            <ui:VisualElement name="Select-Menu" style="flex-grow: 1; width: 65%; flex-direction: row;">
+                <ui:ListView name="Selection" style="width: 100%;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="equip-menu" style="flex-grow: 1; width: 35%; justify-content: center; align-items: center;">
+                <ui:Label tabindex="-1" text="Test Item 1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="equip-name" style="-unity-font-style: normal; -unity-text-align: upper-right; font-size: 20px; width: 100%;" />
+                <ui:VisualElement name="equip-image" picking-mode="Ignore" style="flex-grow: 1; width: 200px; height: 200px; background-image: url(&quot;project://database/Assets/Placeholder/item-placeholder-img.png?fileID=2800000&amp;guid=00bb69f06cd5a3e4ab7946dbd8a3e7b7&amp;type=3#item-placeholder-img&quot;); max-height: none; opacity: 1; -unity-background-scale-mode: scale-to-fit;" />
+                <ui:VisualElement name="equip-actions" style="flex-grow: 1; width: 100%; flex-direction: row; align-items: center; justify-content: center;">
+                    <ui:Button text="Drop" parse-escape-sequences="true" display-tooltip-when-elided="true" name="equip-drop" class="equip-action" />
+                    <ui:Button text="Equip" parse-escape-sequences="true" display-tooltip-when-elided="true" name="equip-equip" class="equip-action" />
+                </ui:VisualElement>
+                <ui:Label tabindex="-1" text="TEXT DESCRIPTION TEXT DESCRIPTION TEXT DESCRIPTION TEXT DESCRIPTION TEXT DESCRIPTION TEXT DESCRIPTION TEXT DESCRIPTION TEXT DESCRIPTION TEXT DESCRIPTION" parse-escape-sequences="true" display-tooltip-when-elided="true" name="equip-description" style="width: 100%; text-overflow: clip; white-space: normal;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -47,6 +49,11 @@ public class PlayerBehaviour : CharacterControl
         return res.ToArray();
     }
 
+    public InputActionMap GetInputAction()
+    {
+        return _InputActionMap;
+    }
+
     private void ControlMovementOnInput()
     {
         Vector2 dir = _MovementAction.ReadValue<Vector2>();
@@ -55,9 +62,13 @@ public class PlayerBehaviour : CharacterControl
         MovementBasics.UpdateTurning(dir.x);
     }
 
-    public void Start()
+    public void Awake()
     {
         _InputActionMap = Controls.FindActionMap("gameplay");
+    }
+
+    public void Start()
+    {
         _MovementAction = _InputActionMap.FindAction("movement");
         _CameraObject = GameObject.FindGameObjectWithTag("MainCamera");
         _Camera = _CameraObject.GetComponent<Camera>();

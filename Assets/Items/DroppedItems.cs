@@ -4,15 +4,27 @@ using UnityEngine;
 
 public class DroppedItems : MonoBehaviour
 {
+    /// <summary>
+    /// The item manager, hju!
+    /// </summary>
     private ItemManager _ItemsManager;
+    /// <summary>
+    /// The item that the <see cref="DroppedItem"/> references.
+    /// </summary>
     private ItemManager.Item _Item;
+    /// <summary>
+    /// How much health does the item have.
+    /// When it has 0 health it disappears.
+    /// </summary>
     private float _Health;
 
+    /// <inheritdoc cref="_Item"/>
     public ItemManager.Item Item
     {
         get { return _Item; }
     }
 
+    /// <inheritdoc cref="_Health"/>
     public float Health
     {
         get { return _Health; }
@@ -31,6 +43,9 @@ public class DroppedItems : MonoBehaviour
     // Update is called once per frame
     public void Update()
     {
-
+        if (Health <= 0)
+        {
+            Destroy(this);
+        }
     }
 }

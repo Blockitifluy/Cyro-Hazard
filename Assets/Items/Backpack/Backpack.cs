@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>
@@ -21,6 +23,8 @@ public class Backpack : MonoBehaviour
 	/// Item Manager, ujh!
 	/// </summary>
 	private ItemManager _ItemManager;
+
+	const int MaxSlotCount = 64;
 
 	/// <summary>
 	/// The name of the backpack
@@ -78,7 +82,7 @@ public class Backpack : MonoBehaviour
 	/// <example>7x8 = 56</example>
 	public int Area
 	{
-		get { return Size.x * Size.y; }
+		get { return (Size.x + 1) * (Size.y + 1); }
 	}
 
 	/// <summary>
@@ -107,11 +111,13 @@ public class Backpack : MonoBehaviour
 	/// <exception cref="OverflowException">If the backpack's size exceeds an area of 64</exception>
 	public (int, int) IndexToXY(int i)
 	{
-		if (Area > 64)
-			throw new OverflowException("Backpack size can't be over 64 bits");
+		if (Area > MaxSlotCount)
+			throw new OverflowException($"Backpack size can't be over {MaxSlotCount} bits");
 
 		int x = i % Size.x,
-		y = i / Size.y;
+		y = i / Size.x;
+
+		print($"{x}, {y}");
 
 		return (x, y);
 	}
@@ -120,11 +126,7 @@ public class Backpack : MonoBehaviour
 	/// <returns>A Vector2Int</returns>
 	public Vector2Int IndexToVector(int i)
 	{
-		if (Area > 64)
-			throw new OverflowException("Backpack size can't be over 64 bits");
-
-		int x = i % Size.x,
-		y = i / Size.y;
+		var (x, y) = IndexToXY(i);
 
 		return new(x, y);
 	}
@@ -162,13 +164,20 @@ public class Backpack : MonoBehaviour
 
 		foreach (StoredItem strd in _StoredItems)
 		{
-			ItemManager.Item Item = strd.Item;
+			ItemManager.Item item = strd.Item;
 			Vector2Int pos = strd.Position;
-			int area = Item.Size.x * Item.Size.y;
+			int area = item.Size.x * item.Size.y;
 
-			int itemPosIndex = pos.x + pos.y * Size.x;
-			for (int i = itemPosIndex; i < area + itemPosIndex; i++)
-				occupancy |= 1ul << i;
+			int topCorner = XYToIndex(pos);
+			for (int i = 0; i < area; i++)
+			{
+				int x = (i % item.Size.x) + topCorner,
+				y = (i / item.Size.x) + topCorner;
+
+				int j = XYToIndex(x, y);
+
+				occupancy |= 1ul << j;
+			}
 		}
 
 		return occupancy;
@@ -209,6 +218,14 @@ public class Backpack : MonoBehaviour
 	public bool AreSlotsOccupied(Vector2Int at, Vector2Int size)
 	{
 		ulong occupancy = GetOccupancy();
+
+		return AreSlotsOccupied(at, size, occupancy);
+	}
+
+	/// <inheritdoc cref="AreSlotsOccupied(Vector2Int, Vector2Int)"/>
+	/// <param name="occupancy">The backpack occupancy</param>
+	public bool AreSlotsOccupied(Vector2Int at, Vector2Int size, ulong occupancy)
+	{
 		int area = size.x * size.y;
 
 		for (int i = 0; i < area; i++)
@@ -216,14 +233,14 @@ public class Backpack : MonoBehaviour
 			int x = i % size.x,
 			y = i / size.x;
 
-			int Ax = at.x + x,
-			Ay = at.y + y;
+			int x2 = at.x + x,
+			y2 = at.y + y;
 
-			if (IsCoordOutOfRange(Ax, Ay)) return false;
+			if (IsCoordOutOfRange(x2, y2)) return true;
 
-			bool j = Helper.IsBitSet(occupancy, XYToIndex(Ax, Ay));
+			bool occupied = IsSlotOccupied(x2, y2, occupancy);
 
-			if (!j) return true;
+			if (occupied) return true;
 		}
 
 		return false;
@@ -240,24 +257,34 @@ public class Backpack : MonoBehaviour
 	{
 		ulong occupancy = GetOccupancy();
 
-		bool inBoundX = 0 < x || x <= Size.x,
-		inBoundY = 0 < y || y < Size.y;
-
-		if (!inBoundX)
-			throw new ArgumentOutOfRangeException(nameof(x));
-		if (!inBoundY)
-			throw new ArgumentOutOfRangeException(nameof(y));
-
-		int i = XYToIndex(x, y);
-
-		return Helper.IsBitSet(occupancy, i);
+		return IsSlotOccupied(x, y, occupancy);
 	}
 
 	/// <inheritdoc cref="IsSlotOccupied(int, int)"/>
 	/// <param name="at">The slot to be checked to be occupied.</param>
 	public bool IsSlotOccupied(Vector2Int at)
 	{
-		return IsSlotOccupied(at.x, at.y);
+		ulong occupancy = GetOccupancy();
+
+		return IsSlotOccupied(at, occupancy);
+	}
+
+	/// <inheritdoc cref="IsSlotOccupied(int, int)"/>
+	/// <param name="occupancy">The backpack occupancy</param>
+	public bool IsSlotOccupied(int x, int y, ulong occupancy)
+	{
+		if (IsCoordOutOfRange(x, y)) return true;
+
+		int i = XYToIndex(x, y);
+
+		return Helper.IsBitSet(occupancy, i);
+	}
+
+	/// <inheritdoc cref="IsSlotOccupied(Vector2Int)"/>
+	/// <param name="occupancy">The backpack occupancy</param>
+	public bool IsSlotOccupied(Vector2Int at, ulong occupancy)
+	{
+		return IsSlotOccupied(at.x, at.y, occupancy);
 	}
 
 	/// <summary>
@@ -268,11 +295,9 @@ public class Backpack : MonoBehaviour
 	/// <returns>True, if a coorninate is in range of the backpack size</returns>
 	public bool IsCoordOutOfRange(int x, int y)
 	{
-		if (0 > x || x > Size.x) return true;
-
-		if (0 > y || y > Size.y) return true;
-
-		return false;
+		bool bx = 0 <= x && x < Size.x,
+		by = 0 <= y && y < Size.y;
+		return !bx || !by;
 	}
 
 	/// <inheritdoc cref="IsCoordOutOfRange(int, int)"/>
@@ -288,7 +313,7 @@ public class Backpack : MonoBehaviour
 	/// An enum used to provide a reason why a placement failed.
 	/// `None` is onlt expection.
 	/// </summary>
-	public enum PlacementReason : ushort
+	public enum EPlacementReason : ushort
 	{
 		None = 0,
 		Weight = 1,
@@ -303,22 +328,22 @@ public class Backpack : MonoBehaviour
 	/// <param name="item">The item</param>
 	/// <param name="reason">Provides a reason the placement would have failed</param>
 	/// <returns>True if the item can be placed there.</returns>
-	public bool CanPlaceItem(Vector2Int pos, ItemManager.Item item, out PlacementReason reason)
+	public bool CanPlaceItem(Vector2Int pos, ItemManager.Item item, out EPlacementReason reason)
 	{
 		if (AreSlotsOccupied(pos, item.Size))
 		{
-			reason = PlacementReason.Occupied;
+			reason = EPlacementReason.Occupied;
 			return false;
 		}
 
 		float futureWeight = CurrentWeight + item.Weight;
-		if (futureWeight > MaxWeight)
+		if (futureWeight > MaxWeight && !CanOverweight)
 		{
-			reason = PlacementReason.Weight;
+			reason = EPlacementReason.Weight;
 			return false;
 		}
 
-		reason = PlacementReason.None;
+		reason = EPlacementReason.None;
 		return true;
 	}
 
@@ -332,13 +357,52 @@ public class Backpack : MonoBehaviour
 	/// <exception cref="PlacementException"></exception>
 	public StoredItem AddItemAt(ItemManager.Item item, int amount, Vector2Int at)
 	{
-		if (!CanPlaceItem(at, item, out PlacementReason reason))
+		if (!CanPlaceItem(at, item, out EPlacementReason reason))
 			throw new PlacementException($"Can't place item (with size {item.Size}) at {at} (reason: {reason})");
 
 		StoredItem storedItem = new(item, amount, at);
 		_StoredItems.Add(storedItem);
 
 		return storedItem;
+	}
+
+	/// <summary>
+	/// Sees if there is space in the <see cref="Backpack"/> for the <paramref name="item"/>.
+	/// </summary>
+	/// <param name="item">The item wanting to be placed.</param>
+	/// <param name="pos">The returning position.</param>
+	/// <returns>If a space has been found for the <paramref name="item"/>.</returns>
+	public bool CanFindPlacementFor(ItemManager.Item item, out Vector2Int pos)
+	{
+		var occupancy = GetOccupancy();
+		print(occupancy);
+
+		int i = 0;
+		do
+		{
+			pos = IndexToVector(i);
+			bool occupied = AreSlotsOccupied(pos, item.Size, occupancy);
+			if (!occupied)
+				return true;
+			i++;
+		} while (i < Area);
+
+
+		return false;
+	}
+
+	/// <summary>
+	/// Adds an item to the backpack, automatically finding a placement.
+	/// </summary>
+	/// <param name="item">The item wanting to be placed</param>
+	/// <param name="amount">The amount of item</param>
+	/// <returns>The <seealso cref="StoredItem"/> that had been place</returns>
+	/// <exception cref="PlacementException">Returned if no space had been found</exception>
+	public StoredItem AddItem(ItemManager.Item item, int amount)
+	{
+		if (!CanFindPlacementFor(item, out Vector2Int at))
+			throw new PlacementException($"Couldn't find placement for {item}");
+		return AddItemAt(item, amount, at);
 	}
 
 	// Selection
@@ -371,7 +435,5 @@ public class Backpack : MonoBehaviour
 	public void Start()
 	{
 		_ItemManager = ItemManager.GetManager();
-
-
 	}
 }

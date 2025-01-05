@@ -15,12 +15,21 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "move-camera",
-                    "type": "Value",
-                    "id": "ddd8922b-96b9-499d-92a2-2008ca390c3b",
+                    "name": "open-backpack",
+                    "type": "Button",
+                    "id": "75557960-57e5-4867-87a6-42673e062dbb",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "move-camera",
+                    "type": "Button",
+                    "id": "ddd8922b-96b9-499d-92a2-2008ca390c3b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press",
                     "initialStateCheck": true
                 }
             ],
@@ -79,6 +88,17 @@
                     "action": "movement",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "cbbd7c62-de26-4289-8223-3a005e2f18c8",
+                    "path": "<Keyboard>/b",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "open-backpack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 },
                 {
                     "name": "",
