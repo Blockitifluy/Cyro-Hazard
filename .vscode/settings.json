@@ -51,6 +51,6 @@
 		"temp/": true,
 		"Temp/": true
 	},
-	"editor.tabSize": 2,
+	"editor.tabSize": 4,
 	"dotnet.defaultSolution": "Cyro Hazard.sln"
 }

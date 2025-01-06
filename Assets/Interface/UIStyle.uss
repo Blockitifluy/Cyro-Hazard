@@ -38,3 +38,21 @@ Label {
     font-size: 12px;
     -unity-font-style: italic;
 }
+
+.item {
+    background-color: rgba(103, 103, 103, 0.65);
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    position: absolute;
+    opacity: 1;
+}
+
+#item-container {
+    margin-top: 10px;
+    margin-right: 0;
+    margin-bottom: 10px;
+    margin-left: 0;
+    width: 100%;
+}

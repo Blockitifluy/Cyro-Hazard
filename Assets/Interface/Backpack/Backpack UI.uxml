@@ -4,7 +4,7 @@
         <ui:Label text="Inventory" name="Label" class="title" style="-unity-font-style: bold;" />
         <ui:VisualElement name="Main" style="flex-grow: 1; flex-direction: row;">
             <ui:VisualElement name="Select-Menu" style="flex-grow: 1; width: 65%; flex-direction: row;">
-                <ui:ListView name="Selection" style="width: 100%;" />
+                <ui:ListView name="Selection" virtualization-method="DynamicHeight" style="width: 100%;" />
             </ui:VisualElement>
             <ui:VisualElement name="equip-menu" style="flex-grow: 1; width: 35%; justify-content: center; align-items: center;">
                 <ui:Label tabindex="-1" text="Test Item 1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="equip-name" style="-unity-font-style: normal; -unity-text-align: upper-right; font-size: 20px; width: 100%;" />

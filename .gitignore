@@ -1,7 +1,7 @@
 Library
 ProjectSettings
 Temp
-.vscode/
+.vscode
 Logs/*
 UserSettings/*
 Assembly-CSharp.csproj

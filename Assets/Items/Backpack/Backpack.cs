@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>
@@ -19,11 +17,10 @@ public class Backpack : MonoBehaviour
 	/// this doesn't account for size and position.
 	/// </summary>
 	private readonly List<StoredItem> _StoredItems = new();
-	/// <summary>
-	/// Item Manager, ujh!
-	/// </summary>
-	private ItemManager _ItemManager;
 
+	/// <summary>
+	/// The maxiumun amount of slots a backpack can have, this is because ulong only has 64 bits for occupancy.
+	/// </summary>
 	const int MaxSlotCount = 64;
 
 	/// <summary>
@@ -47,33 +44,9 @@ public class Backpack : MonoBehaviour
 	/// </summary>
 	public bool CanOverweight = true;
 
-	/// <summary>
-	/// Thrown if there is an error in the placement
-	/// </summary>
-	[Serializable]
-	public class PlacementException : Exception
+	public List<StoredItem> StoredItems
 	{
-		public PlacementException() { }
-		public PlacementException(string message) : base(message) { }
-		public PlacementException(string message, Exception inner) : base(message, inner) { }
-		protected PlacementException(
-			System.Runtime.Serialization.SerializationInfo info,
-			System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
-	}
-
-	/// <summary>
-	/// Thrown if there is an error in the backpack's size.
-	/// Especially in the 64 area limit
-	/// </summary>
-	[Serializable]
-	public class SizeException : Exception
-	{
-		public SizeException() { }
-		public SizeException(string message) : base(message) { }
-		public SizeException(string message, Exception inner) : base(message, inner) { }
-		protected SizeException(
-			System.Runtime.Serialization.SerializationInfo info,
-			System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+		get { return new(_StoredItems); }
 	}
 
 	/// <summary>
@@ -116,8 +89,6 @@ public class Backpack : MonoBehaviour
 
 		int x = i % Size.x,
 		y = i / Size.x;
-
-		print($"{x}, {y}");
 
 		return (x, y);
 	}
@@ -310,6 +281,25 @@ public class Backpack : MonoBehaviour
 	// Inserting
 
 	/// <summary>
+	/// Invoked when an item was added to the backpack.
+	/// </summary>
+	public event EventHandler<StoredItem> ItemAdded;
+
+	/// <summary>
+	/// Thrown if there is an error in the placement
+	/// </summary>
+	[Serializable]
+	public class PlacementException : Exception
+	{
+		public PlacementException() { }
+		public PlacementException(string message) : base(message) { }
+		public PlacementException(string message, Exception inner) : base(message, inner) { }
+		protected PlacementException(
+			System.Runtime.Serialization.SerializationInfo info,
+			System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+	}
+
+	/// <summary>
 	/// An enum used to provide a reason why a placement failed.
 	/// `None` is onlt expection.
 	/// </summary>
@@ -363,6 +353,8 @@ public class Backpack : MonoBehaviour
 		StoredItem storedItem = new(item, amount, at);
 		_StoredItems.Add(storedItem);
 
+		ItemAdded(this, storedItem);
+
 		return storedItem;
 	}
 
@@ -375,7 +367,6 @@ public class Backpack : MonoBehaviour
 	public bool CanFindPlacementFor(ItemManager.Item item, out Vector2Int pos)
 	{
 		var occupancy = GetOccupancy();
-		print(occupancy);
 
 		int i = 0;
 		do
@@ -405,17 +396,165 @@ public class Backpack : MonoBehaviour
 		return AddItemAt(item, amount, at);
 	}
 
+	// Modifing
+
+	public delegate void DItemModified(object sender, StoredItem oldItem, StoredItem newItem);
+	/// <summary>
+	/// Invoked when an item is modified. 
+	/// </summary>
+	public event DItemModified ItemModified;
+
+	/// <summary>
+	/// Thrown when an error when modifing an <see cref="StoredItem"/>.
+	/// </summary>
+	[Serializable]
+	public class ModifingException : Exception
+	{
+		public ModifingException() { }
+		public ModifingException(string message) : base(message) { }
+		public ModifingException(string message, Exception inner) : base(message, inner) { }
+		protected ModifingException(
+			System.Runtime.Serialization.SerializationInfo info,
+			System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+	}
+
+	/// <summary>
+	/// Changes an item's amount.
+	/// </summary>
+	/// <remarks>
+	/// Also fires the <see cref="ItemModified"/> event.
+	/// </remarks>
+	/// <param name="stored">The StoredItem</param>
+	/// <param name="newAmount">The new set amount</param>
+	/// <exception cref="ModifingException">When the <paramref name="stored"/> wasn't found in the backpack or exceeds maxStack.</exception>
+	public void ChangeAmountItem(StoredItem stored, int newAmount)
+	{
+		if (!ContainsItem(stored))
+			throw new ModifingException($"Item {stored} wasn't in in backpack!");
+		if (newAmount <= 0)
+		{
+			RemoveItem(stored);
+			return;
+		}
+
+		ItemManager.Item item = stored.Item;
+		if (newAmount > item.MaxStack)
+			throw new ModifingException($"newAmount {newAmount} exceedes maxStack of Item {item}");
+
+		StoredItem oldItem = new(item, stored.Amount, stored.Position);
+		stored.Amount = newAmount;
+		ItemModified(this, oldItem, stored);
+	}
+
+	public delegate void DItemChangedPos(object sender, Vector2Int oldPos, Vector2Int newPos);
+	/// <summary>
+	/// Invoked when an item position was changed.
+	/// </summary>
+	public event DItemChangedPos ItemChangedPosition;
+
+	/// <summary>
+	/// Moves an item to a position.
+	/// </summary>
+	/// <remarks>
+	/// Also fires <see cref="ItemChangedPosition"/> event.
+	/// </remarks>
+	/// <param name="stored">The stored item.</param>
+	/// <param name="to">The item where it is going to be moved.</param>
+	/// <exception cref="ModifingException"></exception>
+	public void MoveItem(StoredItem stored, Vector2Int to)
+	{
+		if (!ContainsItem(stored))
+			throw new ModifingException($"Item {stored} wasn't in in backpack!");
+		ItemManager.Item item = stored.Item;
+
+		bool occupied = AreSlotsOccupied(to, item.Size);
+		if (occupied)
+			throw new ModifingException($"Item {stored} couldn't be moved into occupied {to}");
+		ItemChangedPosition(this, stored.Position, to);
+		stored.Position = to;
+	}
+
+	// Removing
+
+	/// <summary>
+	/// Invoked when an item has been removed.
+	/// </summary>
+	public event EventHandler<StoredItem> ItemRemoved;
+
+	/// <summary>
+	/// Thrown with errors of removing an item.
+	/// </summary>
+	[Serializable]
+	public class RemoveException : Exception
+	{
+		public RemoveException() { }
+		public RemoveException(string message) : base(message) { }
+		public RemoveException(string message, Exception inner) : base(message, inner) { }
+		protected RemoveException(
+			System.Runtime.Serialization.SerializationInfo info,
+			System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+	}
+
+	/// <summary>
+	/// Removes an item.
+	/// </summary>
+	/// <param name="stored">The item wanting the be removed.</param>
+	/// <exception cref="RemoveException">If the item doesn't belong to the backpack.</exception>
+	public void RemoveItem(StoredItem stored)
+	{
+		if (ContainsItem(stored))
+			throw new RemoveException($"Item {stored} wasn't in Backpack!");
+		_StoredItems.Remove(stored);
+		ItemRemoved(this, stored);
+	}
+
+	/// <inheritdoc cref="RemoveItemAt(int, int)"/>
+	/// <param name="at">The location of the slot</param>
+	public StoredItem RemoveItemAt(Vector2Int at)
+	{
+		return RemoveItemAt(at.x, at.y);
+	}
+
+	/// <summary>
+	/// Removes the item at a location.
+	/// </summary>
+	/// <param name="x">The x component.</param>
+	/// <param name="y">The y component.</param>
+	/// <returns>The stored item that was removed.</returns>
+	/// <exception cref="RemoveException">If no item as found at the location.</exception>
+	public StoredItem RemoveItemAt(int x, int y)
+	{
+		var stored = GetItemAt(x, y);
+		if (stored == null)
+			throw new RemoveException($"Item at ({x}, {y}) doesn't exist!");
+		RemoveItem(stored);
+		return stored;
+	}
+
 	// Selection
+
+	public bool ContainsItem(StoredItem stored)
+	{
+		return _StoredItems.Contains(stored);
+	}
+
+	/// <inheritdoc cref="GetItemAt(int, int)"/>
+	/// <param name="at">The location of the slot</param>
+	public StoredItem GetItemAt(Vector2Int at)
+	{
+		return GetItemAt(at.x, at.y);
+	}
 
 	/// <summary>
 	/// Get an item by location based on what slots it sits on.
 	/// </summary>
-	/// <param name="at">The location of the slot</param>
+	/// <param name="x">The x component</param>
+	/// <param name="y">The y component</param>
 	/// <returns>The item at the slot</returns>
-	public StoredItem GetItemAt(Vector2Int at)
+	public StoredItem GetItemAt(int x, int y)
 	{
 		StoredItem[,] itemOccupancy = GetOccupancyWithItem();
-		return itemOccupancy[at.x, at.y];
+		return itemOccupancy[x, y];
 	}
 
 	/// <summary>
@@ -430,10 +569,5 @@ public class Backpack : MonoBehaviour
 			dict.Add(strd.Position, strd);
 
 		return dict;
-	}
-
-	public void Start()
-	{
-		_ItemManager = ItemManager.GetManager();
 	}
 }

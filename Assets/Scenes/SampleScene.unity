@@ -1110,7 +1110,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TimeBetweenUpdate: 0.9
+  ItemUISize: 10
   SubBackpack: {fileID: 9197481963319205126, guid: 70fabf28e3c30a044a0d513ec2f8d191, type: 3}
+  ItemUI: {fileID: 9197481963319205126, guid: 5ed8974446d5c6a4fab97a98127d7e7f, type: 3}
 --- !u!1 &1482618883
 GameObject:
   m_ObjectHideFlags: 0
@@ -1156,7 +1158,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Test Backpack
-  Size: {x: 4, y: 1}
+  Size: {x: 7, y: 7}
   MaxWeight: 100000
   CanOverweight: 1
 --- !u!1 &1993485764
