@@ -1065,7 +1065,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1124501412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1110,7 +1110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TimeBetweenUpdate: 0.9
-  ItemUISize: 10
+  ItemUISize: 1
   SubBackpack: {fileID: 9197481963319205126, guid: 70fabf28e3c30a044a0d513ec2f8d191, type: 3}
   ItemUI: {fileID: 9197481963319205126, guid: 5ed8974446d5c6a4fab97a98127d7e7f, type: 3}
 --- !u!1 &1482618883

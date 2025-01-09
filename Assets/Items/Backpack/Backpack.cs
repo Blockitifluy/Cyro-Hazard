@@ -53,10 +53,7 @@ public class Backpack : MonoBehaviour
 	/// The area the backpack
 	/// </summary>
 	/// <example>7x8 = 56</example>
-	public int Area
-	{
-		get { return (Size.x + 1) * (Size.y + 1); }
-	}
+	public int Area => (Size.x + 1) * (Size.y + 1);
 
 	/// <summary>
 	/// The current weight of every item in the backpack.
@@ -67,9 +64,7 @@ public class Backpack : MonoBehaviour
 		{
 			float weight = 0.0f;
 			foreach (StoredItem strd in _StoredItems)
-			{
 				weight += strd.Item.Weight;
-			}
 			return weight;
 		}
 	}
@@ -353,7 +348,7 @@ public class Backpack : MonoBehaviour
 		StoredItem storedItem = new(item, amount, at);
 		_StoredItems.Add(storedItem);
 
-		ItemAdded(this, storedItem);
+		ItemAdded?.Invoke(this, storedItem);
 
 		return storedItem;
 	}
@@ -443,7 +438,7 @@ public class Backpack : MonoBehaviour
 
 		StoredItem oldItem = new(item, stored.Amount, stored.Position);
 		stored.Amount = newAmount;
-		ItemModified(this, oldItem, stored);
+		ItemModified?.Invoke(this, oldItem, stored);
 	}
 
 	public delegate void DItemChangedPos(object sender, Vector2Int oldPos, Vector2Int newPos);
@@ -470,7 +465,7 @@ public class Backpack : MonoBehaviour
 		bool occupied = AreSlotsOccupied(to, item.Size);
 		if (occupied)
 			throw new ModifingException($"Item {stored} couldn't be moved into occupied {to}");
-		ItemChangedPosition(this, stored.Position, to);
+		ItemChangedPosition?.Invoke(this, stored.Position, to);
 		stored.Position = to;
 	}
 
@@ -505,7 +500,7 @@ public class Backpack : MonoBehaviour
 		if (ContainsItem(stored))
 			throw new RemoveException($"Item {stored} wasn't in Backpack!");
 		_StoredItems.Remove(stored);
-		ItemRemoved(this, stored);
+		ItemRemoved?.Invoke(this, stored);
 	}
 
 	/// <inheritdoc cref="RemoveItemAt(int, int)"/>

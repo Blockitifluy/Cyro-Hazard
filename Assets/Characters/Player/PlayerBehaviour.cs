@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using UnityEditor.PackageManager;
-using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine;
 
 [RequireComponent(typeof(PlayerInput))]
 public class PlayerBehaviour : CharacterControl
@@ -72,6 +70,9 @@ public class PlayerBehaviour : CharacterControl
 		_MovementAction = _InputActionMap.FindAction("movement");
 		_CameraObject = GameObject.FindGameObjectWithTag("MainCamera");
 		_Camera = _CameraObject.GetComponent<Camera>();
+
+		DetectBackpacks()[0].AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
+		DetectBackpacks()[0].AddItem(ItemManager.GetManager().GetItem("test-item-2"), 1);
 	}
 
 	protected override void Update()

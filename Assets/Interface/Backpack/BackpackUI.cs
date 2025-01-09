@@ -1,11 +1,24 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 public class BackpackUI : MonoBehaviour
 {
-	private float Timer = 0.0f;
-	private float LastUpdate = 0.0f;
+	private class BackpackPair
+	{
+		public Backpack Backpack;
+
+		internal BackpackPair(Backpack backpack)
+		{
+			Backpack = backpack;
+		}
+	}
+
+	private float _Timer = 0.0f;
+	private float _LastUpdate = 0.0f;
+	private List<Backpack> _LastBackpackCall = new();
+	private List<BackpackPair> _Pairs = new();
 
 	private GameObject _PlayerObject;
 	private PlayerBehaviour _PlayerBehaviour;
@@ -41,42 +54,30 @@ public class BackpackUI : MonoBehaviour
 
 	// TODO - ADD BACKPACK UI
 
-	/*
-	
-
 	public void ClearBackpack()
 	{
 		var Selection = _UIDoc.rootVisualElement.Q<ListView>("Selection");
 		Selection.hierarchy.Clear();
 	}
 
-	public Vector2 PixelsPerSlots(float pixelX, Vector2Int backSize)
-	{
-		return new(
-			ItemUISize / backSize.x,
-			ItemUISize / backSize.y
-		);
-	}
-
 	private void LoadItemUI(StoredItem stored, VisualElement container, Backpack backpack)
 	{
 		var itemInstance = ItemUI.Instantiate();
-
-		float x = container.style.width.value.value;
-		print(x);
 
 		Vector2Int itemSize = stored.Item.Size,
 		itemPos = stored.Position,
 		backSize = backpack.Size;
 
-		Vector2 pps = PixelsPerSlots(x, backSize);
+		Vector2 UISize = (Vector2)itemSize / backSize * 100,
+		UIPos = (Vector2)itemPos / backSize * 100;
+		print(UISize);
 
 		var item = itemInstance.Q("item");
-		item.style.width = pps.x * itemSize.x;
-		item.style.height = pps.y * itemSize.y;
-		item.style.left = pps.x * itemPos.x;
-		item.style.top = pps.y * itemPos.y;
-		print(item.style.width.value.value);
+		item.style.width = new Length(UISize.x, LengthUnit.Percent);
+		item.style.height = new Length(UISize.y, LengthUnit.Percent);
+
+		item.style.left = new Length(UIPos.x, LengthUnit.Percent);
+		item.style.top = new Length(UIPos.y, LengthUnit.Percent);
 
 		var title = itemInstance.Q<Label>("title");
 		title.text = stored.Item.Name;
@@ -119,18 +120,18 @@ public class BackpackUI : MonoBehaviour
 
 		foreach (Backpack pack in backpacks)
 			LoadBackpackUI(pack, selection);
-	}*/
+	}
 
 	// Update is called once per frame
-	public void Update()
+	public void LateUpdate()
 	{
-		Timer += Time.deltaTime;
+		_Timer += Time.deltaTime;
 
-		bool timeToRefresh = Timer - LastUpdate >= TimeBetweenUpdate;
+		bool timeToRefresh = _Timer - _LastUpdate >= TimeBetweenUpdate;
 		if (timeToRefresh && _UIDoc.enabled)
 		{
-			//UpdateBackpack();
-			LastUpdate = Timer;
+			UpdateBackpack();
+			_LastUpdate = _Timer;
 		}
 	}
 }

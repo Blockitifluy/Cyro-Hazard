@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
 public class ItemManager : MonoBehaviour
@@ -185,7 +184,7 @@ public class ItemManager : MonoBehaviour
 	static private XmlDocument ItemsDocument;
 	static private ItemManager _Manager;
 
-	private Dictionary<string, Item> Items = new();
+	private readonly Dictionary<string, Item> Items = new();
 
 	private Item XMLToItem(XmlElement element)
 	{
