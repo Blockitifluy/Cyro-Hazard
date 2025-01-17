@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine;
+using Items;
 
 [RequireComponent(typeof(PlayerInput))]
 public class PlayerBehaviour : CharacterControl

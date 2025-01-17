@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Items;
 
 [RequireComponent(typeof(MovementBasics))]
 public abstract class CharacterControl : MonoBehaviour
