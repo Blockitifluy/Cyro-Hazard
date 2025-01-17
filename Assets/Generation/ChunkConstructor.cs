@@ -151,7 +151,6 @@ namespace Generation
 		}
 
 		// Chunk Generation
-		// TODO - Add height 
 		public abstract Vertex GetTileData(int x, int y, int chunkX, int chunkY);
 
 		// Chunk Loading

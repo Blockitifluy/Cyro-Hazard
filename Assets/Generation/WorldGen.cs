@@ -1,5 +1,3 @@
-// TODO: FIX Cycilical Refrences in MapGen
-
 using UnityEngine;
 
 namespace Generation

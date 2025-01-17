@@ -122,7 +122,6 @@ namespace Generation
         /// <param name="chunkPos">The chunk's position</param>
         public void LoadMesh(Vector2Int chunkPos)
         {
-            // TODO - Add mesh collider
             Mesh mesh = GenerateMesh(chunkPos);
             _MeshFilter.mesh = mesh;
             _MeshCollider.sharedMesh = mesh;
