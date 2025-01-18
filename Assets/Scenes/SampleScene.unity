@@ -1205,12 +1205,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1fee438003d82446a1f59679b530a5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FocusObjects:
-  - GameObj: {fileID: 131176270}
+  Focus:
+    GameObj: {fileID: 131176270}
     LastPosition: {x: 0, y: 0, z: 0}
-  TilesPerAxis: 32
+  TilesPerAxis: 8
   TileSize: 1
   ChunkPrefab: {fileID: 832967652031903853, guid: 729e911a9705c474e940893ea6d9d4e3, type: 3}
+  ChunkRenderingRadius: 1
   Scale: 0.2
   HeightMultipler: 1
 --- !u!1 &1993485764

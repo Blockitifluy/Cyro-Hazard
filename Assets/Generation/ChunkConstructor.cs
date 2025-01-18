@@ -31,7 +31,15 @@ namespace Generation
 			/// <summary>
 			/// The last's FocusObject recorded grid position.
 			/// </summary>
-			public Vector2Int LastChunkPos => GetConstructor().WorldPosToChunkPos(LastPosition);
+			public Vector2Int LastChunkPos => Constructor.WorldPosToChunkPos(LastPosition);
+
+			public ChunkConstructor Constructor => GetConstructor();
+
+			public bool DidMove()
+			{
+				var current = Constructor.WorldPosToChunkPos(GameObj.transform.position);
+				return current != LastChunkPos;
+			}
 
 			/// <summary>
 			/// Updates the current position. See <see cref="LastPosition"/>.
@@ -81,13 +89,12 @@ namespace Generation
 		/// <seealso cref="GetConstructor()"/>.
 		public const string ChunkConstructorTag = "ChunkConstructor";
 
-
 		// Public Propetries and Fields
 
 		/// <summary>
 		/// When the objects listed here, move outside a chunks boundary. New chunk will load at the new chunk position.
 		/// </summary>
-		public List<FocusObject> FocusObjects;
+		public FocusObject Focus;
 
 		/// <summary>
 		/// How many tiles are in the X and Y each.
@@ -102,17 +109,24 @@ namespace Generation
 		/// </summary>
 		public float TileSize = .5f;
 		/// <summary>
+		/// The prefab used to add a chunk.
+		/// </summary>
+		public GameObject ChunkPrefab;
+		public int ChunkRenderingRadius = 3;
+		public int ChunkRenderingArea => ChunkRenderingDiameter * ChunkRenderingDiameter;
+		public int ChunkRenderingDiameter => ChunkRenderingRadius * 2 + 1;
+		/// <summary>
 		/// How many tiles are in a chunk.
 		/// </summary>
 		public int TilesPerChunk => TilesPerAxis * TilesPerAxis;
 		/// <summary>
-		/// The prefab used to add a chunk.
-		/// </summary>
-		public GameObject ChunkPrefab;
-		/// <summary>
 		/// How many vertices are in a chunk
 		/// </summary>
 		public int VerticesPerChunk => (TilesPerAxis + 1) * (TilesPerAxis + 1);
+
+		// Private Propetries and Fields
+
+		private Dictionary<Vector2Int, ChunkTerrain> _ChunkDict = new();
 
 		// Generator Getter
 
@@ -121,10 +135,10 @@ namespace Generation
 		/// </summary>
 		private static ChunkConstructor _CachedGenerator;
 		/// <summary>
-		/// Gets the GenManager.
+		/// Gets the ChunkConstructor.
 		/// </summary>
-		/// <returns><see cref=""/></returns>
-		/// <exception cref="NullReferenceException"></exception>
+		/// <returns><see cref="ChunkConstructor"/></returns>
+		/// <exception cref="NullReferenceException">If the ChunkConstructor couldn't be found.</exception>
 		public static ChunkConstructor GetConstructor()
 		{
 			if (_CachedGenerator != null)
@@ -157,9 +171,6 @@ namespace Generation
 
 		public GameObject LoadChunk(Vector2Int pos)
 		{
-			Stopwatch stopwatch = new();
-			stopwatch.Start();
-
 			GameObject chunk = Instantiate(ChunkPrefab);
 
 			Vector3 worldSize = new(
@@ -173,23 +184,53 @@ namespace Generation
 			chunk.transform.position = worldSize;
 			chunk.transform.parent = transform;
 
-			stopwatch.Stop();
-			UnityEngine.Debug.Log($"Loading Chunk took {stopwatch.ElapsedMilliseconds}ms");
+			_ChunkDict.Add(pos, terrain);
 
 			return chunk;
+		}
+
+		public void UnloadChunk(Vector2Int pos)
+		{
+			ChunkTerrain terrain = _ChunkDict[pos];
+			if (terrain == null)
+				throw new NullReferenceException($"Chunk at {pos} wasn't found!");
+			_ChunkDict.Remove(pos);
+			Destroy(terrain.gameObject);
+		}
+
+		public void PlaceChunks(bool all = false)
+		{
+			if (!Focus.DidMove() || all) return;
+			Focus.UpdatePosition();
+			print(_ChunkDict.Count);
+
+			foreach (var pos in new List<Vector2Int>(_ChunkDict.Keys))
+			{ print(pos); UnloadChunk(pos); }
+
+			for (int i = 0; i < ChunkRenderingArea; i++)
+			{
+				print(i);
+				int x = i % ChunkRenderingDiameter - ChunkRenderingRadius,
+				y = i / ChunkRenderingDiameter - ChunkRenderingRadius;
+
+				Vector2Int pos = new(x, y);
+
+				LoadChunk(pos + Focus.LastChunkPos);
+			}
 		}
 
 		// Start is called before the first frame update
 		public void Start()
 		{
-			LoadChunk(Vector2Int.zero);
-			LoadChunk(Vector2Int.right);
+			//LoadChunk(Vector2Int.zero);
+			//LoadChunk(Vector2Int.right);
+			PlaceChunks(true);
 		}
 
 		// Update is called once per frame
 		void Update()
 		{
-
+			PlaceChunks();
 		}
 	}
 }
