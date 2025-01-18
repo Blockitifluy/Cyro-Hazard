@@ -4,8 +4,10 @@ namespace Generation
 {
     public class WorldGen : ChunkConstructor
     {
+        [Header("Generation")]
         public float Scale = 0.2f;
         public float HeightMultipler = 1.0f;
+
         public override Vertex GetTileData(int x, int y, int chunkX, int chunkY)
         {
             Vector2 realPos = new(x + (chunkX * TilesPerAxis), y + (chunkY * TilesPerAxis));

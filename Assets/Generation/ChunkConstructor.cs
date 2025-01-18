@@ -1,6 +1,8 @@
+// TODO - Add Smart Cleaning Chunks
+// TODO - Add Textures, UV maps and Normals
+
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
 namespace Generation
@@ -27,7 +29,7 @@ namespace Generation
 			/// The last's FocusObject recorded position.
 			/// </summary>
 			[HideInInspector]
-			public Vector3 LastPosition;
+			public Vector3 LastPosition = Vector3.positiveInfinity;
 			/// <summary>
 			/// The last's FocusObject recorded grid position.
 			/// </summary>
@@ -103,17 +105,26 @@ namespace Generation
 		/// Not to be confused for <see cref="TilesPerChunk"/>.
 		/// </remarks>
 		[Header("Chunks")]
-		public int TilesPerAxis = 16;
-		/// <summary>
-		/// The physical actual size of the tiles.
-		/// </summary>
-		public float TileSize = .5f;
 		/// <summary>
 		/// The prefab used to add a chunk.
 		/// </summary>
 		public GameObject ChunkPrefab;
 		public int ChunkRenderingRadius = 3;
+
+		[Header("Tiles")]
+		public int TilesPerAxis = 16;
+		/// <summary>
+		/// The physical actual size of the tiles.
+		/// </summary>
+		public float TileSize = 0.5f;
+
+		/// <summary>
+		/// The rendering area of the chunk. 
+		/// </summary>
 		public int ChunkRenderingArea => ChunkRenderingDiameter * ChunkRenderingDiameter;
+		/// <summary>
+		/// The rendering diameter of the chunk. 
+		/// </summary>
 		public int ChunkRenderingDiameter => ChunkRenderingRadius * 2 + 1;
 		/// <summary>
 		/// How many tiles are in a chunk.
@@ -181,6 +192,7 @@ namespace Generation
 
 			ChunkTerrain terrain = chunk.GetComponent<ChunkTerrain>();
 			terrain.LoadMesh(pos);
+			chunk.name = $"Chunk ({pos.x}, {pos.y})";
 			chunk.transform.position = worldSize;
 			chunk.transform.parent = transform;
 
@@ -198,18 +210,17 @@ namespace Generation
 			Destroy(terrain.gameObject);
 		}
 
-		public void PlaceChunks(bool all = false)
+		public void PlaceChunks(bool all = true)
 		{
-			if (!Focus.DidMove() || all) return;
+			if (!Focus.DidMove() && all) return;
 			Focus.UpdatePosition();
 			print(_ChunkDict.Count);
 
 			foreach (var pos in new List<Vector2Int>(_ChunkDict.Keys))
-			{ print(pos); UnloadChunk(pos); }
+				UnloadChunk(pos);
 
 			for (int i = 0; i < ChunkRenderingArea; i++)
 			{
-				print(i);
 				int x = i % ChunkRenderingDiameter - ChunkRenderingRadius,
 				y = i / ChunkRenderingDiameter - ChunkRenderingRadius;
 
@@ -224,7 +235,7 @@ namespace Generation
 		{
 			//LoadChunk(Vector2Int.zero);
 			//LoadChunk(Vector2Int.right);
-			PlaceChunks(true);
+			PlaceChunks(false);
 		}
 
 		// Update is called once per frame
