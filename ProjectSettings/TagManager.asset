@@ -8,6 +8,7 @@ TagManager:
   - ItemManager
   - Backpack
   - ChunkConstructor
+  - Chunk
   layers:
   - Default
   - TransparentFX

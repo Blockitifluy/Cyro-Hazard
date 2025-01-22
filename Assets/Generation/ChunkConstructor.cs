@@ -1,8 +1,6 @@
-// TODO - Add Smart Cleaning Chunks
-// TODO - Add Textures, UV maps and Normals
-
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Generation
@@ -90,6 +88,7 @@ namespace Generation
 		/// </remarks>
 		/// <seealso cref="GetConstructor()"/>.
 		public const string ChunkConstructorTag = "ChunkConstructor";
+		public const string ChunkTag = "Chunk";
 
 		// Public Propetries and Fields
 
@@ -109,14 +108,25 @@ namespace Generation
 		/// The prefab used to add a chunk.
 		/// </summary>
 		public GameObject ChunkPrefab;
+		/// <summary>
+		/// How far the chunk will load.
+		/// </summary>
 		public int ChunkRenderingRadius = 3;
 
+		/// <summary>
+		/// How many tiles are in a chunk's axis (X and Y axes).
+		/// </summary>
 		[Header("Tiles")]
 		public int TilesPerAxis = 16;
 		/// <summary>
 		/// The physical actual size of the tiles.
 		/// </summary>
 		public float TileSize = 0.5f;
+
+
+		[Header("Materials")]
+		public Material[] Materials;
+		public float UVScale;
 
 		/// <summary>
 		/// The rendering area of the chunk. 
@@ -137,7 +147,10 @@ namespace Generation
 
 		// Private Propetries and Fields
 
-		private Dictionary<Vector2Int, ChunkTerrain> _ChunkDict = new();
+		/// <summary>
+		/// The chunk dictionary. Contains all chunks loaded by the <see cref="ChunkConstructor"/>
+		/// </summary>
+		private readonly Dictionary<Vector2Int, ChunkTerrain> _ChunkDict = new();
 
 		// Generator Getter
 
@@ -163,7 +176,11 @@ namespace Generation
 			_CachedGenerator = comp;
 			return comp;
 		}
-
+		/// <summary>
+		/// Translates a 3D world position to a 2D chunk grid position. 
+		/// </summary>
+		/// <param name="pos">The world position.</param>
+		/// <returns>2D chunk grid position</returns>
 		public Vector2Int WorldPosToChunkPos(Vector3 pos)
 		{
 			var length = TilesPerAxis * TileSize;
@@ -176,10 +193,16 @@ namespace Generation
 		}
 
 		// Chunk Generation
+
 		public abstract Vertex GetTileData(int x, int y, int chunkX, int chunkY);
 
 		// Chunk Loading
 
+		/// <summary>
+		/// Loads a chunk at <paramref name="pos"/>.
+		/// </summary>
+		/// <param name="pos">The chunk's position.</param>
+		/// <returns>The chunk object.</returns>
 		public GameObject LoadChunk(Vector2Int pos)
 		{
 			GameObject chunk = Instantiate(ChunkPrefab);
@@ -195,12 +218,17 @@ namespace Generation
 			chunk.name = $"Chunk ({pos.x}, {pos.y})";
 			chunk.transform.position = worldSize;
 			chunk.transform.parent = transform;
+			chunk.tag = ChunkTag;
 
 			_ChunkDict.Add(pos, terrain);
 
 			return chunk;
 		}
-
+		/// <summary>
+		/// Unloads a chunk at the grid position. 
+		/// </summary>
+		/// <param name="pos">The chunk's position.</param>
+		/// <exception cref="NullReferenceException">The chunk wasn't found.</exception>
 		public void UnloadChunk(Vector2Int pos)
 		{
 			ChunkTerrain terrain = _ChunkDict[pos];
@@ -209,39 +237,92 @@ namespace Generation
 			_ChunkDict.Remove(pos);
 			Destroy(terrain.gameObject);
 		}
-
-		public void PlaceChunks(bool all = true)
+		/// <summary>
+		/// Gets where all chunk's position are loaded.
+		/// </summary>
+		/// <returns>An array of chunk position</returns>
+		public Vector2Int[] GetChunkMappings()
 		{
-			if (!Focus.DidMove() && all) return;
-			Focus.UpdatePosition();
-			print(_ChunkDict.Count);
-
-			foreach (var pos in new List<Vector2Int>(_ChunkDict.Keys))
-				UnloadChunk(pos);
-
+			return GetChunkMappings(Vector2Int.zero);
+		}
+		/// <inheritdoc cref="GetChunkMappings()"/>
+		/// <param name="pos">A chunk's grid position that offsets the mapping.</param>
+		public Vector2Int[] GetChunkMappings(Vector2Int pos)
+		{
+			Vector2Int[] mappings = new Vector2Int[ChunkRenderingArea];
 			for (int i = 0; i < ChunkRenderingArea; i++)
 			{
 				int x = i % ChunkRenderingDiameter - ChunkRenderingRadius,
 				y = i / ChunkRenderingDiameter - ChunkRenderingRadius;
 
-				Vector2Int pos = new(x, y);
-
-				LoadChunk(pos + Focus.LastChunkPos);
+				mappings[i] = new Vector2Int(x, y) + pos;
 			}
+			return mappings;
+		}
+		/// <summary>
+		/// Clears all the chunks that will out of range of the <see cref="Focus"/>.
+		/// </summary>
+		/// <param name="mappings">The chunk mappings.</param>
+		/// <returns></returns>
+		private List<Vector2Int> CleanOutOfRangeChunks(Vector2Int[] mappings)
+		{
+			var copyList = new List<Vector2Int>(_ChunkDict.Keys);
+
+			List<Vector2Int> kept = new();
+
+			foreach (var pos in copyList)
+			{
+				if (mappings.Contains(pos))
+				{
+					kept.Add(pos);
+					continue;
+				}
+
+				UnloadChunk(pos);
+			}
+
+			return kept;
+		}
+		/// <summary>
+		/// Refreshs the chunks at the <see cref="Focus"/>'s position.
+		/// </summary>
+		[ContextMenu("Refresh Chunk")]
+		public void RefreshChunks()
+		{
+			System.Diagnostics.Stopwatch timer = new();
+			timer.Start();
+
+			Vector2Int[] mappings = GetChunkMappings(Focus.LastChunkPos);
+			var kept = CleanOutOfRangeChunks(mappings);
+
+			int chunkLoaded = 0;
+			foreach (Vector2Int pos in mappings)
+			{
+				if (kept.Contains(pos))
+					continue;
+
+				LoadChunk(pos);
+				chunkLoaded++;
+			}
+
+			timer.Stop();
+			Debug.Log($"Loaded {chunkLoaded} chunk(s) in {timer.ElapsedMilliseconds}ms ({(double)timer.ElapsedMilliseconds / chunkLoaded}ms per chunk)");
 		}
 
 		// Start is called before the first frame update
 		public void Start()
 		{
-			//LoadChunk(Vector2Int.zero);
-			//LoadChunk(Vector2Int.right);
-			PlaceChunks(false);
+			RefreshChunks();
 		}
 
 		// Update is called once per frame
 		void Update()
 		{
-			PlaceChunks();
+			if (Focus.DidMove())
+			{
+				Focus.UpdatePosition();
+				RefreshChunks();
+			}
 		}
 	}
 }
