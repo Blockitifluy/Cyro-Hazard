@@ -36,6 +36,7 @@ namespace Generation
         /// The chunk's <c>MeshCollider</c>.
         /// </summary>
         private MeshCollider _MeshCollider;
+        private MeshRenderer _MeshRenderer;
 
         /// <summary>
         /// Generates the vertices for a chunk. See <seealso cref="Vertices"/>.
@@ -94,6 +95,26 @@ namespace Generation
             return triangles;
         }
 
+        // TODO
+        private Vector2[] GenerateUVs()
+        {
+            Vector2[] uvs = new Vector2[Constructor.VerticesPerChunk];
+
+            for (int i = 0, y = 0; y <= Constructor.TilesPerAxis; y++)
+            {
+                for (int x = 0; x <= Constructor.TilesPerAxis; x++)
+                {
+                    uvs[i] = new(
+                        x / Constructor.UVScale,
+                        y / Constructor.UVScale
+                    );
+                    i++;
+                }
+            }
+
+            return uvs;
+        }
+
         /// <summary>
         /// Generates the mesh for a chunk.
         /// </summary>
@@ -103,11 +124,13 @@ namespace Generation
         {
             Vector3[] vertices = GenerateVertices(chunkPos);
             int[] triangles = GenerateTriangle();
+            Vector2[] uvs = GenerateUVs();
 
             Mesh mesh = new()
             {
                 vertices = vertices,
-                triangles = triangles
+                triangles = triangles,
+                uv = uvs
             };
 
             mesh.RecalculateNormals();
@@ -125,6 +148,9 @@ namespace Generation
             Mesh mesh = GenerateMesh(chunkPos);
             _MeshFilter.mesh = mesh;
             _MeshCollider.sharedMesh = mesh;
+            ChunkPos = chunkPos;
+
+            _MeshRenderer.materials = Constructor.Materials;
         }
 
         // Unity
@@ -134,6 +160,7 @@ namespace Generation
         {
             _MeshFilter = GetComponent<MeshFilter>();
             _MeshCollider = GetComponent<MeshCollider>();
+            _MeshRenderer = GetComponent<MeshRenderer>();
         }
     }
 }
