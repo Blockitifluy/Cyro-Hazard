@@ -1,5 +1,6 @@
+using Unity.AI.Navigation;
 using UnityEngine;
-
+using UnityEngine.AI;
 namespace Generation
 {
     /// <summary>
@@ -37,6 +38,7 @@ namespace Generation
         /// </summary>
         private MeshCollider _MeshCollider;
         private MeshRenderer _MeshRenderer;
+        private NavMeshSurface _NavMesh;
 
         /// <summary>
         /// Generates the vertices for a chunk. See <seealso cref="Vertices"/>.
@@ -161,6 +163,7 @@ namespace Generation
             _MeshFilter = GetComponent<MeshFilter>();
             _MeshCollider = GetComponent<MeshCollider>();
             _MeshRenderer = GetComponent<MeshRenderer>();
+            _NavMesh = GetComponent<NavMeshSurface>();
         }
     }
 }

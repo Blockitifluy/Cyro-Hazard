@@ -857,7 +857,7 @@ MonoBehaviour:
     GameObj: {fileID: 131176270}
     LastPosition: {x: 0, y: 0, z: 0}
   ChunkPrefab: {fileID: 832967652031903853, guid: 729e911a9705c474e940893ea6d9d4e3, type: 3}
-  ChunkRenderingRadius: 8
+  ChunkRenderingRadius: 1
   TilesPerAxis: 16
   TileSize: 1
   Materials:
