@@ -50,34 +50,6 @@ namespace Generation
 			}
 		}
 
-		/// <summary>
-		/// A vertex used in a <see cref="ChunkTerrain"/>. Less 64 bits.
-		/// </summary>
-		public struct Vertex
-		{
-			/// <summary>
-			/// The vertex's x position.
-			/// </summary>
-			public byte PositionX;
-			/// <summary>
-			/// The vertex's y position.
-			/// </summary>
-			public byte PositionY;
-
-			/// <summary>
-			/// The vertex's grid 2D position.
-			/// </summary>
-			public readonly Vector2Int GridPosition => new(PositionX, PositionY);
-			/// <summary>
-			/// The vertex's grid 2D position with the height.
-			/// </summary>
-			public readonly Vector3 Position => new(PositionX, Height, PositionY);
-			/// <summary>
-			/// The height of the vertex.
-			/// </summary>
-			public float Height;
-		}
-
 		// Constants
 
 		/// <summary>
@@ -194,7 +166,7 @@ namespace Generation
 
 		// Chunk Generation
 
-		public abstract Vertex GetTileData(int x, int y, int chunkX, int chunkY);
+		public abstract float GenerateVertexHeight(int x, int y, Vector2Int chunkPos);
 
 		// Chunk Loading
 

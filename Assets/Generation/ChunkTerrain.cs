@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Generation
@@ -51,11 +53,8 @@ namespace Generation
             {
                 for (int x = 0; x <= Constructor.TilesPerAxis; x++)
                 {
-                    ChunkConstructor.Vertex vertice = Constructor.GetTileData(
-                        x, y,
-                        chunkPos.x, chunkPos.y
-                    );
-                    vertices[i] = vertice.Position * Constructor.TileSize;
+                    float height = Constructor.GenerateVertexHeight(x, y, chunkPos);
+                    vertices[i] = new(x * Constructor.TileSize, height, y * Constructor.TileSize);
                     i++;
                 }
             }
