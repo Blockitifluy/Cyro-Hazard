@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using UnityEngine;
 
-namespace Items
+namespace CH.Items
 {
 	public class ItemManager : MonoBehaviour
 	{

@@ -1,8 +1,6 @@
-using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Generation
+namespace CH.Generation
 {
     /// <summary>
     /// A chunk's data storing it's vertices and triangles.  

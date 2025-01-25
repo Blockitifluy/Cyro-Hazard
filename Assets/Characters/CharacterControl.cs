@@ -1,33 +1,36 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Items;
+using CH.Items.Container;
 
-[RequireComponent(typeof(MovementBasics))]
-public abstract class CharacterControl : MonoBehaviour
+namespace CH.Character
 {
-	public MovementBasics MovementBasics;
-
-	public List<Backpack> DetectBackpacks()
+	[RequireComponent(typeof(MovementBasics))]
+	public abstract class CharacterControl : MonoBehaviour
 	{
-		var allBackpacks = GameObject.FindGameObjectsWithTag("Backpack");
-		List<Backpack> actualPacks = new();
+		public MovementBasics MovementBasics;
 
-		foreach (GameObject obj in allBackpacks)
+		public List<Backpack> DetectBackpacks()
 		{
-			if (gameObject.transform.IsChildOf(obj.transform)) continue;
+			var allBackpacks = GameObject.FindGameObjectsWithTag("Backpack");
+			List<Backpack> actualPacks = new();
 
-			if (!obj.TryGetComponent<Backpack>(out var backpack))
+			foreach (GameObject obj in allBackpacks)
 			{
-				Debug.LogWarning($"Even though {obj.name} has tag backpack, it's doesn't have the Backpack component");
-				continue;
+				if (gameObject.transform.IsChildOf(obj.transform)) continue;
+
+				if (!obj.TryGetComponent<Backpack>(out var backpack))
+				{
+					Debug.LogWarning($"Even though {obj.name} has tag backpack, it's doesn't have the Backpack component");
+					continue;
+				}
+
+				actualPacks.Add(backpack);
 			}
 
-			actualPacks.Add(backpack);
+			return actualPacks;
 		}
 
-		return actualPacks;
+		// Update is called once per frame
+		protected abstract void Update();
 	}
-
-	// Update is called once per frame
-	protected abstract void Update();
 }

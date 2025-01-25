@@ -1,74 +1,77 @@
 using UnityEngine.InputSystem;
 using UnityEngine;
 
-public class CameraControl : MonoBehaviour
+namespace CH.Character.Player
 {
-    private InputActionMap _InputActionMap;
-    private bool _SpinningMouse = false;
-
-    public InputActionAsset Controls;
-    public GameObject Character;
-    public float CameraSmoothing = 0.15f;
-
-    [Header("Spin")]
-    public float SpinFactor = 10.0f;
-
-    private void OnMousePerform(InputAction.CallbackContext context)
+    public class CameraControl : MonoBehaviour
     {
-        _SpinningMouse = true;
+        private InputActionMap _InputActionMap;
+        private bool _SpinningMouse = false;
 
-        Debug.Log("Moving Camera");
-    }
+        public InputActionAsset Controls;
+        public GameObject Character;
+        public float CameraSmoothing = 0.15f;
 
-    private void OnMouseRelease(InputAction.CallbackContext context)
-    {
-        _SpinningMouse = false;
-        Debug.Log("Mouse Release, Camera");
-    }
+        [Header("Spin")]
+        public float SpinFactor = 10.0f;
 
-    private Vector3 GetPlayerDir()
-    {
-        var dir = Character.transform.forward;
-        return dir;
-    }
+        private void OnMousePerform(InputAction.CallbackContext context)
+        {
+            _SpinningMouse = true;
 
-    private void SpinCameraControl()
-    {
-        var currentMouse = Mouse.current.position;
+            Debug.Log("Moving Camera");
+        }
 
-        Vector2 dir2D = currentMouse.value;
-        Vector3 dir = new(0, dir2D.x, 0);
-        float magnitude = currentMouse.magnitude * SpinFactor;
+        private void OnMouseRelease(InputAction.CallbackContext context)
+        {
+            _SpinningMouse = false;
+            Debug.Log("Mouse Release, Camera");
+        }
 
-        Quaternion newQuat = Quaternion.AngleAxis(magnitude, dir);
-        var lerpQuat = Quaternion.Lerp(transform.rotation, newQuat, CameraSmoothing);
-        transform.rotation = lerpQuat;
-    }
+        private Vector3 GetPlayerDir()
+        {
+            var dir = Character.transform.forward;
+            return dir;
+        }
 
-    private void CameraStandardControl()
-    {
-        Vector3 dir = GetPlayerDir();
-        var newQuat = Quaternion.LookRotation(dir);
+        private void SpinCameraControl()
+        {
+            var currentMouse = Mouse.current.position;
 
-        var lerpQuat = Quaternion.Lerp(transform.rotation, newQuat, CameraSmoothing);
+            Vector2 dir2D = currentMouse.value;
+            Vector3 dir = new(0, dir2D.x, 0);
+            float magnitude = currentMouse.magnitude * SpinFactor;
 
-        transform.rotation = lerpQuat;
-    }
+            Quaternion newQuat = Quaternion.AngleAxis(magnitude, dir);
+            var lerpQuat = Quaternion.Lerp(transform.rotation, newQuat, CameraSmoothing);
+            transform.rotation = lerpQuat;
+        }
 
-    public void Update()
-    {
-        if (!_SpinningMouse)
-            CameraStandardControl();
-        else
-            SpinCameraControl();
-    }
+        private void CameraStandardControl()
+        {
+            Vector3 dir = GetPlayerDir();
+            var newQuat = Quaternion.LookRotation(dir);
 
-    public void Start()
-    {
-        _InputActionMap = Controls.FindActionMap("gameplay");
+            var lerpQuat = Quaternion.Lerp(transform.rotation, newQuat, CameraSmoothing);
 
-        var MoveCamera = _InputActionMap.FindAction("move-camera");
-        MoveCamera.performed += OnMousePerform;
-        MoveCamera.canceled += OnMouseRelease;
+            transform.rotation = lerpQuat;
+        }
+
+        public void Update()
+        {
+            if (!_SpinningMouse)
+                CameraStandardControl();
+            else
+                SpinCameraControl();
+        }
+
+        public void Start()
+        {
+            _InputActionMap = Controls.FindActionMap("gameplay");
+
+            var MoveCamera = _InputActionMap.FindAction("move-camera");
+            MoveCamera.performed += OnMousePerform;
+            MoveCamera.canceled += OnMouseRelease;
+        }
     }
 }

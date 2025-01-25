@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Generation
+namespace CH.Generation
 {
     public class WorldGen : ChunkConstructor
     {

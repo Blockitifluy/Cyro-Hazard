@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Generation
+namespace CH.Generation
 {
 	/// <summary>
 	/// Constructs chunk based on the focuses position.

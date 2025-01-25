@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace Items
+namespace CH.Items.Container
 {
 	/// <summary>
 	/// An item inside of a <see cref="Backpack"/>.

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Items
+namespace CH.Items.Container
 {
 	/// <summary>
 	/// This class refers to anything that can contain items
