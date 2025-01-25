@@ -47,6 +47,7 @@ public class MovementBasics : MonoBehaviour
 	/// <summary>
 	/// The speed of which the character turns.
 	/// </summary>
+	[Range(0.0f, 1.0f)]
 	public float TurningSpeed = 35.0f;
 
 	/// <summary>
@@ -100,24 +101,24 @@ public class MovementBasics : MonoBehaviour
 	{
 		if (_MovementDirection == Vector3.zero)
 			return Vector3.zero;
-		return MovementMaxSpeed * Time.deltaTime * _MovementDirection;
+		return _CurrentMovementSpeed * Time.deltaTime * _MovementDirection;
 	}
 
 	/// <summary>
 	/// Gets the speed added by the acceleration, which is capped by <see cref="MovementMaxSpeed"/>.
 	/// </summary>
 	/// <returns>Speed added by accelation (Also multipled the delta time).</returns>
-	public float GetAccelerationSpeed()
+	public float CalculateSpeed()
 	{
 		var uncapped = _CurrentMovementSpeed + MovementAcceleration * Time.deltaTime;
-		return Mathf.Min(Mathf.Pow(uncapped, 2), MovementMaxSpeed);
+		return Mathf.Min(uncapped, MovementMaxSpeed);
 	}
 
 	/// <summary>
 	/// Moves the object, run every frame.
 	/// </summary>
 	/// <param name="offset">The offset direction multipled by speed, usally from <see cref="GetMovementOffset"/>.</param>
-	private void Move(Vector3 offset)
+	private void Move()
 	{
 		if (!IsMoving())
 		{
@@ -125,7 +126,9 @@ public class MovementBasics : MonoBehaviour
 			return;
 		}
 
-		_CurrentMovementSpeed = GetAccelerationSpeed();
+		_CurrentMovementSpeed = CalculateSpeed();
+
+		Vector3 offset = GetMovementOffset();
 		transform.position += offset;
 	}
 
@@ -142,9 +145,7 @@ public class MovementBasics : MonoBehaviour
 	// Update is called once per frame
 	public void Update()
 	{
-		Vector3 offset = GetMovementOffset();
-
-		Move(offset);
+		Move();
 		Turn();
 	}
 }

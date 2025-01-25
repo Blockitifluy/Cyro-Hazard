@@ -256,9 +256,9 @@ Transform:
   m_LocalScale: {x: 0.5, y: 1, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1482618884}
   - {fileID: 1993485765}
   - {fileID: 597870347}
-  - {fileID: 1482618884}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &131176277
@@ -329,7 +329,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TurningSpeed: 0.45
   MovementMaxSpeed: 5
-  MovementAcceleration: 1
+  MovementAcceleration: 10
 --- !u!1 &597870346
 GameObject:
   m_ObjectHideFlags: 0
@@ -597,7 +597,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 909784690}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 2.4424093, y: 1.8839705, z: -2.1073089}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -862,9 +862,12 @@ MonoBehaviour:
   TileSize: 1
   Materials:
   - {fileID: 6486337823946423804, guid: f37cb2d2058a96e4dbbd9ce37c7ae0d1, type: 3}
-  UVScale: 3
+  UVScale: 2
   Scale: 0.05
   HeightMultipler: 1
+  HeightFloor: -0.5
+  HillScale: 0.001
+  HillMultipler: 10
 --- !u!1 &1993485764
 GameObject:
   m_ObjectHideFlags: 0
@@ -984,8 +987,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 909784692}
-  - {fileID: 131176276}
   - {fileID: 1711803988}
+  - {fileID: 131176276}
   - {fileID: 1124501413}
   - {fileID: 901377496362618903}
   - {fileID: 705507995}

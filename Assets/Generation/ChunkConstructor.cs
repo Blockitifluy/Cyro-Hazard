@@ -255,10 +255,27 @@ namespace Generation
 
 			return kept;
 		}
+
+		public void ClearChunks()
+		{
+			foreach (var pos in new List<Vector2Int>(_ChunkDict.Keys))
+				UnloadChunk(pos);
+		}
+
+		[ContextMenu("Refresh Chunks")]
+		public void ContextUnloadAllChunks()
+		{
+			Vector2Int[] mappings = GetChunkMappings(Focus.LastChunkPos);
+
+			ClearChunks();
+
+			foreach (Vector2Int pos in mappings)
+				LoadChunk(pos);
+		}
+
 		/// <summary>
 		/// Refreshs the chunks at the <see cref="Focus"/>'s position.
 		/// </summary>
-		[ContextMenu("Refresh Chunk")]
 		public void RefreshChunks()
 		{
 			System.Diagnostics.Stopwatch timer = new();
