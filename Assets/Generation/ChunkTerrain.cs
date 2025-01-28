@@ -92,7 +92,6 @@ namespace CH.Generation
             return triangles;
         }
 
-        // TODO
         private Vector2[] GenerateUVs()
         {
             Vector2[] uvs = new Vector2[Constructor.VerticesPerChunk];
