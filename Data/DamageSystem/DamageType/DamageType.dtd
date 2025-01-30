@@ -1,0 +1,9 @@
+<!ELEMENT root (damage-type+)>
+<!ELEMENT damage-type (armour-category, piercing, stun-time, applies, applies-piercing?)>
+<!ATTLIST damage-type name ID #REQUIRED>
+
+<!ELEMENT armour-category (#PCDATA)>
+<!ELEMENT piercing (#PCDATA)>
+<!ELEMENT stun-time (#PCDATA)>
+<!ELEMENT applies (#PCDATA)>
+<!ELEMENT applies-piercing (#PCDATA)>

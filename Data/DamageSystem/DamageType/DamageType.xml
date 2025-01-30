@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE root SYSTEM "DamageType.dtd">
+<root>
+    <damage-type name="Arrow">
+        <armour-category>Sharp</armour-category>
+        <piercing>true</piercing>
+        <stun-time>0</stun-time>
+        <applies>Stab</applies>
+        <applies-piercing>Stab</applies-piercing>
+    </damage-type>
+
+    <damage-type name="Bite">
+        <armour-category>Sharp</armour-category>
+        <piercing>false</piercing>
+        <stun-time>0</stun-time>
+        <applies>Bite</applies>
+    </damage-type>
+
+    <damage-type name="Blunt">
+        <armour-category>Blunt</armour-category>
+        <piercing>false</piercing>
+        <stun-time>0.2</stun-time>
+        <applies>Crack</applies>
+    </damage-type>
+
+    <damage-type name="Bullet">
+        <armour-category>Sharp</armour-category>
+        <piercing>true</piercing>
+        <stun-time>0</stun-time>
+        <applies>Bullet Wound</applies>
+        <applies-piercing>Bullet Hole</applies-piercing>
+    </damage-type>
+
+    <damage-type name="Fire">
+        <armour-category>Flame</armour-category>
+        <piercing>false</piercing>
+        <stun-time>0</stun-time>
+        <applies>Burn</applies>
+    </damage-type>
+
+    <damage-type name="Cut">
+        <armour-category>Sharp</armour-category>
+        <piercing>true</piercing>
+        <stun-time>0</stun-time>
+        <applies>Stab</applies>
+        <applies-piercing>Stab</applies-piercing>
+    </damage-type>
+
+    <damage-type name="Explode">
+        <armour-category>Blast</armour-category>
+        <piercing>true</piercing>
+        <stun-time>0.5</stun-time>
+        <applies>Crack</applies>
+        <applies-piercing>Crack</applies-piercing>
+    </damage-type>
+
+    <damage-type name="Slash">
+        <armour-category>Sharp</armour-category>
+        <piercing>true</piercing>
+        <stun-time>0</stun-time>
+        <applies>Slash</applies>
+        <applies-piercing>Slash</applies-piercing>
+    </damage-type>
+
+    <damage-type name="Acid">
+        <armour-category>Chemical</armour-category>
+        <piercing>false</piercing>
+        <stun-time>0</stun-time>
+        <applies>Chemical Burn</applies>
+    </damage-type>
+</root>

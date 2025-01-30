@@ -18,7 +18,7 @@
                     "name": "open-backpack",
                     "type": "Button",
                     "id": "75557960-57e5-4867-87a6-42673e062dbb",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -27,7 +27,7 @@
                     "name": "move-camera",
                     "type": "Button",
                     "id": "ddd8922b-96b9-499d-92a2-2008ca390c3b",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "Press",
                     "initialStateCheck": true

@@ -4,7 +4,7 @@ using UnityEngine;
 
 // TODO - Add editor interagetion
 
-namespace CH.Character.DamageSystem
+namespace CH.Character.Damage
 {
     /// <summary>
     /// A skeleton hierachry used for health.

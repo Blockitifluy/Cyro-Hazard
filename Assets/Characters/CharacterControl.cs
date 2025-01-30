@@ -5,9 +5,11 @@ using CH.Items.Container;
 namespace CH.Character
 {
 	[RequireComponent(typeof(MovementBasics))]
+	[RequireComponent(typeof(CharacterHealth))]
 	public abstract class CharacterControl : MonoBehaviour
 	{
 		public MovementBasics MovementBasics;
+		public CharacterHealth CharacterHealth;
 
 		public List<Backpack> DetectBackpacks()
 		{

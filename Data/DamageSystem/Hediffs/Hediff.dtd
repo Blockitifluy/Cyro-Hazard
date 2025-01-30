@@ -1,0 +1,7 @@
+<!ELEMENT root (injury-hediff*)>
+
+<!ELEMENT injury-hediff (bleeding, pain)>
+<!ATTLIST injury-hediff name ID #REQUIRED>
+
+<!ELEMENT bleeding (#PCDATA)>
+<!ELEMENT pain (#PCDATA)>

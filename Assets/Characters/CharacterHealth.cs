@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using CH.Character.DamageSystem;
+using CH.Character.Damage;
 using UnityEngine;
 
 namespace CH.Character
@@ -60,7 +60,7 @@ namespace CH.Character
 
                 for (int i = 0; i < BodyParts.Count; i++)
                 {
-                    CharacterPart appliedPart = _CharBodyParts[i];
+                    CharacterBP appliedPart = _CharBodyParts[i];
                     health += appliedPart.Health;
                 }
 
@@ -71,9 +71,9 @@ namespace CH.Character
         // Private Fields & Propetries
 
         /// <summary>
-        /// The character's body parts, containing the <see cref="CharacterPart.Health"/> propetry.
+        /// The character's body parts, containing the <see cref="CharacterBP.Health"/> propetry.
         /// </summary>
-        private readonly List<CharacterPart> _CharBodyParts = new();
+        private readonly List<CharacterBP> _CharBodyParts = new();
 
         // Public Methods
 
@@ -129,7 +129,7 @@ namespace CH.Character
         /// </summary>
         /// <param name="bodyPart">The <see cref="TemplatePart"/> that the character has.</param>
         /// <returns>The Character's Body Part</returns>
-        public CharacterPart GetCharBodyPart(TemplatePart bodyPart)
+        public CharacterBP GetCharBodyPart(TemplatePart bodyPart)
         {
             int index = BodyParts.BinarySearch(bodyPart);
             return _CharBodyParts[index];
@@ -140,7 +140,7 @@ namespace CH.Character
         /// </summary>
         /// <param name="index">The index of the body part.</param>
         /// <returns>The Character's Body Part</returns>
-        public CharacterPart GetCharBodyPartByIndex(int index) => _CharBodyParts[index];
+        public CharacterBP GetCharBodyPartByIndex(int index) => _CharBodyParts[index];
 
         // Private Methods
 
@@ -148,7 +148,7 @@ namespace CH.Character
         {
             for (int i = 0; i < BodyParts.Count; i++)
             {
-                CharacterPart charBody = GetCharBodyPartByIndex(i);
+                CharacterBP charBody = GetCharBodyPartByIndex(i);
                 if (charBody.Health <= 0)
                     return true;
             }
@@ -165,7 +165,7 @@ namespace CH.Character
 
             foreach (TemplatePart templPart in Skeleton.BodyParts)
             {
-                CharacterPart bodyPart = new(templPart);
+                CharacterBP bodyPart = new(templPart);
                 _CharBodyParts.Add(bodyPart);
             }
         }
@@ -181,7 +181,7 @@ namespace CH.Character
     /// <summary>
     /// A body part apart from <c><see cref="CharacterHealth"/></c>.
     /// </summary>
-    public class CharacterPart
+    public class CharacterBP
     {
         /// <summary>
         /// The body part that the object derives from.
@@ -210,7 +210,7 @@ namespace CH.Character
             return BodyPart.Name;
         }
 
-        public CharacterPart(TemplatePart bodyPart)
+        public CharacterBP(TemplatePart bodyPart)
         {
             BodyPart = bodyPart;
             _Health = bodyPart.MaxHealth;
