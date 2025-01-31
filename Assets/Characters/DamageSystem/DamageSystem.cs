@@ -199,6 +199,7 @@ namespace CH.Character.Damage
                 };
                 string keyName = hediffElem.GetAttribute("name").Replace('-', ' ');
 
+                hediff.Name = keyName;
                 Hediffs[keyName] = hediff;
                 loaded++;
             }
@@ -273,33 +274,45 @@ namespace CH.Character.Damage
         }
 
         /// <summary>
-        /// Gets the HediffDef by name then converts it to <typeparamref name="HediffT"/> param type.
+        /// Gets the HediffDef by name then converts it to <typeparamref name="DefT"/> param type.
         /// </summary>
-        /// <typeparam name="HediffT">Needs to derive from <see cref="IDef"/>.</typeparam>
+        /// <typeparam name="DefT">Needs to derive from <see cref="IDef"/>.</typeparam>
         /// <param name="name">The name of the <see cref="HediffDef"/>.</param>
         /// <returns>The HediffDef</returns>
-        /// <exception cref="InvalidCastException">Thrown of the Hediff could be converted in to <typeparamref name="HediffT"/>.</exception>
-        public HediffT GetHediffDef<HediffT>(string name) where HediffT : IDef
+        /// <exception cref="InvalidCastException">Thrown of the Hediff could be converted in to <typeparamref name="DefT"/>.</exception>
+        public DefT GetHediffDef<DefT>(string name) where DefT : IDef
         {
             var hediff = Hediffs[name];
 
-            if (hediff is HediffT h)
+            if (hediff is DefT h)
                 return h;
-            throw new InvalidCastException($"Could't convert {name} to {typeof(HediffT).FullName}");
+            throw new InvalidCastException($"Could't convert {name} to {typeof(DefT).FullName}");
+        }
+
+        /// <inheritdoc cref="ApplyHediff(string, CharacterBP)"/>
+        /// <param name="hediff">A hediff defination.</param>
+        public HediffT ApplyHediff<DefT, HediffT>(DefT hediff, CharacterBP bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
+        {
+            HediffT applied = hediff.CreatesAppliedHediff();
+            applied.AppliedTo = bodyPart;
+            applied.HediffDef = hediff;
+            applied.OnApplied();
+            return applied;
         }
 
         /// <summary>
         /// Applies a hediff to a bodypart.
         /// </summary>
-        /// <param name="hediff">A hediff defination.</param>
+        /// <typeparam name="DefT">The hediff definition.</typeparam>
+        /// <typeparam name="HediffT">The applied definition.</typeparam>
         /// <param name="bodyPart">The bodypart, the hediff is going to be applied on.</param>
+        /// <param name="hediffName">The name of hediff</param>
         /// <returns>The hediff.</returns>
-        public Hediff ApplyHediff<DefT, HediffT>(DefT hediff, CharacterBP bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
+        public HediffT ApplyHediff<DefT, HediffT>(string hediffName, CharacterBP bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
         {
-            Hediff applied = hediff.CreatesAppliedHediff();
-            applied.AppliedTo = bodyPart;
-            applied.OnApplied();
-            return applied;
+            DefT hediffDef = GetHediffDef<DefT>(hediffName);
+
+            return ApplyHediff<DefT, HediffT>(hediffDef, bodyPart);
         }
 
         // Unity

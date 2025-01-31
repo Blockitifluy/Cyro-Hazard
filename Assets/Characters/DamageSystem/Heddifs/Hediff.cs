@@ -11,7 +11,15 @@ namespace CH.Character.Damage.Hediffs
         /// This hediff applied to this body part.
         /// </summary>
         public CharacterBP AppliedTo;
+        /// <summary>
+        /// The hediff definition, this hediff is based on.
+        /// </summary>
         public IDef HediffDef;
+
+        public override string ToString()
+        {
+            return HediffDef.Name;
+        }
 
         public abstract void OnUpdate();
 
