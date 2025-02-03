@@ -10,11 +10,16 @@ namespace CH.Character.Damage.Hediffs
         /// <summary>
         /// This hediff applied to this body part.
         /// </summary>
-        public CharacterBP AppliedTo;
+        public BodyPart AppliedTo;
         /// <summary>
         /// The hediff definition, this hediff is based on.
         /// </summary>
         public IDef HediffDef;
+
+        public virtual string Name
+        {
+            get { return HediffDef.Name; }
+        }
 
         public override string ToString()
         {

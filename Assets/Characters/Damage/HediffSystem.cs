@@ -37,6 +37,7 @@ namespace CH.Character.Damage
                 IDef hediff = hediffElem.Name switch
                 {
                     "injury-hediff" => LoadInjury(hediffElem),
+                    "severity-hediff" => LoadSeverityHediff(hediffElem),
                     _ => throw new InvalidCastException($"Hediff name {hediffElem.Name} is invailid"),
                 };
                 string keyName = hediffElem.GetAttribute("name").Replace('-', ' ');
@@ -82,7 +83,7 @@ namespace CH.Character.Damage
         /// <param name="damage">The severity of the damage.</param>
         /// <param name="isPermanent">Is the injury permanent?</param>
         /// <returns>The injury hediff applied</returns>
-        public InjuryHediff InjureCharacterBP(string damageName, CharacterBP bodyPart, float damage, bool isPermanent)
+        public InjuryHediff InjureCharacterBP(string damageName, BodyPart bodyPart, float damage, bool isPermanent)
         {
             DamageType damageType = GetDamageTypeFromName(damageName);
 
@@ -95,8 +96,8 @@ namespace CH.Character.Damage
             return applied;
         }
 
-        /// <inheritdoc cref="InjureCharacterBP(string, CharacterBP, float, bool)"/>
-        public InjuryHediff InjureCharacterBP(string damageName, CharacterBP bodyPart, float damage)
+        /// <inheritdoc cref="InjureCharacterBP(string, BodyPart, float, bool)"/>
+        public InjuryHediff InjureCharacterBP(string damageName, BodyPart bodyPart, float damage)
         {
             return InjureCharacterBP(damageName, bodyPart, damage, false);
         }
@@ -117,15 +118,27 @@ namespace CH.Character.Damage
             return injuryHediff;
         }
 
+        private SeverityHediffDef LoadSeverityHediff(XmlElement elem)
+        {
+            SeverityHediffDef severityHediff = new()
+            {
+                MaxSeverity = float.Parse(elem.GetNodeText("max-severity")),
+                SeverityGain = float.Parse(elem.GetNodeText("severity-gain"))
+            };
+
+            return severityHediff;
+        }
+
         // Applitation
 
-        /// <inheritdoc cref="ApplyHediff(string, CharacterBP)"/>
+        /// <inheritdoc cref="ApplyHediff(string, BodyPart)"/>
         /// <param name="hediff">A hediff defination.</param>
-        public HediffT ApplyHediff<DefT, HediffT>(DefT hediff, CharacterBP bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
+        public HediffT ApplyHediff<DefT, HediffT>(DefT hediff, BodyPart bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
         {
             HediffT applied = hediff.CreatesAppliedHediff();
             applied.AppliedTo = bodyPart;
             applied.HediffDef = hediff;
+            bodyPart.AppliedHedfiffs.Add(applied);
             applied.OnApplied();
             return applied;
         }
@@ -138,12 +151,23 @@ namespace CH.Character.Damage
         /// <param name="bodyPart">The bodypart, the hediff is going to be applied on.</param>
         /// <param name="hediffName">The name of hediff</param>
         /// <returns>The hediff.</returns>
-        public HediffT ApplyHediff<DefT, HediffT>(string hediffName, CharacterBP bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
+        public HediffT ApplyHediff<DefT, HediffT>(string hediffName, BodyPart bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
         {
             DefT hediffDef = GetHediffDef<DefT>(hediffName);
 
             return ApplyHediff<DefT, HediffT>(hediffDef, bodyPart);
         }
 
+        [ContextMenu("Print All Hediff Names")]
+        public void PrintAllHediffName()
+        {
+            List<string> names = new();
+            foreach (string name in Hediffs.Keys)
+            {
+                names.Add(name);
+            }
+
+            Debug.Log(string.Join(", ", names));
+        }
     }
 }

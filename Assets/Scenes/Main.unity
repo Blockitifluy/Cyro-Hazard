@@ -861,7 +861,7 @@ MonoBehaviour:
   Scale: 0.05
   HeightMultipler: 3
   HeightFloor: -0.9
-  HillScale: 0.001
+  HillScale: 1
   HillMultipler: 2
 --- !u!1 &1993485764
 GameObject:

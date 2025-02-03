@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using CH.Character.Damage;
+using CH.Character.Damage.Hediffs;
+using System;
 using UnityEngine;
 
 namespace CH.Character
@@ -26,7 +28,7 @@ namespace CH.Character
         /// <summary>
         /// The template body parts of
         /// </summary>
-        public List<TemplatePart> BodyParts
+        public List<TemplatePart> TemplateBody
         {
             get { return Skeleton.BodyParts; }
         }
@@ -40,7 +42,7 @@ namespace CH.Character
             {
                 float maxHealth = 0;
 
-                foreach (var prt in BodyParts)
+                foreach (var prt in TemplateBody)
                 {
                     maxHealth += prt.MaxHealth;
                 }
@@ -58,9 +60,9 @@ namespace CH.Character
             {
                 float health = 0;
 
-                for (int i = 0; i < BodyParts.Count; i++)
+                for (int i = 0; i < TemplateBody.Count; i++)
                 {
-                    CharacterBP appliedPart = _CharBodyParts[i];
+                    BodyPart appliedPart = _CharBodyParts[i];
                     health += appliedPart.Health;
                 }
 
@@ -71,9 +73,9 @@ namespace CH.Character
         // Private Fields & Propetries
 
         /// <summary>
-        /// The character's body parts, containing the <see cref="CharacterBP.Health"/> propetry.
+        /// The character's body parts, containing the <see cref="BodyPart.Health"/> propetry.
         /// </summary>
-        private readonly List<CharacterBP> _CharBodyParts = new();
+        private readonly List<BodyPart> _CharBodyParts = new();
 
         // Public Methods
 
@@ -127,12 +129,17 @@ namespace CH.Character
         /// <summary>
         /// Gets the body part from the <see cref="TemplatePart"/>.
         /// </summary>
-        /// <param name="bodyPart">The <see cref="TemplatePart"/> that the character has.</param>
+        /// <param name="templatePart">The <see cref="TemplatePart"/> that the character has.</param>
         /// <returns>The Character's Body Part</returns>
-        public CharacterBP GetCharBodyPart(TemplatePart bodyPart)
+        public BodyPart? GetCharBodyPart(TemplatePart templatePart)
         {
-            int index = BodyParts.BinarySearch(bodyPart);
-            return _CharBodyParts[index];
+            foreach (BodyPart other in _CharBodyParts)
+            {
+                if (other.TemplateBP != templatePart)
+                    continue;
+                return other;
+            }
+            return null;
         }
 
         /// <summary>
@@ -140,15 +147,37 @@ namespace CH.Character
         /// </summary>
         /// <param name="index">The index of the body part.</param>
         /// <returns>The Character's Body Part</returns>
-        public CharacterBP GetCharBodyPartByIndex(int index) => _CharBodyParts[index];
+        public BodyPart? GetCharBodyPartByIndex(int index) => _CharBodyParts[index];
+
+        [ContextMenu("Injure Random Part")]
+        public void InjureRandomPart()
+        {
+            int index = UnityEngine.Random
+                .Range(0, TemplateBody.Count);
+
+            DamageSystem damageSystem = DamageSystem.GetDamageSystem();
+
+            damageSystem.InjureCharacterBP("Cut", _CharBodyParts[index], 3);
+        }
 
         // Private Methods
 
+        private void UpdateAllHediffs()
+        {
+            foreach (BodyPart bodyPart in _CharBodyParts)
+            {
+                foreach (Hediff hediff in bodyPart.AppliedHedfiffs)
+                {
+                    hediff.OnUpdate();
+                }
+            }
+        }
+
         private bool DeathByOrganLoss()
         {
-            for (int i = 0; i < BodyParts.Count; i++)
+            for (int i = 0; i < TemplateBody.Count; i++)
             {
-                CharacterBP charBody = GetCharBodyPartByIndex(i);
+                BodyPart charBody = GetCharBodyPartByIndex(i).Value;
                 if (charBody.Health <= 0)
                     return true;
             }
@@ -165,12 +194,17 @@ namespace CH.Character
 
             foreach (TemplatePart templPart in Skeleton.BodyParts)
             {
-                CharacterBP bodyPart = new(templPart);
+                BodyPart bodyPart = new(templPart);
                 _CharBodyParts.Add(bodyPart);
             }
         }
 
         // Unity
+
+        public void Update()
+        {
+            UpdateAllHediffs();
+        }
 
         public void Awake()
         {
@@ -181,12 +215,12 @@ namespace CH.Character
     /// <summary>
     /// A body part apart from <c><see cref="CharacterHealth"/></c>.
     /// </summary>
-    public class CharacterBP
+    public struct BodyPart
     {
         /// <summary>
         /// The body part that the object derives from.
         /// </summary>
-        public readonly TemplatePart BodyPart;
+        public readonly TemplatePart TemplateBP;
         /// <summary>
         /// The health of the body part.
         /// </summary>
@@ -195,25 +229,32 @@ namespace CH.Character
         /// </remarks>
         public float Health
         {
-            get { return _Health; }
-            set
+            get
             {
-                _Health = Mathf.Clamp(value, 0, BodyPart.MaxHealth);
+                float health = TemplateBP.MaxHealth;
+
+                foreach (Hediff hediff in AppliedHedfiffs)
+                {
+                    if (hediff is not InjuryHediff injury)
+                        continue;
+                    health -= injury.Severity;
+                }
+
+                return health;
             }
         }
 
-        /// <inheritdoc cref="Health"/>
-        private float _Health;
+        public List<Hediff> AppliedHedfiffs;
 
         public override string ToString()
         {
-            return BodyPart.Name;
+            return $"{TemplateBP.Name} ({Health})";
         }
 
-        public CharacterBP(TemplatePart bodyPart)
+        public BodyPart(TemplatePart bodyPart)
         {
-            BodyPart = bodyPart;
-            _Health = bodyPart.MaxHealth;
+            TemplateBP = bodyPart;
+            AppliedHedfiffs = new();
         }
     }
 }

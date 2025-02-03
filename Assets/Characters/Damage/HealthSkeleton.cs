@@ -13,7 +13,7 @@ namespace CH.Character.Damage
     public class HealthSkeleton : ScriptableObject
     {
         /// <summary>
-        /// If a <see cref="TemplatePart.Parent"/> is set to this, then it is a root character.
+        /// If a <see cref="TemplatePart.ParentName"/> is set to this, then it is a root character.
         /// </summary>
         public const string RootBodyPartLabel = "_root_";
 
@@ -38,6 +38,39 @@ namespace CH.Character.Damage
                 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
         }
 
+        public TemplatePart[] GetChildBodyPart(TemplatePart parentPart)
+        {
+            List<TemplatePart> bodyParts = new();
+
+            foreach (TemplatePart other in BodyParts)
+            {
+                if (other.ParentName != parentPart.Name)
+                    continue;
+                bodyParts.Add(other);
+            }
+
+            return bodyParts.ToArray();
+        }
+
+        public TemplatePart? GetParent(TemplatePart childPart)
+        {
+            foreach (TemplatePart other in BodyParts)
+            {
+                if (childPart.ParentName != childPart.Name)
+                    continue;
+                return other;
+            }
+
+            return null;
+        }
+
+        public TemplatePart[] GetAllBodyPartAncestors(TemplatePart childPart)
+        {
+            if (GetRootPart() == childPart)
+                return Array.Empty<TemplatePart>();
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Gets the root part of the skeleton.
         /// </summary>
@@ -49,7 +82,7 @@ namespace CH.Character.Damage
         {
             foreach (TemplatePart bodyPart in BodyParts)
             {
-                if (bodyPart.Parent != RootBodyPartLabel)
+                if (bodyPart.ParentName != RootBodyPartLabel)
                     continue;
                 return bodyPart;
             }
@@ -62,33 +95,57 @@ namespace CH.Character.Damage
     /// The template body part used by <see cref="HealthSkeleton"/>.
     /// </summary>
     [Serializable]
-    public class TemplatePart
+    public struct TemplatePart
     {
-        /// <summary>
-        /// The max health that the body part could have.
-        /// </summary>
-        public float MaxHealth = 100.0f;
+        public readonly override bool Equals(object obj)
+        {
+            if (obj is not TemplatePart template)
+                throw new InvalidOperationException();
+            return template.GetHashCode() == GetHashCode();
+        }
+
+        public readonly override int GetHashCode()
+        {
+            return HashCode.Combine(Name, ParentName, IsInside, CanBleed, MaxHealth);
+        }
+
+        public static bool operator ==(TemplatePart first, TemplatePart second)
+        {
+            return first.Equals(second);
+        }
+
+        public static bool operator !=(TemplatePart first, TemplatePart second)
+        {
+            return !(first == second);
+        }
+
         /// <summary>
         /// The parent of the template body part.
         /// </summary>
         /// <remarks>
         /// Set as the <see cref="HealthSkeleton.RootBodyPartLabel"/>, if it doesn't have a parent.
         /// </remarks>
-        public string Parent = "";
+        public string ParentName;
+
         /// <summary>
         /// The name of the body parts.
         /// </summary>
         [Header("Identity")]
-        public string Name = "body part";
+        public string Name;
 
         /// <summary>
         /// Is the body part inside of it's parent.
         /// </summary>
         [Header("Damage")]
-        public bool IsInside = false;
+        public bool IsInside;
         /// <summary>
         /// Can it bleed?
         /// </summary>
-        public bool CanBleed = true;
+        public bool CanBleed;
+        /// <summary>
+        /// The max health that the body part could have.
+        /// </summary>
+        public float MaxHealth;
+
     }
 }

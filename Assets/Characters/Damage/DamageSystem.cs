@@ -180,6 +180,18 @@ namespace CH.Character.Damage
             Debug.Log($"Loaded all {loaded} damage types(s)");
         }
 
+        [ContextMenu("Print All DamageType Names")]
+        public void PrintAllDTName()
+        {
+            List<string> names = new();
+            foreach (string name in DamageTypes.Keys)
+            {
+                names.Add(name);
+            }
+
+            Debug.Log(string.Join(", ", names));
+        }
+
         // Unity
 
         public void Awake()
