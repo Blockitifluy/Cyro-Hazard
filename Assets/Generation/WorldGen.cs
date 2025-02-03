@@ -5,35 +5,30 @@ namespace CH.Generation
     public class WorldGen : ChunkConstructor
     {
         [Header("Generation")]
-        public float Scale = 0.2f;
         public float HeightMultipler = 1.0f;
-        [Range(-1.0f, 1.0f)]
-        public float HeightFloor = -0.5f;
-        [Header("Hills")]
-        public float HillScale = 0.35f;
-        public float HillMultipler = 5;
+        public FastNoiseLite Noise;
 
-        private float GenerateHeightNoise(Vector2 scaled)
+        private float GenerateHeightNoise(Vector2 pos)
         {
-            float rawNoise = Mathf.PerlinNoise(scaled.x, scaled.y);
-            float adjusted = (rawNoise - 0.5f) * 2.0f;
+            float rawNoise = Noise.GetNoise(pos.x, pos.y);
+            float quad = Mathf.Pow(rawNoise, 4);
 
-            return Mathf.Max(adjusted * HeightMultipler, HeightFloor);
+            return quad * HeightMultipler;
         }
 
-        private float GenerateHillNoise(Vector2 worldPos)
+        private Vector2 GetWorldPos(int x, int y, Vector2Int chunkPos)
         {
-            float rawNoise = Mathf.PerlinNoise(worldPos.x * HillScale, worldPos.y * HillScale);
-            return Mathf.Clamp01(rawNoise);
+            return new(
+                x + (chunkPos.x * TilesPerAxis),
+                y + (chunkPos.y * TilesPerAxis)
+            );
         }
 
         public override float GenerateVertexHeight(int x, int y, Vector2Int chunkPos)
         {
-            Vector2 worldPos = new(x + (chunkPos.x * TilesPerAxis), y + (chunkPos.y * TilesPerAxis)),
-            scaled = worldPos * Scale;
+            Vector2 worldPos = GetWorldPos(x, y, chunkPos);
 
-            float hillDist = GenerateHillNoise(worldPos),
-            height = GenerateHeightNoise(scaled) * hillDist * HillMultipler;
+            float height = GenerateHeightNoise(worldPos);
 
             return height;
         }
