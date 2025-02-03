@@ -51,7 +51,7 @@ namespace CH.Generation
             {
                 for (int x = 0; x <= Constructor.TilesPerAxis; x++)
                 {
-                    float height = Constructor.GenerateVertexHeight(x, y, chunkPos);
+                    float height = (Constructor.GenerateVertexHeight(x, y, chunkPos) - 0.5f) * 2.0f;
                     vertices[i] = new(x * Constructor.TileSize, height, y * Constructor.TileSize);
                     i++;
                 }

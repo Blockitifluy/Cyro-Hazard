@@ -852,17 +852,31 @@ MonoBehaviour:
     GameObj: {fileID: 131176270}
     LastPosition: {x: 0, y: 0, z: 0}
   ChunkPrefab: {fileID: 832967652031903853, guid: 729e911a9705c474e940893ea6d9d4e3, type: 3}
-  ChunkRenderingRadius: 8
-  TilesPerAxis: 16
+  ChunkRenderingRadius: 16
+  TilesPerAxis: 32
   TileSize: 1
   Materials:
   - {fileID: 6486337823946423804, guid: f37cb2d2058a96e4dbbd9ce37c7ae0d1, type: 3}
   UVScale: 2
-  Scale: 0.05
-  HeightMultipler: 3
-  HeightFloor: -0.9
-  HillScale: 1
-  HillMultipler: 2
+  HeightMultipler: 5
+  Noise:
+    mSeed: 1337
+    mFrequency: 0.004
+    mNoiseType: 0
+    mRotationType3D: 0
+    mFractalType: 4
+    mOctaves: 3
+    mLacunarity: 2
+    mGain: 0.5
+    mWeightedStrength: 3
+    mPingPongStrength: 0
+    mFractalBounding: 0
+    mCellularDistanceFunction: 0
+    mCellularReturnType: 0
+    mCellularJitterModifier: 0
+    mDomainWarpType: 0
+    mWarpTransformType3D: 0
+    mDomainWarpAmp: 0
 --- !u!1 &1993485764
 GameObject:
   m_ObjectHideFlags: 0
