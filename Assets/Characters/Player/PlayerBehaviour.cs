@@ -5,7 +5,6 @@ using CH.Items;
 
 namespace CH.Character.Player
 {
-	[RequireComponent(typeof(PlayerInput))]
 	public class PlayerBehaviour : CharacterControl
 	{
 		private InputActionMap _InputActionMap;

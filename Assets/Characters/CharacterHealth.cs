@@ -17,7 +17,7 @@ namespace CH.Character
         /// <summary>
         /// The health skeleton of the character.
         /// </summary>
-        public HealthSkeleton Skeleton;
+        public HealthHierarchy Hierachry;
 
         /// <summary>
         /// When the character's health is under this percent, then the character is considered dead.
@@ -30,26 +30,13 @@ namespace CH.Character
         /// </summary>
         public List<TemplatePart> TemplateBody
         {
-            get { return Skeleton.BodyParts; }
+            get { return Hierachry.TemplateParts; }
         }
 
         /// <summary>
         /// The total max health of the character.
         /// </summary>
-        public float MaxHealth
-        {
-            get
-            {
-                float maxHealth = 0;
-
-                foreach (var prt in TemplateBody)
-                {
-                    maxHealth += prt.MaxHealth;
-                }
-
-                return maxHealth;
-            }
-        }
+        public float MaxHealth => Hierachry.MaxHealth;
 
         /// <summary>
         /// The total health of the character.
@@ -62,7 +49,7 @@ namespace CH.Character
 
                 for (int i = 0; i < TemplateBody.Count; i++)
                 {
-                    BodyPart appliedPart = _CharBodyParts[i];
+                    BodyPart appliedPart = BodyParts[i];
                     health += appliedPart.Health;
                 }
 
@@ -70,12 +57,28 @@ namespace CH.Character
             }
         }
 
-        // Private Fields & Propetries
+        public float Pain
+        {
+            get
+            {
+                float pain = 0;
+
+                foreach (TemplatePart templatePart in TemplateBody)
+                {
+                    var bodypart = GetCharBodyPart(templatePart);
+                    if (bodypart.HasValue)
+                        continue;
+                    pain += bodypart.Value.Pain;
+                }
+
+                return pain;
+            }
+        }
 
         /// <summary>
         /// The character's body parts, containing the <see cref="BodyPart.Health"/> propetry.
         /// </summary>
-        private readonly List<BodyPart> _CharBodyParts = new();
+        public readonly List<BodyPart> BodyParts = new();
 
         // Public Methods
 
@@ -99,19 +102,17 @@ namespace CH.Character
         /// <returns>Self-Explainitary</returns>
         public bool IsDead(out EDeathReason deathReason)
         {
-            float health = Health;
-
-            if (health * DieUnderHealthPer >= health)
+            if (MaxHealth * DieUnderHealthPer >= Health)
             {
                 deathReason = EDeathReason.Health;
                 return true;
             }
 
-            if (DeathByOrganLoss())
-            {
-                deathReason = EDeathReason.OrganGone;
-                return true;
-            }
+            // if (DeathByOrganLoss())
+            // {
+            //     deathReason = EDeathReason.OrganGone;
+            //     return true;
+            // }
 
             deathReason = EDeathReason.None;
             return false;
@@ -133,7 +134,7 @@ namespace CH.Character
         /// <returns>The Character's Body Part</returns>
         public BodyPart? GetCharBodyPart(TemplatePart templatePart)
         {
-            foreach (BodyPart other in _CharBodyParts)
+            foreach (BodyPart other in BodyParts)
             {
                 if (other.TemplateBP != templatePart)
                     continue;
@@ -141,13 +142,6 @@ namespace CH.Character
             }
             return null;
         }
-
-        /// <summary>
-        /// Gets the body part by index.
-        /// </summary>
-        /// <param name="index">The index of the body part.</param>
-        /// <returns>The Character's Body Part</returns>
-        public BodyPart? GetCharBodyPartByIndex(int index) => _CharBodyParts[index];
 
         [ContextMenu("Injure Random Part")]
         public void InjureRandomPart()
@@ -157,14 +151,14 @@ namespace CH.Character
 
             DamageSystem damageSystem = DamageSystem.GetDamageSystem();
 
-            damageSystem.InjureCharacterBP("Cut", _CharBodyParts[index], 3);
+            damageSystem.InjureCharacterBP("Cut", BodyParts[index], 3);
         }
 
         // Private Methods
 
         private void UpdateAllHediffs()
         {
-            foreach (BodyPart bodyPart in _CharBodyParts)
+            foreach (BodyPart bodyPart in BodyParts)
             {
                 foreach (Hediff hediff in bodyPart.AppliedHedfiffs)
                 {
@@ -173,29 +167,17 @@ namespace CH.Character
             }
         }
 
-        private bool DeathByOrganLoss()
-        {
-            for (int i = 0; i < TemplateBody.Count; i++)
-            {
-                BodyPart charBody = GetCharBodyPartByIndex(i).Value;
-                if (charBody.Health <= 0)
-                    return true;
-            }
-
-            return false;
-        }
-
         /// <summary>
-        /// Loads all the body parts from the <see cref="HealthSkeleton.BodyParts"/> field.
+        /// Loads all the body parts from the <see cref="HealthHierarchy.TemplateParts"/> field.
         /// </summary>
         private void LoadAllBodyParts()
         {
-            _CharBodyParts.Clear();
+            BodyParts.Clear();
 
-            foreach (TemplatePart templPart in Skeleton.BodyParts)
+            foreach (TemplatePart templPart in Hierachry.TemplateParts)
             {
                 BodyPart bodyPart = new(templPart);
-                _CharBodyParts.Add(bodyPart);
+                BodyParts.Add(bodyPart);
             }
         }
 
@@ -227,7 +209,7 @@ namespace CH.Character
         /// <remarks>
         /// In range of 0 to <see cref="TemplatePart.MaxHealth"/>.
         /// </remarks>
-        public float Health
+        public readonly float Health
         {
             get
             {
@@ -244,9 +226,37 @@ namespace CH.Character
             }
         }
 
+        public readonly float Pain
+        {
+            get
+            {
+                float pain = 0;
+
+                foreach (Hediff hediff in AppliedHedfiffs)
+                {
+                    if (hediff is not InjuryHediff injury)
+                        continue;
+                    pain += injury.InjuryHediffDef.Pain;
+                }
+
+                return pain;
+            }
+        }
+
+        public readonly float GetOrganOperation(ECapability capability)
+        {
+            float percent = Health / TemplateBP.MaxHealth;
+
+            var capabilityReduct = TemplateBP.GetCapabilityReduction(capability);
+            if (!capabilityReduct.HasValue)
+                throw new NullReferenceException("Capability Reduction was Null!");
+
+            return capabilityReduct.Value.DestroyedReduction * (1 - percent);
+        }
+
         public List<Hediff> AppliedHedfiffs;
 
-        public override string ToString()
+        public override readonly string ToString()
         {
             return $"{TemplateBP.Name} ({Health})";
         }

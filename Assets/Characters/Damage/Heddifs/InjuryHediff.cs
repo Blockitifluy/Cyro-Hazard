@@ -11,7 +11,7 @@ namespace CH.Character.Damage.Hediffs
 
         public override void OnUpdate()
         {
-            Debug.Log("OUCH!");
+            
         }
 
         public override void OnApplied()

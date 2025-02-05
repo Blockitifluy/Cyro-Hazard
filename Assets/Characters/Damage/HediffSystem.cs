@@ -7,6 +7,15 @@ using CH.Character.Damage.HediffDefs;
 
 namespace CH.Character.Damage
 {
+    public struct InjuryResult
+    {
+        public InjuryHediff BaseHediff;
+
+        public InjuryResult(InjuryHediff baseHediff)
+        {
+            BaseHediff = baseHediff;
+        }
+    }
     public partial class DamageSystem : MonoBehaviour
     {
         // Constants
@@ -78,6 +87,9 @@ namespace CH.Character.Damage
         /// <summary>
         /// Injures a character's <paramref name="bodyPart"/> with a damage type
         /// </summary>
+        /// <remarks>
+        /// This function doesn't do piercing
+        /// </remarks>
         /// <param name="damageName">The name of the damage type.</param>
         /// <param name="bodyPart">The body part affected.</param>
         /// <param name="damage">The severity of the damage.</param>
@@ -87,13 +99,11 @@ namespace CH.Character.Damage
         {
             DamageType damageType = GetDamageTypeFromName(damageName);
 
-            // TODO - Add Piercing Damage
             var hediff = ApplyHediff<InjuryHediffDef, InjuryHediff>(damageType.Applies, bodyPart);
-            if (hediff is not InjuryHediff applied)
-                throw new InvalidCastException($"Heddif {hediff} couldn't be converted into {typeof(InjuryHediff).Name}");
-            applied.Severity = damage;
-            applied.IsPermanent = isPermanent;
-            return applied;
+            hediff.Severity = damage;
+            hediff.IsPermanent = isPermanent;
+
+            return hediff;
         }
 
         /// <inheritdoc cref="InjureCharacterBP(string, BodyPart, float, bool)"/>
