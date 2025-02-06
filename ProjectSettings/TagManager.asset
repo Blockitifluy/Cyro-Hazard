@@ -9,6 +9,7 @@ TagManager:
   - Backpack
   - ChunkConstructor
   - Chunk
+  - DamageSystem
   layers:
   - Default
   - TransparentFX

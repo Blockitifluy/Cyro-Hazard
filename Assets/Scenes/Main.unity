@@ -251,11 +251,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 131176270}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 0.5, y: 1, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 785346856}
   - {fileID: 1482618884}
   - {fileID: 1993485765}
   - {fileID: 597870347}
@@ -312,6 +313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MovementBasics: {fileID: 131176279}
+  CharacterHealth: {fileID: 785346857}
   Controls: {fileID: -944628639613478452, guid: 1cf4a61929affde46bf215ca3494737b, type: 3}
   CharacterPickupDist: 5
   MousePickupDist: 2.5
@@ -327,9 +329,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a67adc0b2842cb1479f6e722ef71a8ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TurningSpeed: 0.45
+  TurningSpeed: 0.8
   MovementMaxSpeed: 5
   MovementAcceleration: 10
+--- !u!1 &534583081
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 534583082}
+  - component: {fileID: 534583083}
+  m_Layer: 0
+  m_Name: DamageSystem
+  m_TagString: DamageSystem
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &534583082
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534583081}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 22.004145, y: 3.4571736, z: 230.32837}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &534583083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534583081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 917ec51436b160e44a3040a0d48864b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &597870346
 GameObject:
   m_ObjectHideFlags: 0
@@ -560,6 +606,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &785346855
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 785346856}
+  - component: {fileID: 785346857}
+  m_Layer: 6
+  m_Name: Health
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &785346856
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 785346855}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 131176276}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &785346857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 785346855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce5baf6d569876e47beb5f0d32127468, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Hierachry: {fileID: 11400000, guid: f676cc91466cded4eade8f0d8c36c30c, type: 2}
+  DieUnderHealthPer: 0.2
+  OrganPairs:
+  - Organ1: Left Lung
+    Organ2: Right Lung
+  - Organ1: Left Kidney
+    Organ2: Right Kidney
+  DeathCapabilities: 08070009
 --- !u!1 &909784690
 GameObject:
   m_ObjectHideFlags: 0
@@ -936,6 +1034,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 909784692}
+  - {fileID: 534583082}
   - {fileID: 1711803988}
   - {fileID: 131176276}
   - {fileID: 901377496362618903}

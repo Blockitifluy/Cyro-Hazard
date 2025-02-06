@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Xml;
 using UnityEngine;
 
+// TODO - Update to Standard
+
 namespace CH.Items
 {
 	public class ItemManager : MonoBehaviour
@@ -10,7 +12,7 @@ namespace CH.Items
 		/// <summary>
 		/// The xml path where item data is stored
 		/// </summary>
-		const string PathToItemsXML = "Data\\Items.xml";
+		const string PathToItemsXML = "Data\\Items\\Items.xml";
 
 		const string ItemManagerTag = "ItemManager";
 
@@ -190,25 +192,22 @@ namespace CH.Items
 
 		private Item XMLToItem(XmlElement element)
 		{
-			string ID = element.GetAttribute("ID");
-			if (Items.ContainsKey(ID))
-				return Items[ID];
+			string ID = element.GetAttribute("ID"),
+			typeString = element.GetNodeText("type"),
+			name = element.GetNodeText("name"),
+			description = element.GetNodeText("description");
 
-			string typeString = element.SelectSingleNode("type").InnerText,
-			name = element.SelectSingleNode("name").InnerText,
-			description = element.SelectSingleNode("description").InnerText;
+			float health = float.Parse(element.GetNodeText("health")),
+			spoilageRate = float.Parse(element.GetNodeText("spoilageRate")),
+			decayRate = float.Parse(element.GetNodeText("decayRate")),
+			flamiblity = float.Parse(element.GetNodeText("flamiblity")),
+			weight = float.Parse(element.GetNodeText("weight"));
 
-			float health = float.Parse(element.SelectSingleNode("health").InnerText),
-			spoilageRate = float.Parse(element.SelectSingleNode("spoilageRate").InnerText),
-			decayRate = float.Parse(element.SelectSingleNode("decayRate").InnerText),
-			flamiblity = float.Parse(element.SelectSingleNode("flamiblity").InnerText),
-			weight = float.Parse(element.SelectSingleNode("weight").InnerText);
+			int sizeX = int.Parse(element.GetNodeText("sizeX")),
+			sizeY = int.Parse(element.GetNodeText("sizeY")),
+			maxStack = int.Parse(element.GetNodeText("maxStack"));
 
-			int sizeX = int.Parse(element.SelectSingleNode("sizeX").InnerText),
-			sizeY = int.Parse(element.SelectSingleNode("sizeY").InnerText),
-			maxStack = int.Parse(element.SelectSingleNode("maxStack").InnerText);
-
-			bool @volatile = bool.Parse(element.SelectSingleNode("volitile").InnerText);
+			bool @volatile = bool.Parse(element.GetNodeText("volitile"));
 
 			Item.ItemType type;
 			switch (typeString)

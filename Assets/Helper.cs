@@ -1,4 +1,5 @@
 using System;
+using System.Xml;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,6 +21,11 @@ public static class Helper
 	public static bool IsBitSet(ulong b, int pos)
 	{
 		return (b & (1UL << pos)) != 0UL;
+	}
+
+	public static string GetNodeText(this XmlElement element, string path)
+	{
+		return element.SelectSingleNode(path).InnerText;
 	}
 
 	public static void SetValue<T>(this T sender, string propertyName, object value)

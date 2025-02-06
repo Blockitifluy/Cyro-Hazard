@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE root SYSTEM "Hediff.dtd">
+<root>
+    <injury-hediff name="Bite">
+        <bleeding>0.06</bleeding>
+        <pain>2</pain>
+    </injury-hediff>
+
+    <injury-hediff name="Bullet-Hole">
+        <bleeding>0.05</bleeding>
+        <pain>2</pain>
+    </injury-hediff>
+
+    <injury-hediff name="Bullet-Wound">
+        <bleeding>10</bleeding>
+        <pain>3</pain>
+    </injury-hediff>
+
+    <injury-hediff name="Burn">
+        <bleeding>0</bleeding>
+        <pain>1.5</pain>
+    </injury-hediff>
+
+    <injury-hediff name="Chemical-Burn">
+        <bleeding>0</bleeding>
+        <pain>2</pain>
+    </injury-hediff>
+
+    <injury-hediff name="Crack">
+        <bleeding>0</bleeding>
+        <pain>2</pain>
+    </injury-hediff>
+
+    <injury-hediff name="Slash">
+        <bleeding>0.12</bleeding>
+        <pain>2</pain>
+    </injury-hediff>
+
+    <injury-hediff name="Stab">
+        <bleeding>0.06</bleeding>
+        <pain>1</pain>
+    </injury-hediff>
+
+    <severity-hediff name="test-severity">
+        <severity-gain>0.005</severity-gain>
+        <max-severity>1</max-severity>
+    </severity-hediff>
+</root>

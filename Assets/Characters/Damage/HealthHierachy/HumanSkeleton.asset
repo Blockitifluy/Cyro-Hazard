@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e638be98d811c694a95ed28206dff880, type: 3}
+  m_Name: HumanSkeleton
+  m_EditorClassIdentifier: 
+  Name: Humanoid
+  TemplateParts:
+  - {fileID: 11400000, guid: 9da02e6daa02a5145abc8f4f52ac95d6, type: 2}
+  - {fileID: 11400000, guid: 0b17fc12742b1f645b1dfc0624931a5c, type: 2}
+  - {fileID: 11400000, guid: 459c039330270264c89146c88a653501, type: 2}
+  - {fileID: 11400000, guid: 847b6ac6fcdab4e49a032a21a3924a0e, type: 2}
+  - {fileID: 11400000, guid: 2d0ed8337793852498c507b38a0a4167, type: 2}
+  - {fileID: 11400000, guid: c19419eb27656ed42a6e96c7f93f23d3, type: 2}
+  - {fileID: 11400000, guid: f4bfd14ea986ec241a700a3bca08abda, type: 2}
+  - {fileID: 11400000, guid: 74b4f83075771894bbe58b720a199fd8, type: 2}
+  - {fileID: 11400000, guid: 837539f436e28e94887486b178d3494e, type: 2}
+  - {fileID: 11400000, guid: 13d327847311c6d43811a9d8b63144f1, type: 2}
+  - {fileID: 11400000, guid: 437c0dc7f9a9ea44ca3bcaa5acd557ac, type: 2}
+  - {fileID: 11400000, guid: ec664f3bb270fc748b5c8b871d430871, type: 2}
+  - {fileID: 11400000, guid: 680d149c9a88b8b439c5af62cd1c3a03, type: 2}
+  - {fileID: 11400000, guid: 5203cc946468e714aa06a0bdf2b244df, type: 2}
+  - {fileID: 11400000, guid: 182ca06bec0c332468cee97c10623a0c, type: 2}
+  - {fileID: 11400000, guid: c51d527e3f72bd041bc990120b326d81, type: 2}
+  - {fileID: 11400000, guid: 0bdb62227d26a7e489f2676c2aaca307, type: 2}
+  - {fileID: 11400000, guid: 869b6ecb5217ba24aadb7215c85ffbec, type: 2}
+  - {fileID: 11400000, guid: 6c6f28f8c65da0e45811b4ec4cd77440, type: 2}
+  - {fileID: 11400000, guid: 0fc494b0039246140952d597555d146b, type: 2}
