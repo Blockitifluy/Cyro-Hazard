@@ -138,7 +138,6 @@ GameObject:
   - component: {fileID: 131176277}
   - component: {fileID: 131176278}
   - component: {fileID: 131176279}
-  - component: {fileID: 131176280}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -314,7 +313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MovementBasics: {fileID: 131176279}
-  CharacterHealth: {fileID: 0}
+  CharacterHealth: {fileID: 785346857}
   Controls: {fileID: -944628639613478452, guid: 1cf4a61929affde46bf215ca3494737b, type: 3}
   CharacterPickupDist: 5
   MousePickupDist: 2.5
@@ -333,20 +332,6 @@ MonoBehaviour:
   TurningSpeed: 0.8
   MovementMaxSpeed: 5
   MovementAcceleration: 10
---- !u!114 &131176280
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 131176270}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 061139ecb03681845950c0f8593cb736, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Hierachry: {fileID: 11400000, guid: f676cc91466cded4eade8f0d8c36c30c, type: 2}
-  DieUnderHealthPer: 0.2
 --- !u!1 &534583081
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,7 +615,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 785346856}
-  - component: {fileID: 785346858}
   - component: {fileID: 785346857}
   m_Layer: 6
   m_Name: Health
@@ -663,24 +647,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 785346855}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 412e4e178564a13409387262ff32290d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CharacterHealth: {fileID: 131176280}
---- !u!114 &785346858
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 785346855}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 061139ecb03681845950c0f8593cb736, type: 3}
+  m_Script: {fileID: 11500000, guid: ce5baf6d569876e47beb5f0d32127468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Hierachry: {fileID: 11400000, guid: f676cc91466cded4eade8f0d8c36c30c, type: 2}
   DieUnderHealthPer: 0.2
+  OrganPairs:
+  - Organ1: Left Lung
+    Organ2: Right Lung
+  - Organ1: Left Kidney
+    Organ2: Right Kidney
+  DeathCapabilities: 08070009
 --- !u!1 &909784690
 GameObject:
   m_ObjectHideFlags: 0

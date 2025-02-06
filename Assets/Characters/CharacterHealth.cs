@@ -7,10 +7,56 @@ using UnityEngine;
 namespace CH.Character
 {
     /// <summary>
+    /// The type of capabilities.
+    /// </summary>
+    public enum ECapability : byte
+    {
+        Consciousness, // Awareness
+        Movement,
+        Manipulation, // As in physical
+
+        Vision, // Sight
+        Talking,
+        Hearing,
+        Eating, // Not be confused with Digestion, about eating speed
+
+        BloodPumping, // Heart
+        BloodProcessing, // Kidneys and Liver
+
+        Breathing,
+        Digestion // Not be confused with Eating, about the stomach
+    }
+
+    /// <summary>
+    /// Used by the <see cref="BodyPart"/> struct.
+    /// Controls how much reduction is taken when destroyed.
+    /// </summary>
+    [Serializable]
+    public struct CapabilityReduction
+    {
+        /// <summary>
+        /// The capability being affected.
+        /// </summary>
+        public ECapability Affected;
+
+        /// <summary>
+        /// The reduction when the body part is being destroyed.
+        /// </summary>
+        [Range(0.0f, 1.0f)]
+        public float DestroyedReduction;
+
+        public CapabilityReduction(ECapability affected, float destroyedReduction)
+        {
+            Affected = affected;
+            DestroyedReduction = destroyedReduction;
+        }
+    }
+
+    /// <summary>
     /// Contains character's health, using a health per body part system.
     /// The character will die when the <c>Health</c> is under <c>DieUnderHealth</c>.
     /// </summary>
-    public class CharacterHealth : MonoBehaviour
+    public abstract class CharacterHealth : MonoBehaviour
     {
         // Public Fields & Propetries
 
@@ -28,10 +74,7 @@ namespace CH.Character
         /// <summary>
         /// The template body parts of
         /// </summary>
-        public List<TemplatePart> TemplateBody
-        {
-            get { return Hierachry.TemplateParts; }
-        }
+        public List<TemplatePart> TemplateBody => Hierachry.TemplateParts;
 
         /// <summary>
         /// The total max health of the character.
@@ -57,6 +100,9 @@ namespace CH.Character
             }
         }
 
+        /// <summary>
+        /// The amount of pain, the character is experiencing.
+        /// </summary>
         public float Pain
         {
             get
@@ -92,7 +138,8 @@ namespace CH.Character
         {
             None,
             Health,
-            OrganGone
+            OrganGone,
+            Capability,
         }
 
         /// <summary>
@@ -108,11 +155,12 @@ namespace CH.Character
                 return true;
             }
 
-            // if (DeathByOrganLoss())
-            // {
-            //     deathReason = EDeathReason.OrganGone;
-            //     return true;
-            // }
+            bool deathFromAbilities = IsExtendedDead(out var reason);
+            if (deathFromAbilities)
+            {
+                deathReason = reason;
+                return true;
+            }
 
             deathReason = EDeathReason.None;
             return false;
@@ -143,6 +191,42 @@ namespace CH.Character
             return null;
         }
 
+        /// <summary>
+        /// Get the total organ operation of the character's <paramref name="capability"/>.
+        /// </summary>
+        /// <param name="capability">The capability being measured.</param>
+        /// <returns>From 0 to 1 (being the regular amount).</returns>
+        /// <exception cref="NullReferenceException">Thrown if a template body is invalid.</exception>
+        public float GetOrganOperation(ECapability capability)
+        {
+            float operation = 1;
+
+            foreach (var templPart in TemplateBody)
+            {
+                BodyPart? bodyPart = GetCharBodyPart(templPart);
+
+                if (!bodyPart.HasValue)
+                    throw new NullReferenceException("Bodypart was null!");
+
+                try
+                {
+                    float bpOperation = bodyPart.Value.GetOrganOperation(capability);
+                    operation -= bpOperation;
+                }
+                catch (NullReferenceException)
+                {
+                    continue;
+                }
+            }
+
+            return operation;
+        }
+
+        // Tests
+
+        /// <summary>
+        /// Injures a random body part by 3 health.
+        /// </summary>
         [ContextMenu("Injure Random Part")]
         public void InjureRandomPart()
         {
@@ -151,11 +235,69 @@ namespace CH.Character
 
             DamageSystem damageSystem = DamageSystem.GetDamageSystem();
 
-            damageSystem.InjureCharacterBP("Cut", BodyParts[index], 3);
+            damageSystem.InjureCharacterBP("Cut", BodyParts[index], 3.0f);
         }
+
+        /// <summary>
+        /// Destroys a random body part.
+        /// </summary>
+        /// <remarks>
+        /// Doesn't actually destroy (does 1e5 damage).
+        /// </remarks>
+        [ContextMenu("Destroy Random Part")]
+        public void DestroyRandomPart()
+        {
+            int index = UnityEngine.Random
+                .Range(0, TemplateBody.Count);
+
+            DamageSystem damageSystem = DamageSystem.GetDamageSystem();
+
+            damageSystem.InjureCharacterBP("Cut", BodyParts[index], 100000.0f);
+        }
+
+        /// <summary>
+        /// Prints if the character is dead, and if by what reason.
+        /// </summary>
+        [ContextMenu("Is Dead?")]
+        public void TestCheckIfDead()
+        {
+            bool isDead = IsDead(out var reason);
+
+            if (!isDead)
+            {
+                Debug.Log("It's alive");
+                return;
+            }
+
+            Debug.Log($"The Character is Dead (reason: {reason})!");
+        }
+
+        /// <summary>
+        /// Prints all organ operation.
+        /// </summary>
+        [ContextMenu("Print All Organ Operation")]
+        public void PrintAllOrganOperation()
+        {
+            var capabilities = (ECapability[])Enum.GetValues(typeof(ECapability));
+            List<string> operations = new();
+
+            foreach (ECapability capability in capabilities)
+            {
+                operations.Add($"{capability}: {GetOrganOperation(capability)}");
+            }
+
+            Debug.Log(string.Join(", ", operations));
+        }
+
+        // Protected Methods
+
+        protected abstract bool IsExtendedDead(out EDeathReason deathReason);
 
         // Private Methods
 
+        /// <summary>
+        /// Calls the <c>Update</c> method to applied body parts. 
+        /// </summary>
         private void UpdateAllHediffs()
         {
             foreach (BodyPart bodyPart in BodyParts)
@@ -203,6 +345,7 @@ namespace CH.Character
         /// The body part that the object derives from.
         /// </summary>
         public readonly TemplatePart TemplateBP;
+
         /// <summary>
         /// The health of the body part.
         /// </summary>
@@ -222,10 +365,13 @@ namespace CH.Character
                     health -= injury.Severity;
                 }
 
-                return health;
+                return Mathf.Clamp(health, 0, TemplateBP.MaxHealth);
             }
         }
 
+        /// <summary>
+        /// The amount of pain this body part is causing.
+        /// </summary>
         public readonly float Pain
         {
             get
@@ -243,6 +389,12 @@ namespace CH.Character
             }
         }
 
+        /// <summary>
+        /// Gets organ operation of this body part.
+        /// </summary>
+        /// <param name="capability">The capability being measured.</param>
+        /// <returns>A value usually between 0 to 1.</returns>
+        /// <exception cref="NullReferenceException">Thrown if the capability won't be reduced.</exception>
         public readonly float GetOrganOperation(ECapability capability)
         {
             float percent = Health / TemplateBP.MaxHealth;
@@ -254,6 +406,9 @@ namespace CH.Character
             return capabilityReduct.Value.DestroyedReduction * (1 - percent);
         }
 
+        /// <summary>
+        /// The hediffs being applied on the body part.
+        /// </summary>
         public List<Hediff> AppliedHedfiffs;
 
         public override readonly string ToString()
