@@ -294,7 +294,7 @@ MonoBehaviour:
   MovementBasics: {fileID: 131176279}
   CharacterHealth: {fileID: 0}
   Controls: {fileID: -944628639613478452, guid: 1cf4a61929affde46bf215ca3494737b, type: 3}
-  Senitivity: {x: 100, y: 50}
+  Senitivity: {x: 250, y: -75}
   CharacterPickupDist: 5
   MousePickupDist: 2.5
 --- !u!114 &131176279
