@@ -190,7 +190,7 @@ namespace CH.Items
 
 		private readonly Dictionary<string, Item> Items = new();
 
-		private Item XMLToItem(XmlElement element)
+		private Item ConvertXMLToItem(XmlElement element)
 		{
 			string ID = element.GetAttribute("ID"),
 			typeString = element.GetNodeText("type"),
@@ -209,22 +209,10 @@ namespace CH.Items
 
 			bool @volatile = bool.Parse(element.GetNodeText("volitile"));
 
-			Item.ItemType type;
-			switch (typeString)
+			if (!Enum.TryParse<Item.ItemType>(typeString, out var type))
 			{
-				case "none":
-					type = Item.ItemType.none;
-					break;
-				case "apparel":
-					type = Item.ItemType.apparel;
-					break;
-				case "weapon":
-					type = Item.ItemType.weapon;
-					break;
-				default:
-					Debug.LogWarning($"{ID} assumed to be none type, read type {typeString}");
-					type = Item.ItemType.none;
-					break;
+				Debug.LogWarning($"{ID} assumed to be none type, read type {typeString}");
+				type = Item.ItemType.none;
 			}
 
 			Vector2Int size = new(sizeX, sizeY);
@@ -269,7 +257,7 @@ namespace CH.Items
 
 			foreach (XmlElement itemElem in itemElements)
 			{
-				Item item = XMLToItem(itemElem);
+				Item item = ConvertXMLToItem(itemElem);
 				Items.Add(item.ID, item);
 				loaded++;
 			}

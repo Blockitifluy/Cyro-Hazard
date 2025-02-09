@@ -104,14 +104,17 @@ namespace CH.Generation
 		/// The rendering area of the chunk. 
 		/// </summary>
 		public int ChunkRenderingArea => ChunkRenderingDiameter * ChunkRenderingDiameter;
+
 		/// <summary>
 		/// The rendering diameter of the chunk. 
 		/// </summary>
 		public int ChunkRenderingDiameter => ChunkRenderingRadius * 2 + 1;
+
 		/// <summary>
 		/// How many tiles are in a chunk.
 		/// </summary>
 		public int TilesPerChunk => TilesPerAxis * TilesPerAxis;
+
 		/// <summary>
 		/// How many vertices are in a chunk
 		/// </summary>
@@ -130,6 +133,7 @@ namespace CH.Generation
 		/// The cached generator from <see cref="GetConstructor()"/>
 		/// </summary>
 		private static ChunkConstructor _CachedGenerator;
+
 		/// <summary>
 		/// Gets the ChunkConstructor.
 		/// </summary>
@@ -148,6 +152,7 @@ namespace CH.Generation
 			_CachedGenerator = comp;
 			return comp;
 		}
+
 		/// <summary>
 		/// Translates a 3D world position to a 2D chunk grid position. 
 		/// </summary>
@@ -196,6 +201,7 @@ namespace CH.Generation
 
 			return chunk;
 		}
+
 		/// <summary>
 		/// Unloads a chunk at the grid position. 
 		/// </summary>
@@ -209,26 +215,27 @@ namespace CH.Generation
 			_ChunkDict.Remove(pos);
 			Destroy(terrain.gameObject);
 		}
+
 		/// <summary>
 		/// Gets where all chunk's position are loaded.
 		/// </summary>
 		/// <returns>An array of chunk position</returns>
-		public Vector2Int[] GetChunkMappings()
-		{
-			return GetChunkMappings(Vector2Int.zero);
-		}
+		public Vector2Int[] GetChunkMappings() => GetChunkMappings(Vector2Int.zero);
+
 		/// <inheritdoc cref="GetChunkMappings()"/>
 		/// <param name="pos">A chunk's grid position that offsets the mapping.</param>
 		public Vector2Int[] GetChunkMappings(Vector2Int pos)
 		{
 			Vector2Int[] mappings = new Vector2Int[ChunkRenderingArea];
+
 			for (int i = 0; i < ChunkRenderingArea; i++)
 			{
 				int x = i % ChunkRenderingDiameter - ChunkRenderingRadius,
 				y = i / ChunkRenderingDiameter - ChunkRenderingRadius;
 
-				mappings[i] = new Vector2Int(x, y) + pos;
+				mappings[i] = new Vector2Int(x + pos.x, y + pos.y);
 			}
+
 			return mappings;
 		}
 		/// <summary>

@@ -76,23 +76,9 @@ namespace CH.Character
 		/// </summary>
 		/// <param name="z">A value between -1 and 1; -1 being backwards and 1 being forwards.</param>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="z"/> isn't between -1 and 1.</exception>
-		public void UpdateForwardsDir(float z)
+		public void UpdateDir(Vector2 dir2D)
 		{
-			if (-1 > z && z >= 1)
-				throw new ArgumentOutOfRangeException(nameof(z), "Needs to be between -1 and 1!");
-			_MovementDirection = transform.forward * z;
-		}
-
-		/// <summary>
-		/// Updates the Y rotation of the character.
-		/// </summary>
-		/// <param name="turn">A value between -1 and 1; -1 being left and 1 being right.</param>
-		/// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="z"/> isn't between -1 and 1.</exception>
-		public void UpdateTurning(float turn)
-		{
-			if (-1 > turn && turn >= 1)
-				throw new ArgumentOutOfRangeException(nameof(turn), "Needs to be between -1 and 1!");
-			_TurningAngle = turn * 90.0f;
+			_MovementDirection = new(dir2D.x, 0, dir2D.y);
 		}
 
 		/// <summary>
@@ -119,8 +105,18 @@ namespace CH.Character
 		/// <summary>
 		/// Moves the object, run every frame.
 		/// </summary>
-		/// <param name="offset">The offset direction multipled by speed, usally from <see cref="GetMovementOffset"/>.</param>
+		/// <param name="offset">The offset direction multipled by speed, usually from <see cref="GetMovementOffset"/>.</param>
 		private void Move()
+		{
+			_CurrentMovementSpeed = CalculateSpeed();
+
+			Vector3 offset = GetMovementOffset();
+			transform.position += transform.right * offset.x;
+			transform.position += transform.forward * offset.z;
+		}
+
+		// Update is called once per frame
+		public void Update()
 		{
 			if (!IsMoving())
 			{
@@ -128,27 +124,7 @@ namespace CH.Character
 				return;
 			}
 
-			_CurrentMovementSpeed = CalculateSpeed();
-
-			Vector3 offset = GetMovementOffset();
-			transform.position += offset;
-		}
-
-		/// <summary>
-		/// Turns the object, based on the <see cref="TurningAngle"/>
-		/// </summary>
-		private void Turn()
-		{
-			var rotation = transform.rotation;
-			var rotateTo = rotation * Quaternion.Euler(0, _TurningAngle, 0);
-			transform.rotation = Quaternion.RotateTowards(rotation, rotateTo, TurningSpeed);
-		}
-
-		// Update is called once per frame
-		public void Update()
-		{
 			Move();
-			Turn();
 		}
 	}
 }
