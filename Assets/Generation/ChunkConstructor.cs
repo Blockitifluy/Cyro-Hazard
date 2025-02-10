@@ -210,8 +210,10 @@ namespace CH.Generation
 		public void UnloadChunk(Vector2Int pos)
 		{
 			ChunkTerrain terrain = _ChunkDict[pos];
+
 			if (terrain == null)
-				throw new NullReferenceException($"Chunk at {pos} wasn't found!");
+				throw new NullReferenceException($"Couldn't unload chunk at {pos}, because it doesn't exist.");
+
 			_ChunkDict.Remove(pos);
 			Destroy(terrain.gameObject);
 		}
@@ -220,9 +222,6 @@ namespace CH.Generation
 		/// Gets where all chunk's position are loaded.
 		/// </summary>
 		/// <returns>An array of chunk position</returns>
-		public Vector2Int[] GetChunkMappings() => GetChunkMappings(Vector2Int.zero);
-
-		/// <inheritdoc cref="GetChunkMappings()"/>
 		/// <param name="pos">A chunk's grid position that offsets the mapping.</param>
 		public Vector2Int[] GetChunkMappings(Vector2Int pos)
 		{
@@ -265,8 +264,11 @@ namespace CH.Generation
 
 		public void ClearChunks()
 		{
-			foreach (var pos in new List<Vector2Int>(_ChunkDict.Keys))
+			List<Vector2Int> positions = new(_ChunkDict.Keys);
+			foreach (var pos in positions)
+			{
 				UnloadChunk(pos);
+			}
 		}
 
 		[ContextMenu("Refresh Chunks")]

@@ -56,8 +56,7 @@ namespace CH.Character.Player
 		private void ControlMovementOnInput()
 		{
 			Vector2 dir = _MovementAction.ReadValue<Vector2>();
-
-			MovementBasics.UpdateDir(dir);
+			MovementBasics.MovementDirection = dir;
 		}
 
 		private void MoveCamera()
