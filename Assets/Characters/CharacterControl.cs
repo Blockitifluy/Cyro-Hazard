@@ -4,9 +4,13 @@ using CH.Items.Container;
 
 namespace CH.Character
 {
+	[RequireComponent(typeof(MovementBasics))]
+	[RequireComponent(typeof(CharacterHealth))]
 	public abstract class CharacterControl : MonoBehaviour
 	{
+		[HideInInspector]
 		public MovementBasics MovementBasics;
+		[HideInInspector]
 		public CharacterHealth CharacterHealth;
 
 		public List<Backpack> DetectBackpacks()
@@ -30,7 +34,10 @@ namespace CH.Character
 			return actualPacks;
 		}
 
-		// Update is called once per frame
-		protected abstract void Update();
+		public virtual void Awake()
+		{
+			MovementBasics = GetComponent<MovementBasics>();
+			CharacterHealth = GetComponent<CharacterHealth>();
+		}
 	}
 }

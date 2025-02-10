@@ -10,6 +10,7 @@ TagManager:
   - ChunkConstructor
   - Chunk
   - DamageSystem
+  - CameraHandle
   layers:
   - Default
   - TransparentFX

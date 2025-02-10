@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine;
-using CH.Items;
 
 namespace CH.Character.Player
 {
@@ -10,14 +9,14 @@ namespace CH.Character.Player
 		private InputActionMap _InputActionMap;
 		private InputAction _MovementAction;
 		private GameObject _CameraObject;
+		private GameObject _Pivot;
 		private Camera _Camera;
 
 		public InputActionAsset Controls;
+		public Vector2 Senitivity;
 
 		[Header("Pickup")]
-		[InspectorName("Character Pickup Distance")]
 		public float CharacterPickupDist = 5;
-		[InspectorName("Camera Pickup Distance")]
 		public float MousePickupDist = 2.5f;
 
 		public GameObject[] GetSelectableDrops()
@@ -57,13 +56,21 @@ namespace CH.Character.Player
 		private void ControlMovementOnInput()
 		{
 			Vector2 dir = _MovementAction.ReadValue<Vector2>();
-
-			MovementBasics.UpdateForwardsDir(dir.y);
-			MovementBasics.UpdateTurning(dir.x);
+			MovementBasics.MovementDirection = dir;
 		}
 
-		public void Awake()
+		private void MoveCamera()
 		{
+			Vector2 mouseDir = Senitivity * Time.deltaTime * Mouse.current.delta.ReadValue().normalized;
+
+			transform.Rotate(Vector3.up * mouseDir.x);
+
+			_Pivot.transform.Rotate(Vector3.right * mouseDir.y);
+		}
+
+		public override void Awake()
+		{
+			base.Awake();
 			_InputActionMap = Controls.FindActionMap("gameplay");
 		}
 
@@ -72,15 +79,17 @@ namespace CH.Character.Player
 			_MovementAction = _InputActionMap.FindAction("movement");
 			_CameraObject = GameObject.FindGameObjectWithTag("MainCamera");
 			_Camera = _CameraObject.GetComponent<Camera>();
+			_Pivot = GameObject.FindGameObjectWithTag("CameraHandle");
 
-			DetectBackpacks()[0].AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
-			DetectBackpacks()[0].AddItem(ItemManager.GetManager().GetItem("test-item-2"), 1);
+			Cursor.lockState = CursorLockMode.Locked;
+			Cursor.visible = true;
 		}
 
-		protected override void Update()
+		public void Update()
 		{
 			ControlMovementOnInput();
 			GetSelectableDrops();
+			MoveCamera();
 		}
 	}
 }
