@@ -4,6 +4,7 @@ using System.Xml;
 using System.Collections.Generic;
 using CH.Character.Damage.Hediffs;
 using CH.Character.Damage.HediffDefs;
+using CH.Character.Damage.DefParser;
 
 namespace CH.Character.Damage
 {
@@ -16,6 +17,7 @@ namespace CH.Character.Damage
             BaseHediff = baseHediff;
         }
     }
+
     public partial class DamageSystem : MonoBehaviour
     {
         // Constants
@@ -26,6 +28,8 @@ namespace CH.Character.Damage
         public const string PathToHediffTypes = "Data\\DamageSystem\\Hediffs\\Hediff.xml";
 
         // Pre-Loading
+
+        public List<DefParser.DefParser> DefParsers;
 
         /// <summary>
         /// The XML document used to load in all <see cref="IDef"/>s.
@@ -43,12 +47,18 @@ namespace CH.Character.Damage
 
             foreach (XmlElement hediffElem in hediffElements)
             {
-                IDef hediff = hediffElem.Name switch
+                IDef hediff = null;
+                foreach (DefParser.DefParser parser in DefParsers)
                 {
-                    "injury-hediff" => LoadInjury(hediffElem),
-                    "severity-hediff" => LoadSeverityHediff(hediffElem),
-                    _ => throw new InvalidCastException($"Hediff name {hediffElem.Name} is invailid"),
-                };
+                    string typeName = parser.GetTypeName();
+                    if (typeName != hediffElem.Name)
+                        continue;
+                    hediff = parser.Load(hediffElem);
+                }
+
+                if (hediff is null)
+                    throw new InvalidCastException($"Hediff name {hediffElem.Name} is invailid");
+
                 string keyName = hediffElem.GetAttribute("name").Replace('-', ' ');
 
                 hediff.Name = keyName;
@@ -110,33 +120,6 @@ namespace CH.Character.Damage
         public InjuryHediff InjureCharacterBP(string damageName, BodyPart bodyPart, float damage)
         {
             return InjureCharacterBP(damageName, bodyPart, damage, false);
-        }
-
-        /// <summary>
-        /// Loads in a injury used for <see cref="PreloadAllHediffs"/>
-        /// </summary>
-        /// <param name="elem">The XmlElement the def is based on</param>
-        /// <returns>InjuryHediffDef</returns>
-        private InjuryHediffDef LoadInjury(XmlElement elem)
-        {
-            InjuryHediffDef injuryHediff = new()
-            {
-                Bleeding = float.Parse(elem.GetNodeText("bleeding")),
-                Pain = float.Parse(elem.GetNodeText("pain"))
-            };
-
-            return injuryHediff;
-        }
-
-        private SeverityHediffDef LoadSeverityHediff(XmlElement elem)
-        {
-            SeverityHediffDef severityHediff = new()
-            {
-                MaxSeverity = float.Parse(elem.GetNodeText("max-severity")),
-                SeverityGain = float.Parse(elem.GetNodeText("severity-gain"))
-            };
-
-            return severityHediff;
         }
 
         // Applitation

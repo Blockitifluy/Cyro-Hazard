@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO - Add editor interagetion
-
 namespace CH.Character.Damage
 {
     /// <summary>

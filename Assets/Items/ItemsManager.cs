@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Xml;
 using UnityEngine;
 
-// TODO - Update to Standard
-
 namespace CH.Items
 {
 	public class ItemManager : MonoBehaviour

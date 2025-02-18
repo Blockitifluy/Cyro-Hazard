@@ -8,9 +8,6 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UnityEditor.Events;
 
-// TODO - Clean this messy code I have released on to github
-// TODO - Add Documentation
-
 namespace CH.Items.UI
 {
     internal struct BackpackUIData
@@ -144,7 +141,7 @@ namespace CH.Items.UI
             elem.name = backpack.Name;
 
             var button = elem.GetComponent<Button>();
-            UnityEventTools.AddObjectPersistentListener(button.onClick, OnButtonClick, backpack);
+            button.onClick.AddPersistentListener(OnButtonClick, backpack);
 
             return elem;
         }

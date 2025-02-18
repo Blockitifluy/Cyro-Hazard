@@ -1,7 +1,10 @@
 using System;
 using System.Xml;
+using UnityEditor.Events;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public static class Helper
 {
@@ -47,4 +50,8 @@ public static class Helper
 		}
 	}
 
+	public static void AddPersistentListener<T>(this UnityEventBase untiyEvent, UnityAction<T> unityEvent, T arg) where T : UnityEngine.Object
+	{
+		UnityEventTools.AddObjectPersistentListener(untiyEvent, unityEvent, arg);
+	}
 }
