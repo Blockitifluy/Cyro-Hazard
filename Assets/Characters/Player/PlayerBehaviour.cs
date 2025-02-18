@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine;
+using CH.Items;
 
 namespace CH.Character.Player
 {
@@ -12,6 +13,7 @@ namespace CH.Character.Player
 		private GameObject _Pivot;
 		private Camera _Camera;
 
+		[Header("Controls")]
 		public InputActionAsset Controls;
 		public Vector2 Senitivity;
 
@@ -83,6 +85,9 @@ namespace CH.Character.Player
 
 			Cursor.lockState = CursorLockMode.Locked;
 			Cursor.visible = true;
+
+			DetectBackpacks()[0].AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
+			DetectBackpacks()[0].AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
 		}
 
 		public void Update()

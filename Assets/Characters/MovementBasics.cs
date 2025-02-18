@@ -16,15 +16,18 @@ namespace CH.Character
 		/// <summary>
 		/// The direction the object wants to move. 
 		/// </summary>
+		[HideInInspector]
 		public Vector2 MovementDirection = Vector2.zero;
 		/// <summary>
 		/// The angle the object wants to turn.
 		/// </summary>
+		[HideInInspector]
 		public float TurningAngle = 0;
 		/// <summary>
 		/// The current speed of the object
 		/// </summary>
-		public float CurrentMovementSpeed = 0;
+		[HideInInspector]
+		private float CurrentMovementSpeed = 0;
 
 		/// <summary>
 		/// The speed of which the character turns.

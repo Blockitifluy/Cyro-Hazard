@@ -15,15 +15,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "open-backpack",
-                    "type": "Button",
-                    "id": "75557960-57e5-4867-87a6-42673e062dbb",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "move-camera",
                     "type": "Button",
                     "id": "ddd8922b-96b9-499d-92a2-2008ca390c3b",
@@ -91,23 +82,40 @@
                 },
                 {
                     "name": "",
-                    "id": "cbbd7c62-de26-4289-8223-3a005e2f18c8",
-                    "path": "<Keyboard>/b",
-                    "interactions": "Press",
-                    "processors": "",
-                    "groups": "",
-                    "action": "open-backpack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "4076669b-7320-43af-bb8b-8a88ed4d589e",
                     "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "move-camera",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "UI",
+            "id": "8914d4f5-3b34-4290-b8dc-6eacb5275c20",
+            "actions": [
+                {
+                    "name": "open-backpack",
+                    "type": "Button",
+                    "id": "a7cbc07d-6952-4c4e-937e-5e75cd49fcbb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Press",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "642fdd98-b64d-4822-9c2a-314ba30a2f80",
+                    "path": "<Keyboard>/b",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "open-backpack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
