@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8c2868d672c20804cacb4f6291e573e8
+guid: 2b1227ffec119484d93e4f80c5885a33
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Jersey 25
+  - Pixeloid Sans
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
