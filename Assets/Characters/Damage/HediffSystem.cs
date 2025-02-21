@@ -151,6 +151,7 @@ namespace CH.Character.Damage
             return ApplyHediff<DefT, HediffT>(hediffDef, bodyPart);
         }
 
+#if UNITY_EDITOR
         [ContextMenu("Print All Hediff Names")]
         public void PrintAllHediffName()
         {
@@ -162,5 +163,6 @@ namespace CH.Character.Damage
 
             Debug.Log(string.Join(", ", names));
         }
+#endif
     }
 }

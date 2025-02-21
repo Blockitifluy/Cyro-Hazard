@@ -14,6 +14,7 @@ namespace CH.Character.Player
 		private Camera _Camera;
 
 		[Header("Controls")]
+		public bool ControlCamera = true;
 		public InputActionAsset Controls;
 		public Vector2 Senitivity;
 
@@ -63,6 +64,8 @@ namespace CH.Character.Player
 
 		private void MoveCamera()
 		{
+			if (!ControlCamera) return;
+
 			Vector2 mouseDir = Senitivity * Time.deltaTime * Mouse.current.delta.ReadValue().normalized;
 
 			transform.Rotate(Vector3.up * mouseDir.x);
@@ -85,9 +88,6 @@ namespace CH.Character.Player
 
 			Cursor.lockState = CursorLockMode.Locked;
 			Cursor.visible = true;
-
-			DetectBackpacks()[0].AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
-			DetectBackpacks()[0].AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
 		}
 
 		public void Update()

@@ -271,6 +271,7 @@ namespace CH.Generation
 			}
 		}
 
+#if UNITY_EDITOR
 		[ContextMenu("Refresh Chunks")]
 		public void ContextUnloadAllChunks()
 		{
@@ -281,6 +282,7 @@ namespace CH.Generation
 			foreach (Vector2Int pos in mappings)
 				LoadChunk(pos);
 		}
+#endif
 
 		/// <summary>
 		/// Refreshs the chunks at the <see cref="Focus"/>'s position.

@@ -9,10 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e20e6ae6fe1c40a78495c405b3dfe09, type: 3}
-  m_Name: FlexConfig
+  m_Script: {fileID: 11500000, guid: 0178bab3697ea1741ab004c34c669219, type: 3}
+  m_Name: ItemActionHandler
   m_EditorClassIdentifier: 
-  _isDefaultConfig: 1
-  _pointScaleFactor: 1
-  _errata: 0
-  _experimentalFeatures: 0

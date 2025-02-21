@@ -53,5 +53,6 @@
 	"editor.tabSize": 4,
 	"dotnet.defaultSolution": "Cyro Hazard.sln",
 	"a-file-icon-vscode.folderColor": "#49694d",
-	"a-file-icon-vscode.folderTheme": "classic"
+	"a-file-icon-vscode.folderTheme": "classic",
+	"svg.preview.background": "black"
 }

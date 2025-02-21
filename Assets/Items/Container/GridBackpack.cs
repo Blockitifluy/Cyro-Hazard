@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+using OccupancyID = System.UInt64;
+
 namespace CH.Items.Container
 {
 	/// <summary>
@@ -12,10 +14,11 @@ namespace CH.Items.Container
 	/// <item>Chest / Containers</item>
 	/// </list>
 	/// </summary>
-	public class Backpack : MonoBehaviour
+	[AddComponentMenu("Items/Container/Grid Backpack")]
+	public class GridBackpack : MonoBehaviour
 	{
 		/// <summary>
-		/// A list that contains all items in the <see cref="Backpack"/>,
+		/// A list that contains all items in the <see cref="GridBackpack"/>,
 		/// this doesn't account for size and position.
 		/// </summary>
 		private readonly List<StoredItem> _StoredItems = new();
@@ -36,7 +39,7 @@ namespace CH.Items.Container
 		/// </summary>
 		/// <remarks>The reason why it can't go over 64 in area, is because it uses the ulong type</remarks>
 		[Header("Carrying")]
-		public Vector2Int Size = new(7, 7);
+		public Vector2Int Size = new(8, 8);
 		/// <summary>
 		/// The maxiunum weight that the it can carry
 		/// </summary>
@@ -55,7 +58,7 @@ namespace CH.Items.Container
 		/// The area the backpack
 		/// </summary>
 		/// <example>7x8 = 56</example>
-		public int Area => (Size.x + 1) * (Size.y + 1);
+		public int Area => Size.x * Size.y;
 
 		/// <summary>
 		/// The current weight of every item in the backpack.
@@ -70,6 +73,11 @@ namespace CH.Items.Container
 				return weight;
 			}
 		}
+
+		/// <summary>
+		/// Fired if the backpack updated for any reason.
+		/// </summary>
+		public event EventHandler BackpackUpdated;
 
 		// Converting Index to Backpack slot
 
@@ -107,9 +115,7 @@ namespace CH.Items.Container
 		/// <returns>The slot's index.</returns>
 		public int XYToIndex(int x, int y)
 		{
-			int i = x + y * Size.x;
-
-			return i;
+			return (y * Size.x) + x;
 		}
 
 		/// <inheritdoc cref="XYToIndex"/>
@@ -126,25 +132,23 @@ namespace CH.Items.Container
 		/// </summary>
 		/// <remarks>Occupancy refers to how a slot is taken up by an item</remarks>
 		/// <returns></returns>
-		public ulong GetOccupancy()
+		public OccupancyID GetOccupancy()
 		{
-			ulong occupancy = 0;
+			OccupancyID occupancy = 0;
 
 			foreach (StoredItem strd in _StoredItems)
 			{
-				ItemManager.Item item = strd.Item;
+				Item item = strd.Item;
 				Vector2Int pos = strd.Position;
 				int area = item.Size.x * item.Size.y;
 
 				int topCorner = XYToIndex(pos);
-				for (int i = 0; i < area; i++)
+				for (int x = pos.x; x < item.Size.x + pos.x; x++)
 				{
-					int x = (i % item.Size.x) + topCorner,
-					y = (i / item.Size.x) + topCorner;
-
-					int j = XYToIndex(x, y);
-
-					occupancy |= 1ul << j;
+					for (int y = pos.y; y < item.Size.y + pos.y; y++)
+					{
+						occupancy |= 1ul << XYToIndex(x, y);
+					}
 				}
 			}
 
@@ -162,7 +166,7 @@ namespace CH.Items.Container
 
 			foreach (StoredItem strd in _StoredItems)
 			{
-				ItemManager.Item item = strd.Item;
+				Item item = strd.Item;
 				Vector2Int pos = strd.Position;
 				int area = item.Size.x * item.Size.y;
 
@@ -185,14 +189,14 @@ namespace CH.Items.Container
 		/// <returns>True if all slots are occupied.</returns>
 		public bool AreSlotsOccupied(Vector2Int at, Vector2Int size)
 		{
-			ulong occupancy = GetOccupancy();
+			OccupancyID occupancy = GetOccupancy();
 
 			return AreSlotsOccupied(at, size, occupancy);
 		}
 
 		/// <inheritdoc cref="AreSlotsOccupied(Vector2Int, Vector2Int)"/>
 		/// <param name="occupancy">The backpack occupancy</param>
-		public bool AreSlotsOccupied(Vector2Int at, Vector2Int size, ulong occupancy)
+		public bool AreSlotsOccupied(Vector2Int at, Vector2Int size, OccupancyID occupancy)
 		{
 			int area = size.x * size.y;
 
@@ -223,7 +227,7 @@ namespace CH.Items.Container
 		/// <exception cref="ArgumentOutOfRangeException">If a location is out of range.</exception>
 		public bool IsSlotOccupied(int x, int y)
 		{
-			ulong occupancy = GetOccupancy();
+			OccupancyID occupancy = GetOccupancy();
 
 			return IsSlotOccupied(x, y, occupancy);
 		}
@@ -232,14 +236,14 @@ namespace CH.Items.Container
 		/// <param name="at">The slot to be checked to be occupied.</param>
 		public bool IsSlotOccupied(Vector2Int at)
 		{
-			ulong occupancy = GetOccupancy();
+			OccupancyID occupancy = GetOccupancy();
 
 			return IsSlotOccupied(at, occupancy);
 		}
 
 		/// <inheritdoc cref="IsSlotOccupied(int, int)"/>
 		/// <param name="occupancy">The backpack occupancy</param>
-		public bool IsSlotOccupied(int x, int y, ulong occupancy)
+		public bool IsSlotOccupied(int x, int y, OccupancyID occupancy)
 		{
 			if (IsCoordOutOfRange(x, y)) return true;
 
@@ -250,7 +254,7 @@ namespace CH.Items.Container
 
 		/// <inheritdoc cref="IsSlotOccupied(Vector2Int)"/>
 		/// <param name="occupancy">The backpack occupancy</param>
-		public bool IsSlotOccupied(Vector2Int at, ulong occupancy)
+		public bool IsSlotOccupied(Vector2Int at, OccupancyID occupancy)
 		{
 			return IsSlotOccupied(at.x, at.y, occupancy);
 		}
@@ -315,7 +319,7 @@ namespace CH.Items.Container
 		/// <param name="item">The item</param>
 		/// <param name="reason">Provides a reason the placement would have failed</param>
 		/// <returns>True if the item can be placed there.</returns>
-		public bool CanPlaceItem(Vector2Int pos, ItemManager.Item item, out EPlacementReason reason)
+		public bool CanPlaceItem(Vector2Int pos, Item item, out EPlacementReason reason)
 		{
 			if (AreSlotsOccupied(pos, item.Size))
 			{
@@ -342,7 +346,7 @@ namespace CH.Items.Container
 		/// <param name="at">The location where <paramref name="item"/> is going to added.</param>
 		/// <returns></returns>
 		/// <exception cref="PlacementException"></exception>
-		public StoredItem AddItemAt(ItemManager.Item item, int amount, Vector2Int at)
+		public StoredItem AddItemAt(Item item, int amount, Vector2Int at)
 		{
 			if (!CanPlaceItem(at, item, out EPlacementReason reason))
 				throw new PlacementException($"Can't place item (with size {item.Size}) at {at} (reason: {reason})");
@@ -351,19 +355,20 @@ namespace CH.Items.Container
 			_StoredItems.Add(storedItem);
 
 			ItemAdded?.Invoke(this, storedItem);
+			BackpackUpdated?.Invoke(this, EventArgs.Empty);
 
 			return storedItem;
 		}
 
 		/// <summary>
-		/// Sees if there is space in the <see cref="Backpack"/> for the <paramref name="item"/>.
+		/// Sees if there is space in the <see cref="GridBackpack"/> for the <paramref name="item"/>.
 		/// </summary>
 		/// <param name="item">The item wanting to be placed.</param>
 		/// <param name="pos">The returning position.</param>
 		/// <returns>If a space has been found for the <paramref name="item"/>.</returns>
-		public bool CanFindPlacementFor(ItemManager.Item item, out Vector2Int pos)
+		public bool CanFindPlacementFor(Item item, out Vector2Int pos)
 		{
-			var occupancy = GetOccupancy();
+			OccupancyID occupancy = GetOccupancy();
 
 			int i = 0;
 			do
@@ -375,7 +380,6 @@ namespace CH.Items.Container
 				i++;
 			} while (i < Area);
 
-
 			return false;
 		}
 
@@ -386,7 +390,7 @@ namespace CH.Items.Container
 		/// <param name="amount">The amount of item</param>
 		/// <returns>The <seealso cref="StoredItem"/> that had been place</returns>
 		/// <exception cref="PlacementException">Returned if no space had been found</exception>
-		public StoredItem AddItem(ItemManager.Item item, int amount)
+		public StoredItem AddItem(Item item, int amount)
 		{
 			if (!CanFindPlacementFor(item, out Vector2Int at))
 				throw new PlacementException($"Couldn't find placement for {item}");
@@ -434,13 +438,14 @@ namespace CH.Items.Container
 				return;
 			}
 
-			ItemManager.Item item = stored.Item;
+			Item item = stored.Item;
 			if (newAmount > item.MaxStack)
 				throw new ModifingException($"newAmount {newAmount} exceedes maxStack of Item {item}");
 
 			StoredItem oldItem = new(item, stored.Amount, stored.Position);
 			stored.Amount = newAmount;
 			ItemModified?.Invoke(this, oldItem, stored);
+			BackpackUpdated?.Invoke(this, EventArgs.Empty);
 		}
 
 		public delegate void DItemChangedPos(object sender, Vector2Int oldPos, Vector2Int newPos);
@@ -462,12 +467,13 @@ namespace CH.Items.Container
 		{
 			if (!ContainsItem(stored))
 				throw new ModifingException($"Item {stored} wasn't in in backpack!");
-			ItemManager.Item item = stored.Item;
+			Item item = stored.Item;
 
 			bool occupied = AreSlotsOccupied(to, item.Size);
 			if (occupied)
 				throw new ModifingException($"Item {stored} couldn't be moved into occupied {to}");
 			ItemChangedPosition?.Invoke(this, stored.Position, to);
+			BackpackUpdated?.Invoke(this, EventArgs.Empty);
 			stored.Position = to;
 		}
 
@@ -499,10 +505,11 @@ namespace CH.Items.Container
 		/// <exception cref="RemoveException">If the item doesn't belong to the backpack.</exception>
 		public void RemoveItem(StoredItem stored)
 		{
-			if (ContainsItem(stored))
+			if (!ContainsItem(stored))
 				throw new RemoveException($"Item {stored} wasn't in Backpack!");
 			_StoredItems.Remove(stored);
 			ItemRemoved?.Invoke(this, stored);
+			BackpackUpdated?.Invoke(this, EventArgs.Empty);
 		}
 
 		/// <inheritdoc cref="RemoveItemAt(int, int)"/>
@@ -526,6 +533,41 @@ namespace CH.Items.Container
 				throw new RemoveException($"Item at ({x}, {y}) doesn't exist!");
 			RemoveItem(stored);
 			return stored;
+		}
+
+		/// <summary>
+		/// Removes and drops an item from the character's inventory
+		/// </summary>
+		/// <param name="stored">The item stored inside of the <see cref="GridBackpack"/></param>
+		/// <param name="pos">The place the item is going to be dropped at</param>
+		/// <returns>The item in it's dropped state</returns>
+		/// <exception cref="RemoveException">Thrown if there was an error when removing the item</exception>
+		public DroppedItem DropItem(StoredItem stored, Vector3 pos)
+		{
+			if (!ContainsItem(stored))
+				throw new RemoveException($"Item {stored} wasn't in Backpack!");
+			RemoveItem(stored);
+			ItemManager itemManager = ItemManager.GetManager();
+			var dropped = itemManager.CreateDroppedItem(stored.Item, stored.Amount, pos);
+			return dropped;
+		}
+
+		/// <inheritdoc cref="DropItem(StoredItem, Vector3)"/>
+		/// <param name="x">The x component</param>
+		/// <param name="y">The y component</param>
+		public DroppedItem DropItem(int x, int y, Vector3 pos)
+		{
+			var stored = GetItemAt(x, y);
+			if (stored == null)
+				throw new RemoveException($"Item at ({x}, {y}) doesn't exist!");
+			return DropItem(stored, pos);
+		}
+
+		/// <inheritdoc cref="DropItem(StoredItem, Vector3)"/>
+		/// <param name="at">The grid position</param>
+		public DroppedItem DropItem(Vector2Int at, Vector3 pos)
+		{
+			return DropItem(at.x, at.y, pos);
 		}
 
 		// Selection
@@ -567,5 +609,15 @@ namespace CH.Items.Container
 
 			return dict;
 		}
+
+		// Unity
+
+#if UNITY_EDITOR
+		[ContextMenu("Add `test-item` To Backpack")]
+		public void AddTestItemToFirst()
+		{
+			AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
+		}
+#endif
 	}
 }

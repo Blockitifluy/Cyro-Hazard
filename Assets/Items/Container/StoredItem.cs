@@ -4,7 +4,7 @@ using System;
 namespace CH.Items.Container
 {
 	/// <summary>
-	/// An item inside of a <see cref="Backpack"/>.
+	/// An item inside of a <see cref="GridBackpack"/>.
 	/// Including a position, amount and whatever a item has.
 	/// </summary>
 	public class StoredItem
@@ -12,7 +12,7 @@ namespace CH.Items.Container
 		/// <summary>
 		/// A <see cref="ItemManager.RefItem"/> structure with item and amount. 
 		/// </summary>
-		private ItemManager.RefItem _RefItem;
+		private RefItem _RefItem;
 
 		/// <summary>
 		/// The position of the stored item.
@@ -22,7 +22,7 @@ namespace CH.Items.Container
 		/// <summary>
 		/// The item of the <see cref="StoredItem"/> 
 		/// </summary>
-		public ItemManager.Item Item
+		public Item Item
 		{
 			get
 			{
@@ -59,7 +59,7 @@ namespace CH.Items.Container
 		/// </summary>
 		/// <param name="item">An item</param>
 		/// <param name="amount">The amount of items</param>
-		public StoredItem(ItemManager.Item item, int amount, Vector2Int pos)
+		public StoredItem(Item item, int amount, Vector2Int pos)
 		{
 			_RefItem = new(item.ID, amount);
 			Position = pos;

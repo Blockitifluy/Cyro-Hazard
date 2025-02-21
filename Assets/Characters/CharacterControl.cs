@@ -13,16 +13,16 @@ namespace CH.Character
 		[HideInInspector]
 		public CharacterHealth CharacterHealth;
 
-		public List<Backpack> DetectBackpacks()
+		public List<GridBackpack> DetectBackpacks()
 		{
 			var allBackpacks = GameObject.FindGameObjectsWithTag("Backpack");
-			List<Backpack> actualPacks = new();
+			List<GridBackpack> actualPacks = new();
 
 			foreach (GameObject obj in allBackpacks)
 			{
 				if (gameObject.transform.IsChildOf(obj.transform)) continue;
 
-				if (!obj.TryGetComponent<Backpack>(out var backpack))
+				if (!obj.TryGetComponent<GridBackpack>(out var backpack))
 				{
 					Debug.LogWarning($"Even though {obj.name} has tag backpack, it's doesn't have the Backpack component");
 					continue;

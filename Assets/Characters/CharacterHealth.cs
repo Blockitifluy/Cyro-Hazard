@@ -224,6 +224,7 @@ namespace CH.Character
 
         // Tests
 
+#if UNITY_EDITOR
         /// <summary>
         /// Injures a random body part by 3 health.
         /// </summary>
@@ -288,7 +289,7 @@ namespace CH.Character
 
             Debug.Log(string.Join(", ", operations));
         }
-
+#endif
         // Protected Methods
 
         protected abstract bool IsExtendedDead(out EDeathReason deathReason);

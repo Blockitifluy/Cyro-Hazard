@@ -1,8 +1,13 @@
+using System;
 using UnityEngine;
+
+// TODO - Add pickup
 
 namespace CH.Items
 {
-	public class DroppedItems : MonoBehaviour
+	[DisallowMultipleComponent]
+	[AddComponentMenu("Items/Dropped Item")]
+	public class DroppedItem : MonoBehaviour
 	{
 		/// <summary>
 		/// The item manager, hju!
@@ -11,17 +16,22 @@ namespace CH.Items
 		/// <summary>
 		/// The item that the <see cref="DroppedItem"/> references.
 		/// </summary>
-		private ItemManager.Item _Item;
+		private Item _Item;
 		/// <summary>
 		/// How much health does the item have.
 		/// When it has 0 health it disappears.
 		/// </summary>
-		private float _Health;
+		internal float _Health;
+		/// <summary>
+		/// How many stacks does this <see cref="DroppedItem"/> contain? 
+		/// </summary>
+		internal int _Amount = 1;
 
 		/// <inheritdoc cref="_Item"/>
-		public ItemManager.Item Item
+		public Item Item
 		{
 			get { return _Item; }
+			set { _Item = value; }
 		}
 
 		/// <inheritdoc cref="_Health"/>
@@ -31,17 +41,28 @@ namespace CH.Items
 			set { _Health = Mathf.Clamp(value, 0, Item.MaxHealth); }
 		}
 
-		public string ID;
-
-		// Start is called before the first frame update
-		public void Start()
+		/// <inheritdoc cref="_Amount"/>
+		public int Amount
 		{
-			_ItemsManager = ItemManager.GetManager();
-			_Item = _ItemsManager.GetItem(ID);
+			get { return _Amount; }
+			set { _Amount = Mathf.Clamp(_Amount, 1, _Item.MaxStack); }
 		}
 
-		// Update is called once per frame
-		public void Update()
+		public string ID;
+
+		public void Awake()
+		{
+			_ItemsManager = ItemManager.GetManager();
+			try
+			{
+				_Item = _ItemsManager.GetItem(ID);
+			}
+			catch (Exception) { }
+		}
+
+		void OnEnable() => Awake();
+
+		public void LateUpdate()
 		{
 			if (Health <= 0)
 			{

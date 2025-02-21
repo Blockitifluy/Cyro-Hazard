@@ -180,6 +180,8 @@ namespace CH.Character.Damage
             Debug.Log($"Loaded all {loaded} damage types(s)");
         }
 
+
+#if UNITY_EDITOR
         [ContextMenu("Print All DamageType Names")]
         public void PrintAllDTName()
         {
@@ -191,6 +193,7 @@ namespace CH.Character.Damage
 
             Debug.Log(string.Join(", ", names));
         }
+#endif
 
         // Unity
 
