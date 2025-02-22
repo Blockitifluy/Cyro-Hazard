@@ -76,7 +76,7 @@ namespace CH.Character.Player
 		public override void Awake()
 		{
 			base.Awake();
-			_InputActionMap = Controls.FindActionMap("gameplay");
+			_InputActionMap = Controls.FindActionMap("Player");
 		}
 
 		public void Start()

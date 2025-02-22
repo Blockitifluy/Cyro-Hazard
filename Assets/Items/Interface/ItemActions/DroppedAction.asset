@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27f41ad77b005b24cb11a5072d3d632c, type: 3}
   m_Name: DroppedAction
   m_EditorClassIdentifier: 
-  Name: 
+  Name: Drop

@@ -1,6 +1,5 @@
 using System;
 using System.Xml;
-using UnityEngine.Events;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -46,5 +45,10 @@ public static class Helper
 			var safeValue = (value == null) ? null : Convert.ChangeType(value, type);
 			propertyInfo.SetValue(sender, safeValue, null);
 		}
+	}
+
+	public static RectTransform GetRectTransform(this GameObject gameObject)
+	{
+		return gameObject.GetComponent<RectTransform>();
 	}
 }
