@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 
 using InputButton = UnityEngine.EventSystems.PointerEventData.InputButton;
 using CH.Items.Interface.ActionHandler;
+using System.Drawing;
 
 namespace CH.Items.Interface
 {
@@ -93,7 +94,6 @@ namespace CH.Items.Interface
         private InputActionMap GameplayInputs;
         private InputAction OpenAction;
         private InputAction ClickAction;
-        private Vector2Int Size => CurrentBackpack.Size;
         /// <summary>
         /// The backpack selected.
         /// </summary>
@@ -114,16 +114,6 @@ namespace CH.Items.Interface
         private float LastUpdate = float.MinValue;
 
         // Item Hovering
-
-        private bool InsideOfGridDisplay(Vector2 worldPos)
-        {
-            RectTransform rect = GridDisplay.GetRectTransform();
-
-            bool inX = rect.anchoredPosition.x <= worldPos.x && worldPos.x < (rect.anchoredPosition.x + rect.sizeDelta.x),
-            inY = rect.anchoredPosition.y <= worldPos.y && worldPos.y < (rect.anchoredPosition.y + rect.sizeDelta.y);
-
-            return inX && inY;
-        }
 
         private Vector2Int WorldPosToGridPos(Vector2 worldPos)
         {
@@ -235,7 +225,7 @@ namespace CH.Items.Interface
             }
         }
 
-        private void OnItemClick(object sender, PointerEventData data, StoredItem storedItem)
+        private void OnItemClick(object sender, PointerEventData data, StoredItem storedItem, RectTransform rect)
         {
             if (sender is not ClickableObject clickable)
                 throw new InvalidCastException($"Sender isn't a {typeof(ClickableObject).FullName}");
@@ -246,6 +236,7 @@ namespace CH.Items.Interface
                     OnItemRightClick(data, storedItem);
                     break;
                 case InputButton.Left:
+                    rect.pivot = Vector2.one * 0.5f;
                     HoveredItem = new(clickable.gameObject, storedItem);
                     break;
             }
@@ -271,15 +262,12 @@ namespace CH.Items.Interface
             textUI.text = $"{item.Name} ({stored.Amount})";
             ui.name = item.Name;
 
-            clickable.OnClick += (sender, data) => { OnItemClick(sender, data, stored); };
+            clickable.OnClick += (sender, data) => { OnItemClick(sender, data, stored, rect); };
 
             return ui;
         }
 
-        private Vector2 GetGridTranslation(RectTransform rect)
-        {
-            return rect.rect.size / CurrentBackpack.Size;
-        }
+        private Vector2 GetGridTranslation(RectTransform rect) => rect.rect.size / CurrentBackpack.Size;
 
         private void RemoveAllItemUIs()
         {
@@ -382,12 +370,7 @@ namespace CH.Items.Interface
 
             var rectTrans = hoveredItem.UI.GetRectTransform();
 
-            bool isInside = InsideOfGridDisplay(rectTrans.anchoredPosition);
-
-            //if (!isInside) return;
-
-
-            StoredItem storedItem = hoveredItem.Item; ;
+            StoredItem storedItem = hoveredItem.Item;
             Vector2Int pos = WorldPosToGridPos(rectTrans.anchoredPosition);
 
             try
@@ -397,7 +380,7 @@ namespace CH.Items.Interface
             catch (GridBackpack.ModifingException)
             {
                 var occupany = CurrentBackpack.GetOccupancy();
-                Debug.Log($"{storedItem} couldn't be moved at {pos} (OccupanyID: {occupany})");
+                Debug.Log($"{storedItem} couldn't be moved to {pos} (OccupanyID: {occupany})");
             }
             finally
             {
