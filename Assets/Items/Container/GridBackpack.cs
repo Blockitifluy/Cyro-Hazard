@@ -269,7 +269,7 @@ namespace CH.Items.Container
 		{
 			bool bx = 0 <= x && x < Size.x,
 			by = 0 <= y && y < Size.y;
-			return !bx || !by;
+			return !(bx && by);
 		}
 
 		/// <inheritdoc cref="IsCoordOutOfRange(int, int)"/>

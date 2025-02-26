@@ -18,12 +18,12 @@ namespace CH.Items.Interface
     /// </summary>
     public class BackpackUI : MonoBehaviour
     {
-        public struct ItemData
+        private struct ItemData
         {
             public GameObject UI;
             public StoredItem Item;
 
-            public ItemData(GameObject ui, StoredItem item)
+            internal ItemData(GameObject ui, StoredItem item)
             {
                 UI = ui;
                 Item = item;
@@ -93,7 +93,7 @@ namespace CH.Items.Interface
         private InputActionMap GameplayInputs;
         private InputAction OpenAction;
         private InputAction ClickAction;
-        private Camera Camera;
+        private Vector2Int Size => CurrentBackpack.Size;
         /// <summary>
         /// The backpack selected.
         /// </summary>
@@ -117,7 +117,7 @@ namespace CH.Items.Interface
 
         private bool InsideOfGridDisplay(Vector2 worldPos)
         {
-            RectTransform rect = GridDisplay.GetComponent<RectTransform>();
+            RectTransform rect = GridDisplay.GetRectTransform();
 
             bool inX = rect.anchoredPosition.x <= worldPos.x && worldPos.x < (rect.anchoredPosition.x + rect.sizeDelta.x),
             inY = rect.anchoredPosition.y <= worldPos.y && worldPos.y < (rect.anchoredPosition.y + rect.sizeDelta.y);
@@ -127,25 +127,16 @@ namespace CH.Items.Interface
 
         private Vector2Int WorldPosToGridPos(Vector2 worldPos)
         {
-            RectTransform rectTrans = GridDisplay.GetComponent<RectTransform>();
+            RectTransform gridTrans = GridDisplay.GetRectTransform();
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                rectTrans,
-                worldPos,
-                Camera,
-                out var localPoint
-            );
+            Vector2 translation = GetGridTranslation(gridTrans);
 
-            Vector2 translation = GetGridTranslation(rectTrans),
-            gridPos = localPoint / translation;
+            Vector2Int gridPos = (worldPos / translation).Round();
 
-            return new Vector2Int(
-                Mathf.FloorToInt(gridPos.x),
-                Mathf.FloorToInt(gridPos.y)
-            );
+            return gridPos;
         }
 
-        private void HoverItemFollowMouse()
+        private void DragAndDrop()
         {
             if (!HoveredItem.HasValue) return;
 
@@ -155,14 +146,7 @@ namespace CH.Items.Interface
 
             var rectTrans = hoveredItem.UI.GetRectTransform();
 
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                rectTrans,
-                mousePos,
-                Camera,
-                out var localPoint
-            );
-
-            rectTrans.anchoredPosition = localPoint;
+            rectTrans.position = mousePos;
         }
 
         // Selection
@@ -228,15 +212,10 @@ namespace CH.Items.Interface
 
         // Grid
 
-        private void OnItemLeftClick(ItemData selected)
-        {
-            HoveredItem = selected;
-        }
-
         private void OnItemRightClick(PointerEventData data, StoredItem storedItem)
         {
             InteractMenu.SetActive(true);
-            RectTransform rect = InteractMenu.GetComponent<RectTransform>();
+            RectTransform rect = InteractMenu.GetRectTransform();
             Vector2 screenPos = new(data.position.x, data.position.y);
             rect.position = screenPos;
             LastInterMenuPos = screenPos;
@@ -267,8 +246,7 @@ namespace CH.Items.Interface
                     OnItemRightClick(data, storedItem);
                     break;
                 case InputButton.Left:
-                    ItemData itemData = new(clickable.gameObject, storedItem);
-                    OnItemLeftClick(itemData);
+                    HoveredItem = new(clickable.gameObject, storedItem);
                     break;
             }
         }
@@ -278,10 +256,10 @@ namespace CH.Items.Interface
         private GameObject CreateItemUI(StoredItem stored, Vector2 translation, RectTransform parentRect)
         {
             Item item = stored.Item;
-            Vector2 pos = new(stored.Position.x, -stored.Position.y);
+            Vector2 pos = stored.Position;
 
             GameObject ui = Instantiate(ItemElement);
-            RectTransform rect = ui.GetComponent<RectTransform>();
+            RectTransform rect = ui.GetRectTransform();
             TextMeshProUGUI textUI = ui.GetComponentInChildren<TextMeshProUGUI>();
             ClickableObject clickable = ui.GetComponent<ClickableObject>();
 
@@ -316,7 +294,7 @@ namespace CH.Items.Interface
 
             if (CurrentBackpack == null) return;
 
-            RectTransform rect = GridDisplay.GetComponent<RectTransform>();
+            RectTransform rect = GridDisplay.GetRectTransform();
             Vector2 gridTranslation = GetGridTranslation(rect);
 
             DisableInteractionMenu();
@@ -408,13 +386,26 @@ namespace CH.Items.Interface
 
             //if (!isInside) return;
 
-            Destroy(hoveredItem.UI);
-            HoveredItem = null;
 
+            StoredItem storedItem = hoveredItem.Item; ;
             Vector2Int pos = WorldPosToGridPos(rectTrans.anchoredPosition);
 
-            print(pos);
-            CurrentBackpack.MoveItem(hoveredItem.Item, pos);
+            try
+            {
+                CurrentBackpack.MoveItem(hoveredItem.Item, pos);
+            }
+            catch (GridBackpack.ModifingException)
+            {
+                var occupany = CurrentBackpack.GetOccupancy();
+                Debug.Log($"{storedItem} couldn't be moved at {pos} (OccupanyID: {occupany})");
+            }
+            finally
+            {
+                Destroy(hoveredItem.UI);
+                HoveredItem = null;
+                RefreshItemGrid(this, EventArgs.Empty);
+            }
+
         }
 
         void Start()
@@ -422,7 +413,6 @@ namespace CH.Items.Interface
             Canvas = GetComponentInParent<Canvas>();
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             Player = playerObj.GetComponent<PlayerBehaviour>();
-            Camera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 
             UIInputs = Player.Controls.FindActionMap("UI", true);
             ClickAction = UIInputs.FindAction("Click");
@@ -453,7 +443,7 @@ namespace CH.Items.Interface
 
         void LateUpdate()
         {
-            HoverItemFollowMouse();
+            DragAndDrop();
         }
     }
 }
