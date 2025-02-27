@@ -121,7 +121,9 @@ namespace CH.Items.Interface
 
             Vector2 translation = GetGridTranslation(gridTrans);
 
-            Vector2Int gridPos = (worldPos / translation).Round();
+            Vector2Int gridPos = (worldPos / translation).Round()
+            .Min(CurrentBackpack.Size - Vector2Int.one)
+            .Max(Vector2Int.zero);
 
             return gridPos;
         }

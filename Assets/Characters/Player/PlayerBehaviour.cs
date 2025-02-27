@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using UnityEngine;
 using CH.Items;
+using CH.Items.Container;
 
 namespace CH.Character.Player
 {
@@ -9,6 +9,7 @@ namespace CH.Character.Player
 	{
 		private InputActionMap _InputActionMap;
 		private InputAction _MovementAction;
+		private InputAction _PickupAction;
 		private GameObject _CameraObject;
 		private GameObject _Pivot;
 		private Camera _Camera;
@@ -22,38 +23,35 @@ namespace CH.Character.Player
 		public float CharacterPickupDist = 5;
 		public float MousePickupDist = 2.5f;
 
-		public GameObject[] GetSelectableDrops()
-		{
-			List<GameObject> res = new();
-
-			RaycastHit? nullableMouseHit = Helper.GetMouseRayHitInfo(_Camera);
-
-			if (!nullableMouseHit.HasValue)
-				return new GameObject[0];
-			var mouseHit = nullableMouseHit.GetValueOrDefault();
-
-			var drops = GameObject.FindGameObjectsWithTag("Dropped Items");
-			foreach (GameObject drp in drops)
-			{
-				// Distance from character model
-				// Distance from mouse
-
-				float charDist = (drp.transform.position - transform.position).magnitude;
-				float mouseDist = (drp.transform.position - mouseHit.point).magnitude;
-
-				if (charDist <= CharacterPickupDist && mouseDist <= MousePickupDist)
-				{
-					res.Add(drp);
-					Debug.Log(drp);
-				}
-			}
-
-			return res.ToArray();
-		}
-
 		public InputActionMap GetInputAction()
 		{
 			return _InputActionMap;
+		}
+
+		public void TryToPickup(InputAction.CallbackContext _)
+		{
+			RaycastHit? nullableMouseHit = Helper.GetMouseRayHitInfo(_Camera);
+			if (!nullableMouseHit.HasValue)
+				return;
+			var mouseHit = nullableMouseHit.Value;
+
+			bool hasTag = GameObject.FindGameObjectWithTag("Dropped Items");
+			if (!hasTag) return;
+			Transform dropTrans = mouseHit.transform;
+
+			float charDist = (transform.position - dropTrans.position).sqrMagnitude,
+			mouseDist = (mouseHit.point - dropTrans.position).sqrMagnitude;
+
+			bool charCheck = charDist <= CharacterPickupDist * CharacterPickupDist,
+			mouseCheck = mouseDist <= MousePickupDist * MousePickupDist;
+
+			if (charCheck && mouseCheck)
+			{
+				// TODO - Add surport for multiple Backpacks
+				DroppedItem dropped = dropTrans.GetComponent<DroppedItem>();
+				GridBackpack firstBackpack = GetFirstBackpack();
+				dropped.PickupDropped(firstBackpack);
+			}
 		}
 
 		private void ControlMovementOnInput()
@@ -86,6 +84,8 @@ namespace CH.Character.Player
 			_Camera = _CameraObject.GetComponent<Camera>();
 			_Pivot = GameObject.FindGameObjectWithTag("CameraHandle");
 
+			_PickupAction = _InputActionMap.FindAction("Pickup");
+
 			Cursor.lockState = CursorLockMode.Locked;
 			Cursor.visible = true;
 		}
@@ -93,8 +93,9 @@ namespace CH.Character.Player
 		public void Update()
 		{
 			ControlMovementOnInput();
-			GetSelectableDrops();
 			MoveCamera();
+
+			_PickupAction.performed += TryToPickup;
 		}
 	}
 }

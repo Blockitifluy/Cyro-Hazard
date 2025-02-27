@@ -1,38 +1,63 @@
-# Cyro Hazard (Unity)
+# Cyro Hazard
 
-<p align="center">
-This is the Cyro Hazard Unity Project.
-</p>
+<!--
+Summary (no header)
+Built with / Get started
+Description
+Roadmap
+License
+-->
+
+![License](https://img.shields.io/github/license/Blockitifluy/Cyro-Hazard-Unity.svg)
+![Release](https://img.shields.io/github/release/Blockitifluy/Cyro-Hazard-Unity.svg)
+![Downloads](https://img.shields.io/github/downloads/Blockitifluy/Cyro-Hazard-Unity/total.svg)
+![Stars](https://img.shields.io/github/stars/Blockitifluy/Cyro-Hazard-Unity.svg)
+![Contributions](https://img.shields.io/github/contributors/Blockitifluy/Cyro-Hazard-Unity)
+![Activity](https://img.shields.io/github/commit-activity/m/Blockitifluy/Cyro-Hazard-Unity)
+
+<div align="center">
+<image src="Assets/Icon/icon256.png" width="150" alt="Cyro Hazard Logo"/>
+
+<h3>Cryo Hazard</h3>
+
+Cyro Hazard is an unity-made zombie apocalypse survival game.
+<br/>
+Set in the Undead Winter of West Texas
+
+</div>
+
+## Built with / Get Started
+
+The game is built with Unity 6.
+
+To get started install the [Unity Hub](https://unity.com/download) and download the Unity 6 editor.
 
 ## Description
 
-Cyro Hazard takes place on a polluted Texas, infected with zombies; some regular, some morbid mutated abombinations. Playing as:
+During the after-math of the Cyro Project landed in the Westren Texas area and the release of the Body Hazard nanovirus turning neighbours into ravonious roamers, you must do anything to survive...
+Play as:
 
-- A burn victim ex-firefighter
-- An insane micro-biologist, only concerned about herself
-- And a corrupt banker
+- The Misdemeanor - an ex-firefighter turned criminal due to his burn scars.
+- The Scientist - A micro-biologist sent to study the effects of being underground during the Undead Winter event, causing her psychopathy.
+- The Brainless - A recovered early Body Hazard victim unable to use their intellect.
 
-Starting from the scraps of this apocalyptic world will you escape?
+During the Blood Moons and violent Snow Storms, halting your progress and hitting you like a truck. Will you survive.
 
-## See More
+## Roadmap
 
-- Planning: <https://github.com/Blockitifluy/Cyro-Hazard-Doc>
-- Legacy Godot Project: <https://github.com/Blockitifluy/Cyro-Hazard>
+The game's roadmap is on [Trello](https://trello.com/b/6ZjdDMcR/cyro-hazard). For changes already done, see the [CHANGELOG.md](CHANGELOG.md).
 
-## Coming Features
+To add suggestions to the game, go to the _issues_ tab on Github.
 
-### Generation
+The game's plan is [here](https://github.com/Blockitifluy/Cyro-Hazard-Doc).
 
-- Create Generation Script
-- Expand upon Generation Docs
+> [NOTE]
+> The game's plan is supposed to be viewed on Obsidian.
 
-### Items
+## License
 
-- Backpack UI
-- Dropped Item
+Distributed under the GNU General Public License: see [here](LICENSE) for details.
 
-### Misc
+## Other
 
-- Create Icon Image
-
-<sub>For only £12.99 (uncomfirmed). Also Drake is a placeholder image.</sub>
+[Legacy Godot Project](https://github.com/Blockitifluy/Cyro-Hazard)

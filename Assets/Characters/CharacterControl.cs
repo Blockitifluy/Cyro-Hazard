@@ -34,6 +34,26 @@ namespace CH.Character
 			return actualPacks;
 		}
 
+		public GridBackpack GetFirstBackpack()
+		{
+			var allBackpacks = GameObject.FindGameObjectsWithTag("Backpack");
+
+			foreach (GameObject obj in allBackpacks)
+			{
+				if (gameObject.transform.IsChildOf(obj.transform)) continue;
+
+				if (!obj.TryGetComponent<GridBackpack>(out var backpack))
+				{
+					Debug.LogWarning($"Even though {obj.name} has tag backpack, it's doesn't have the Backpack component");
+					continue;
+				}
+
+				return backpack;
+			}
+
+			return null;
+		}
+
 		public virtual void Awake()
 		{
 			MovementBasics = GetComponent<MovementBasics>();

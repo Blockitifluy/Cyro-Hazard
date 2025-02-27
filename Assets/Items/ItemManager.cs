@@ -5,9 +5,11 @@ using UnityEngine;
 
 namespace CH.Items
 {
+	[Serializable]
 	public struct RefItem
 	{
 		private readonly string _ID;
+		[SerializeField]
 		private int _Amount;
 
 		public readonly string ID
@@ -20,7 +22,7 @@ namespace CH.Items
 
 		public int Amount
 		{
-			readonly get
+			get
 			{
 				return _Amount;
 			}
@@ -49,9 +51,10 @@ namespace CH.Items
 			var itemManager = ItemManager.GetManager();
 			Item item = itemManager.GetItem(id);
 
-			if (amount > item.MaxStack || amount < 0)
+			if (0 < amount || amount <= item.MaxStack)
+				_Amount = amount;
+			else
 				throw new ArgumentOutOfRangeException(nameof(amount));
-			_Amount = amount;
 		}
 	}
 
@@ -291,10 +294,8 @@ namespace CH.Items
 			obj.SetActive(false); // Unity thing or whatever
 
 			DroppedItem dropped = obj.GetComponent<DroppedItem>();
-			dropped.Item = item;
-			dropped.ID = item.ID;
+			dropped.RefItem = new(item.ID, amount);
 			dropped._Health = item.MaxHealth;
-			dropped._Amount = amount;
 
 			obj.transform.SetParent(null);
 			obj.transform.position = pos;

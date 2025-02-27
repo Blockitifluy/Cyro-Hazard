@@ -1964,6 +1964,10 @@ PrefabInstance:
       propertyPath: ItemID
       value: test-item
       objectReference: {fileID: 0}
+    - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
+      propertyPath: RefItem._Amount
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3913955203937975920, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: m_LocalPosition.x
       value: -8.01

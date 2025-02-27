@@ -1,7 +1,6 @@
 using System;
+using CH.Items.Container;
 using UnityEngine;
-
-// TODO - Add pickup
 
 namespace CH.Items
 {
@@ -13,25 +12,22 @@ namespace CH.Items
 		/// The item manager, hju!
 		/// </summary>
 		private ItemManager _ItemsManager;
-		/// <summary>
-		/// The item that the <see cref="DroppedItem"/> references.
-		/// </summary>
-		private Item _Item;
+
+		[SerializeField]
 		/// <summary>
 		/// How much health does the item have.
 		/// When it has 0 health it disappears.
 		/// </summary>
-		internal float _Health;
-		/// <summary>
-		/// How many stacks does this <see cref="DroppedItem"/> contain? 
-		/// </summary>
-		internal int _Amount = 1;
+		internal float _Health = 100.0f;
+
+		[SerializeField]
+		internal RefItem RefItem;
 
 		/// <inheritdoc cref="_Item"/>
 		public Item Item
 		{
-			get { return _Item; }
-			set { _Item = value; }
+			get { return RefItem.Item; }
+			set { RefItem = new(value.ID, Amount); }
 		}
 
 		/// <inheritdoc cref="_Health"/>
@@ -44,23 +40,42 @@ namespace CH.Items
 		/// <inheritdoc cref="_Amount"/>
 		public int Amount
 		{
-			get { return _Amount; }
-			set { _Amount = Mathf.Clamp(_Amount, 1, _Item.MaxStack); }
+			get { return RefItem.Amount; }
+			set { RefItem.Amount = Mathf.Clamp(value, 1, Item.MaxStack); }
 		}
 
 		public string ID;
 
-		public void Awake()
+		/// <summary>
+		/// Pickups up the dropped item, then destroying it.
+		/// </summary>
+		/// <param name="backpack">The backpack to be inserted into.</param>
+		/// <returns>The pickup represented as a stored item </returns>
+		public StoredItem PickupDropped(GridBackpack backpack)
 		{
-			_ItemsManager = ItemManager.GetManager();
+			StoredItem stored;
+
 			try
 			{
-				_Item = _ItemsManager.GetItem(ID);
+				stored = backpack.AddItem(Item, Amount);
 			}
-			catch (Exception) { }
+			catch (GridBackpack.ModifingException)
+			{
+				Debug.Log($"There was no place to add {Item} to {backpack}");
+				throw;
+			}
+
+			Destroy(gameObject);
+			return stored;
 		}
 
-		void OnEnable() => Awake();
+		public void Start()
+		{
+			_ItemsManager = ItemManager.GetManager();
+			RefItem = new(ID, Amount);
+		}
+
+		// void OnEnable() => Start();
 
 		public void LateUpdate()
 		{
