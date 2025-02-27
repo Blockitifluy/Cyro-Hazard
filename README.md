@@ -51,7 +51,7 @@ To add suggestions to the game, go to the _issues_ tab on Github.
 
 The game's plan is [here](https://github.com/Blockitifluy/Cyro-Hazard-Doc).
 
-> [NOTE]
+> [!NOTE]
 > The game's plan is supposed to be viewed on Obsidian.
 
 ## License
