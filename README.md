@@ -60,4 +60,4 @@ Distributed under the GNU General Public License: see [here](LICENSE) for detail
 
 ## Other
 
-[Legacy Godot Project](https://github.com/Blockitifluy/Cyro-Hazard)
+[Legacy Godot Project](https://github.com/Blockitifluy/Cyro-Hazard-Godot)
