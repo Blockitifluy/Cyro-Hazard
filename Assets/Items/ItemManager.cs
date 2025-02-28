@@ -305,10 +305,24 @@ namespace CH.Items
 			return dropped;
 		}
 
+#if UNITY_EDITOR
+		[ContextMenu("Print All Item Names")]
+		public void PrintAllItemName()
+		{
+			List<string> names = new();
+			foreach (string name in Items.Keys)
+			{
+				names.Add(name);
+			}
+
+			Debug.Log(string.Join(", ", names));
+		}
+#endif
+
 		public void Awake()
 		{
 			ItemsDocument = new XmlDocument();
-			ItemsDocument.Load(PathToItemsXML);
+			ItemsDocument.Load(Application.streamingAssetsPath + "\\" + PathToItemsXML);
 
 			PreloadAllItems();
 			TestForItemGetting();

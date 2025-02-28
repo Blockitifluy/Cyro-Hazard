@@ -200,10 +200,10 @@ namespace CH.Character.Damage
         public void Awake()
         {
             HediffDocument = new();
-            HediffDocument.Load(PathToHediffTypes);
+            HediffDocument.Load(Application.streamingAssetsPath + "\\" + PathToHediffTypes);
 
             TypesDocument = new();
-            TypesDocument.Load(PathToDamageTypesXML);
+            TypesDocument.Load(Application.streamingAssetsPath + "\\" + PathToDamageTypesXML);
 
             PreloadAllHediffs();
             PreloadAllDamageTypes();
