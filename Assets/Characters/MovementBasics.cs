@@ -64,7 +64,7 @@ namespace CH.Character
 		public float CalculateSpeed()
 		{
 			float uncapped = CurrentMovementSpeed + MovementAcceleration * Time.deltaTime,
-			movementMult = CharacterHealth.GetOrganOperation(ECapability.Movement);
+			movementMult = CharacterHealth.GetCapability(ECapability.Movement);
 			return Mathf.Min(uncapped, MovementMaxSpeed) * movementMult;
 		}
 

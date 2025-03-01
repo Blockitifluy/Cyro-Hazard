@@ -9,9 +9,19 @@ namespace CH.Character.Damage.Hediffs
         public float Severity;
         public bool IsPermanent = false;
 
+        public float Pain
+        {
+            get { return Severity * InjuryHediffDef.Pain; }
+        }
+
+        public float Bleeding
+        {
+            get { return Severity * InjuryHediffDef.Bleeding; }
+        }
+
         public override void OnUpdate()
         {
-            
+
         }
 
         public override void OnApplied()
