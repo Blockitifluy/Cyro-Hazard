@@ -60,6 +60,8 @@ namespace CH.Character
     {
         // Public Fields & Propetries
 
+        public delegate float CapabilityCal();
+
         /// <summary>
         /// The health skeleton of the character.
         /// </summary>
@@ -112,7 +114,7 @@ namespace CH.Character
                 foreach (TemplatePart templatePart in TemplateBody)
                 {
                     var bodypart = GetCharBodyPart(templatePart);
-                    if (bodypart.HasValue)
+                    if (!bodypart.HasValue)
                         continue;
                     pain += bodypart.Value.Pain;
                 }
@@ -125,6 +127,8 @@ namespace CH.Character
         /// The character's body parts, containing the <see cref="BodyPart.Health"/> propetry.
         /// </summary>
         public readonly List<BodyPart> BodyParts = new();
+
+        public Dictionary<ECapability, CapabilityCal> BodyCalculations = new();
 
         // Public Methods
 
@@ -219,7 +223,18 @@ namespace CH.Character
                 }
             }
 
-            return operation;
+            return MathF.Max(operation, 0.0f);
+        }
+
+        public float GetCapability(ECapability capability)
+        {
+            var hasCal = BodyCalculations.ContainsKey(capability);
+
+            if (!hasCal) return GetOrganOperation(capability);
+
+            CapabilityCal cal = BodyCalculations[capability];
+
+            return cal();
         }
 
         // Tests
@@ -289,6 +304,23 @@ namespace CH.Character
 
             Debug.Log(string.Join(", ", operations));
         }
+
+        /// <summary>
+        /// Prints all organ operation.
+        /// </summary>
+        [ContextMenu("Print All Capability")]
+        public void PrintAllCapability()
+        {
+            var capabilities = (ECapability[])Enum.GetValues(typeof(ECapability));
+            List<string> operations = new();
+
+            foreach (ECapability capability in capabilities)
+            {
+                operations.Add($"{capability}: {GetCapability(capability)}");
+            }
+
+            Debug.Log(string.Join(", ", operations));
+        }
 #endif
         // Protected Methods
 
@@ -324,6 +356,8 @@ namespace CH.Character
             }
         }
 
+        protected abstract void LoadCapabilities();
+
         // Unity
 
         public void Update()
@@ -334,6 +368,7 @@ namespace CH.Character
         public void Awake()
         {
             LoadAllBodyParts();
+            LoadCapabilities();
         }
     }
 
@@ -383,7 +418,7 @@ namespace CH.Character
                 {
                     if (hediff is not InjuryHediff injury)
                         continue;
-                    pain += injury.InjuryHediffDef.Pain;
+                    pain += injury.InjuryHediffDef.Pain * injury.Severity;
                 }
 
                 return pain;
