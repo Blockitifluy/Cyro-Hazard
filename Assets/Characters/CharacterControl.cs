@@ -12,6 +12,25 @@ namespace CH.Character
 		public MovementBasics MovementBasics;
 		[HideInInspector]
 		public CharacterHealth CharacterHealth;
+		public GameObject Handle;
+
+		public bool FindItemInBackpacks(StoredItem stored, out GridBackpack backpack)
+		{
+			var backpacks = DetectBackpacks();
+
+			foreach (GridBackpack search in backpacks)
+			{
+				bool contains = search.ContainsItem(stored);
+				if (!contains)
+					continue;
+
+				backpack = search;
+				return true;
+			}
+
+			backpack = null;
+			return false;
+		}
 
 		public List<GridBackpack> DetectBackpacks()
 		{

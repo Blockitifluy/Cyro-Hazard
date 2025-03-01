@@ -344,7 +344,7 @@ namespace CH.Items.Container
 		/// <param name="item">The item to be added.</param>
 		/// <param name="amount">The amount of stack.</param>
 		/// <param name="at">The location where <paramref name="item"/> is going to added.</param>
-		/// <returns></returns>
+		/// <returns>The stored item.</returns>
 		/// <exception cref="PlacementException"></exception>
 		public StoredItem AddItemAt(Item item, int amount, Vector2Int at)
 		{
@@ -358,6 +358,21 @@ namespace CH.Items.Container
 			BackpackUpdated?.Invoke(this, EventArgs.Empty);
 
 			return storedItem;
+		}
+
+		/// <inheritdoc cref="AddItemAt(Item, int, Vector2Int)"/>
+		/// <param name="stored">The item to be added.</param>
+		/// <returns></returns>
+		/// <exception cref="PlacementException"></exception>
+		public void AddItemAt(StoredItem stored, Vector2Int at)
+		{
+			Item item = stored.Item;
+			if (!CanPlaceItem(at, item, out EPlacementReason reason))
+				throw new PlacementException($"Can't place item (with size {item.Size}) at {at} (reason: {reason})");
+
+			stored.Position = at;
+			ItemAdded?.Invoke(this, stored);
+			BackpackUpdated?.Invoke(this, EventArgs.Empty);
 		}
 
 		/// <summary>
@@ -386,15 +401,52 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Adds an item to the backpack, automatically finding a placement.
 		/// </summary>
-		/// <param name="item">The item wanting to be placed</param>
-		/// <param name="amount">The amount of item</param>
-		/// <returns>The <seealso cref="StoredItem"/> that had been place</returns>
-		/// <exception cref="PlacementException">Returned if no space had been found</exception>
-		public StoredItem AddItem(Item item, int amount)
+		/// <param name="item">The item wanting to be placed.</param>
+		/// <param name="amount">The amount of item.</param>
+		/// <param name="dropIfNotFound">Drop the item, when no space is found.</param>
+		/// <returns>The <seealso cref="StoredItem"/> that had been place.</returns>
+		/// <exception cref="PlacementException">Returned if no space had been found.</exception>
+		public StoredItem AddItem(Item item, int amount, bool dropIfNotFound = false)
 		{
-			if (!CanFindPlacementFor(item, out Vector2Int at))
+			bool canFindPlace = CanFindPlacementFor(item, out Vector2Int at);
+			if (!canFindPlace)
+			{
+				if (dropIfNotFound)
+				{
+					ItemManager itemManager = ItemManager.GetManager();
+					itemManager.CreateDroppedItem(item, amount, transform.position);
+					return null;
+				}
+
 				throw new PlacementException($"Couldn't find placement for {item}");
+			}
 			return AddItemAt(item, amount, at);
+		}
+
+		/// <inheritdoc cref="AddItem(Item, int, bool)"/>
+		/// Adds an item to the backpack, automatically finding a placement.
+		/// </summary>
+		/// <param name="stored">The stored item wanting to be placed.</param>
+		/// <param name="amount">The amount of item.</param>
+		/// <param name="dropIfNotFound">Drop the item, when no space is found.</param>
+		/// <returns>The <seealso cref="StoredItem"/> that had been place.</returns>
+		/// <exception cref="PlacementException">Returned if no space had been found.</exception>
+		public void AddItem(StoredItem stored, bool dropIfNotFound = false)
+		{
+			bool canFindPlace = CanFindPlacementFor(stored.Item, out Vector2Int at);
+			if (!canFindPlace)
+			{
+				if (dropIfNotFound)
+				{
+					ItemManager itemManager = ItemManager.GetManager();
+					itemManager.CreateDroppedItem(stored.Item, stored.Amount, transform.position);
+					return;
+				}
+
+				throw new PlacementException($"Couldn't find placement for {stored}");
+			}
+
+			AddItemAt(stored, at);
 		}
 
 		// Modifing
