@@ -110,8 +110,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Convert x and y to a slot's index.
 		/// </summary>
-		/// <param name="x">The x component.</param>
-		/// <param name="y">The y component.</param>
+		/// <param name="x">The x axis..</param>
+		/// <param name="y">The y axis..</param>
 		/// <returns>The slot's index.</returns>
 		public int XYToIndex(int x, int y)
 		{
@@ -221,8 +221,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Checks if a slot is freed.
 		/// </summary>
-		/// <param name="x">The x component</param>
-		/// <param name="y">The y component</param>
+		/// <param name="x">The x axis.</param>
+		/// <param name="y">The y axis.</param>
 		/// <returns>True if the slot is occupied.</returns>
 		/// <exception cref="ArgumentOutOfRangeException">If a location is out of range.</exception>
 		public bool IsSlotOccupied(int x, int y)
@@ -262,8 +262,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Checks if a coorninate is in range
 		/// </summary>
-		/// <param name="x">The x component</param>
-		/// <param name="y">The y component</param>
+		/// <param name="x">The x axis.</param>
+		/// <param name="y">The y axis.</param>
 		/// <returns>True, if a coorninate is in range of the backpack size</returns>
 		public bool IsCoordOutOfRange(int x, int y)
 		{
@@ -338,31 +338,24 @@ namespace CH.Items.Container
 			return true;
 		}
 
-		/// <summary>
-		/// Adds an item to the backpack.
-		/// </summary>
+		/// <inheritdoc cref="AddItemAt(StoredItem, Vector2Int)"/>
 		/// <param name="item">The item to be added.</param>
 		/// <param name="amount">The amount of stack.</param>
-		/// <param name="at">The location where <paramref name="item"/> is going to added.</param>
 		/// <returns>The stored item.</returns>
-		/// <exception cref="PlacementException"></exception>
 		public StoredItem AddItemAt(Item item, int amount, Vector2Int at)
 		{
-			if (!CanPlaceItem(at, item, out EPlacementReason reason))
-				throw new PlacementException($"Can't place item (with size {item.Size}) at {at} (reason: {reason})");
-
 			StoredItem storedItem = new(item, amount, at);
-			_StoredItems.Add(storedItem);
 
-			ItemAdded?.Invoke(this, storedItem);
-			BackpackUpdated?.Invoke(this, EventArgs.Empty);
+			AddItemAt(storedItem, at);
 
 			return storedItem;
 		}
 
-		/// <inheritdoc cref="AddItemAt(Item, int, Vector2Int)"/>
+		/// <summary>
+		/// Adds an item to the backpack.
+		/// </summary>
 		/// <param name="stored">The item to be added.</param>
-		/// <returns></returns>
+		/// <param name="at">The location where item is going to added.</param>
 		/// <exception cref="PlacementException"></exception>
 		public void AddItemAt(StoredItem stored, Vector2Int at)
 		{
@@ -371,6 +364,8 @@ namespace CH.Items.Container
 				throw new PlacementException($"Can't place item (with size {item.Size}) at {at} (reason: {reason})");
 
 			stored.Position = at;
+			_StoredItems.Add(stored);
+
 			ItemAdded?.Invoke(this, stored);
 			BackpackUpdated?.Invoke(this, EventArgs.Empty);
 		}
@@ -398,55 +393,42 @@ namespace CH.Items.Container
 			return false;
 		}
 
+		/// <inheritdoc cref="AddItem(StoredItem, bool)"/>		
+		/// <param name="item">The item wanting to be placed.</param>
+		/// <param name="amount">The amount of item.</param>
+		/// <returns>The <seealso cref="StoredItem"/> that had been place.</returns>
+		public StoredItem AddItem(Item item, int amount, bool dropIfNotFound = false)
+		{
+			StoredItem stored = new(item, amount, -Vector2Int.one);
+
+			AddItem(stored, dropIfNotFound);
+
+			return stored;
+		}
+
 		/// <summary>
 		/// Adds an item to the backpack, automatically finding a placement.
 		/// </summary>
-		/// <param name="item">The item wanting to be placed.</param>
-		/// <param name="amount">The amount of item.</param>
-		/// <param name="dropIfNotFound">Drop the item, when no space is found.</param>
-		/// <returns>The <seealso cref="StoredItem"/> that had been place.</returns>
-		/// <exception cref="PlacementException">Returned if no space had been found.</exception>
-		public StoredItem AddItem(Item item, int amount, bool dropIfNotFound = false)
-		{
-			bool canFindPlace = CanFindPlacementFor(item, out Vector2Int at);
-			if (!canFindPlace)
-			{
-				if (dropIfNotFound)
-				{
-					ItemManager itemManager = ItemManager.GetManager();
-					itemManager.CreateDroppedItem(item, amount, transform.position);
-					return null;
-				}
-
-				throw new PlacementException($"Couldn't find placement for {item}");
-			}
-			return AddItemAt(item, amount, at);
-		}
-
-		/// <inheritdoc cref="AddItem(Item, int, bool)"/>
-		/// Adds an item to the backpack, automatically finding a placement.
-		/// </summary>
 		/// <param name="stored">The stored item wanting to be placed.</param>
-		/// <param name="amount">The amount of item.</param>
 		/// <param name="dropIfNotFound">Drop the item, when no space is found.</param>
-		/// <returns>The <seealso cref="StoredItem"/> that had been place.</returns>
 		/// <exception cref="PlacementException">Returned if no space had been found.</exception>
 		public void AddItem(StoredItem stored, bool dropIfNotFound = false)
 		{
 			bool canFindPlace = CanFindPlacementFor(stored.Item, out Vector2Int at);
-			if (!canFindPlace)
-			{
-				if (dropIfNotFound)
-				{
-					ItemManager itemManager = ItemManager.GetManager();
-					itemManager.CreateDroppedItem(stored.Item, stored.Amount, transform.position);
-					return;
-				}
 
-				throw new PlacementException($"Couldn't find placement for {stored}");
+			if (canFindPlace)
+			{
+				AddItemAt(stored, at);
+				return;
 			}
 
-			AddItemAt(stored, at);
+			if (!dropIfNotFound)
+				throw new PlacementException($"Couldn't find placement for {stored}");
+
+			ItemManager itemManager = ItemManager.GetManager();
+			itemManager.CreateDroppedItem(stored.Item, stored.Amount, transform.position);
+
+			return;
 		}
 
 		// Modifing
@@ -574,8 +556,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Removes the item at a location.
 		/// </summary>
-		/// <param name="x">The x component.</param>
-		/// <param name="y">The y component.</param>
+		/// <param name="x">The x axis..</param>
+		/// <param name="y">The y axis..</param>
 		/// <returns>The stored item that was removed.</returns>
 		/// <exception cref="RemoveException">If no item as found at the location.</exception>
 		public StoredItem RemoveItemAt(int x, int y)
@@ -605,8 +587,8 @@ namespace CH.Items.Container
 		}
 
 		/// <inheritdoc cref="DropItem(StoredItem, Vector3)"/>
-		/// <param name="x">The x component</param>
-		/// <param name="y">The y component</param>
+		/// <param name="x">The x axis.</param>
+		/// <param name="y">The y axis.</param>
 		public DroppedItem DropItem(int x, int y, Vector3 pos)
 		{
 			var stored = GetItemAt(x, y);
@@ -639,8 +621,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Get an item by location based on what slots it sits on.
 		/// </summary>
-		/// <param name="x">The x component</param>
-		/// <param name="y">The y component</param>
+		/// <param name="x">The x axis.</param>
+		/// <param name="y">The y axis.</param>
 		/// <returns>The item at the slot</returns>
 		public StoredItem GetItemAt(int x, int y)
 		{
