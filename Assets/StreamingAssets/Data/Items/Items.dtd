@@ -1,19 +1,22 @@
-<!ELEMENT root (Item+)>
-<!ELEMENT Item (type, name, description, health, spoilageRate, decayRate, flamiblity, volitile, recipe, maxStack, sizeX, sizeY, weight)>
-<!ATTLIST Item ID ID #REQUIRED>
-<!ELEMENT type (#PCDATA)>
+<!ELEMENT root (item*, variant-item*)>
+<!ELEMENT item (name, description, health, spoilage-rate, decay-rate, flamiblity, volitile, max-stack, size-x, size-y, weight)>
+<!ATTLIST item
+    ID ID #REQUIRED
+    xmlns CDATA "item">
 <!ELEMENT name (#PCDATA)>
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT health (#PCDATA)>
-<!ELEMENT spoilageRate (#PCDATA)>
-<!ELEMENT decayRate (#PCDATA)>
+<!ELEMENT spoilage-rate (#PCDATA)>
+<!ELEMENT decay-rate (#PCDATA)>
 <!ELEMENT flamiblity (#PCDATA)>
 <!ELEMENT volitile (#PCDATA)>
-<!ELEMENT recipe (ritem*)>
-<!ELEMENT maxStack (#PCDATA)>
-<!ELEMENT sizeX (#PCDATA)>
-<!ELEMENT sizeY (#PCDATA)>
+<!ELEMENT max-stack (#PCDATA)>
+<!ELEMENT size-x (#PCDATA)>
+<!ELEMENT size-y (#PCDATA)>
 <!ELEMENT weight (#PCDATA)>
 
-<!ELEMENT ritem (#PCDATA)>
-<!ATTLIST ritem ID CDATA #REQUIRED amount CDATA #REQUIRED>
+<!ELEMENT variant-item (name, description, health, spoilage-rate, decay-rate, flamiblity, volitile, max-stack, size-x, size-y, weight, test-value)>
+<!ATTLIST variant-item
+    ID ID #REQUIRED
+    xmlns CDATA "item">
+<!ELEMENT test-value (#PCDATA)>

@@ -827,8 +827,6 @@ MonoBehaviour:
   InteractMenu: {fileID: 1986821821}
   InteractAction: {fileID: 8447769198830628242, guid: a5da0a7242bab634a8e094eaee5a7a16, type: 3}
   InteractionMenuDisappearDistance: 100
-  ItemActionHandlers:
-  - {fileID: 11400000, guid: b6d57d66ce22b714fbaa04dec840a36e, type: 2}
   InteractCanvas: {fileID: 1986821829}
 --- !u!1 &705507993
 GameObject:
@@ -1991,11 +1989,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: ID
-      value: test-item
+      value: test-variant-item
       objectReference: {fileID: 0}
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: ItemID
       value: test-item
+      objectReference: {fileID: 0}
+    - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
+      propertyPath: RefItem._ID
+      value: test-variant-item
       objectReference: {fileID: 0}
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: RefItem._Amount

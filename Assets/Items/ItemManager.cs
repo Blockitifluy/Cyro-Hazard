@@ -2,23 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using UnityEngine;
+using System.Xml.Serialization;
+using System.IO;
+using CH.Items.Container;
+using System.Reflection;
 
 namespace CH.Items
 {
+	/// <summary>
+	/// Refrences a <see cref="BaseItem"/> that is instanced.
+	/// Has an amount and other propetries.
+	/// </summary>
+	/// <typeparam name="TItem">The item being instanced.</typeparam>
 	[Serializable]
-	public struct RefItem
+	public class RefItem<TItem> where TItem : BaseItem
 	{
-		private readonly string _ID;
+		[SerializeField]
+		private string _ID;
 		[SerializeField]
 		private int _Amount;
 
-		public readonly string ID
-		{
-			get
-			{
-				return _ID;
-			}
-		}
+		public string ID => _ID;
 
 		public int Amount
 		{
@@ -35,12 +39,12 @@ namespace CH.Items
 			}
 		}
 
-		public readonly Item Item
+		public TItem Item
 		{
 			get
 			{
 				var itemManager = ItemManager.GetManager();
-				return itemManager.GetItem(_ID);
+				return itemManager.GetItem<TItem>(_ID);
 			}
 		}
 
@@ -49,117 +53,164 @@ namespace CH.Items
 			_ID = id;
 
 			var itemManager = ItemManager.GetManager();
-			Item item = itemManager.GetItem(id);
+			TItem item = itemManager.GetItem<TItem>(id);
 
 			if (0 < amount || amount <= item.MaxStack)
 				_Amount = amount;
 			else
 				throw new ArgumentOutOfRangeException(nameof(amount));
 		}
+
+		public RefItem(TItem item, int amount) : this(item.ID, amount) { }
+	}
+
+	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+	public class ItemAttribute : Attribute
+	{
+		public readonly string XMLName;
+
+		public ItemAttribute(string xmlName)
+		{
+			XMLName = xmlName;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+	public class ItemActionAttribute : Attribute
+	{
+		public readonly string ActionName;
+
+		public ItemActionAttribute(string actionName)
+		{
+			ActionName = actionName;
+		}
 	}
 
 	/// <summary>
-	/// Non-contrete class of item data
+	/// The interface of all item types.
 	/// </summary>
-	[Serializable]
-	public class Item
+	public abstract class BaseItem
 	{
-		/// <summary>
-		/// <inheritdoc cref="Type"/>
-		/// </summary>
-		public enum ItemType : ushort
+		public struct ActivateParams
 		{
-			none, weapon, apparel
+			public GameObject CommanderObject;
+			public StoredItem StoredItem;
+			public GridBackpack Backpack;
 		}
 
+		public delegate void ItemAction(ActivateParams activate);
+
+		public struct ActionMenuItem
+		{
+			public string Name;
+			public ItemAction ItemAction;
+		}
+
+
+		public IEnumerable<ActionMenuItem> GetItemActions()
+		{
+			MethodInfo[] methods = GetType().GetMethods();
+
+			foreach (MethodInfo method in methods)
+			{
+				var actionAttr = (ItemActionAttribute)method.GetCustomAttribute(typeof(ItemActionAttribute));
+				if (actionAttr is null) continue;
+
+				string name = actionAttr.ActionName;
+				ItemAction action = (ItemAction)method.CreateDelegate(typeof(ItemAction), this);
+
+				yield return new()
+				{
+					Name = name,
+					ItemAction = action
+				};
+			}
+		}
+
+		[ItemAction("Drop")] // TODO - Implement
+		public void DropAction(ActivateParams activate)
+		{
+			var backpack = activate.Backpack;
+			var pos = activate.CommanderObject.transform.position;
+			backpack.DropItem(activate.StoredItem, pos);
+		}
+
+		[XmlAttribute("ID")]
 		/// <summary>
 		/// The ID of the item
 		/// </summary>
-		public readonly string ID;
+		public string ID { get; set; }
 
-		/// <summary>
-		/// The type of item it is. Can be:
-		/// <list type="bullet">
-		/// <item><c>none</c>,</item>
-		/// <item><c>weapon</c>,</item>
-		/// <item><c>apparel</c></item>
-		/// </list>
-		/// </summary>
-		public readonly ItemType Type;
-
+		[XmlElement("name")]
 		/// <summary>
 		/// The displayed name of the item
 		/// </summary>
-		public readonly string Name;
+		public string Name { get; set; }
 
+		[XmlElement("description")]
 		/// <summary>
 		/// The long, long description of the item.
 		/// </summary>
-		public readonly string Description;
+		public string Description { get; set; }
 
+		[XmlElement("health")]
 		/// <summary>
 		/// The maximium amount of health the item can have
 		/// </summary>
-		public readonly float MaxHealth;
+		public float MaxHealth { get; set; }
 
+		[XmlElement("spoilage-rate")]
 		/// <summary>
 		/// How much the item spoils per day, when not kept in the right conditions.
 		/// </summary>
-		public readonly float SpoilageRate;
+		public float SpoilageRate { get; set; }
 
+		[XmlElement("decay-rate")]
 		/// <summary>
 		/// How much the item decays per day, when not kept in the right conditions.
 		/// </summary>
-		public readonly float DecayRate;
+		public float DecayRate { get; set; }
 
+		[XmlElement("flamibility")]
 		/// <summary>
 		/// How flamible the item is.
 		/// </summary>
-		public readonly float Flamiblity;
+		public float Flamiblity { get; set; }
 
+		[XmlElement("flamiblity")]
 		/// <summary>
 		/// Will the item explode when killed 
 		/// </summary>
-		public readonly bool Volitile;
+		public bool Volitile { get; set; }
+
+		[XmlElement("size-x")]
+		public int SizeX { get; set; }
+
+		[XmlElement("size-y")]
+		public int SizeY { get; set; }
 
 		/// <summary>
 		/// The size of item inside of a <seealso cref="ItemStorage"/>
 		/// </summary>
-		public readonly Vector2Int Size;
+		public Vector2Int Size => new(SizeX, SizeY);
 
+		[XmlElement("max-stack")]
 		/// <summary>
 		/// The maximum stack of item
 		/// </summary>
-		public readonly int MaxStack;
+		public int MaxStack { get; set; }
 
+		[XmlElement("weight")]
 		/// <summary>
 		/// The weight in kg per item
 		/// </summary>
-		public readonly float Weight;
+		public float Weight { get; set; }
 
-		public override string ToString()
+		public virtual RefItem<BaseItem> Instaniate(int amount)
 		{
-			return $"{Name} ({ID})";
-		}
+			RefItem<BaseItem> refItem = new(this, amount);
 
-		internal Item(string id, string name, float maxHealth,
-		float spoilageRate, float decayRate, float flamiblity,
-		bool @volatile, string description, ItemType type,
-		int maxStack, Vector2Int size, float weight
-		)
-		{
-			ID = id;
-			Name = name;
-			MaxHealth = maxHealth;
-			SpoilageRate = spoilageRate;
-			DecayRate = decayRate;
-			Flamiblity = flamiblity;
-			Volitile = @volatile;
-			Description = description;
-			Type = type;
-			MaxStack = maxStack;
-			Size = size;
-			Weight = weight;
+			return refItem;
 		}
 	}
 
@@ -191,40 +242,24 @@ namespace CH.Items
 		static private XmlDocument ItemsDocument;
 		static private ItemManager _Manager;
 
-		private readonly Dictionary<string, Item> Items = new();
+		private readonly Dictionary<string, BaseItem> Items = new();
+		private readonly Dictionary<string, Type> ItemTypes = new();
 
-		private Item ConvertXMLToItem(XmlElement element)
+		private BaseItem ConvertXMLToItem(XmlElement element)
 		{
-			string ID = element.GetAttribute("ID"),
-			typeString = element.GetNodeText("type"),
-			name = element.GetNodeText("name"),
-			description = element.GetNodeText("description");
+			Type itemType = default;
 
-			float health = float.Parse(element.GetNodeText("health")),
-			spoilageRate = float.Parse(element.GetNodeText("spoilageRate")),
-			decayRate = float.Parse(element.GetNodeText("decayRate")),
-			flamiblity = float.Parse(element.GetNodeText("flamiblity")),
-			weight = float.Parse(element.GetNodeText("weight"));
-
-			int sizeX = int.Parse(element.GetNodeText("sizeX")),
-			sizeY = int.Parse(element.GetNodeText("sizeY")),
-			maxStack = int.Parse(element.GetNodeText("maxStack"));
-
-			bool @volatile = bool.Parse(element.GetNodeText("volitile"));
-
-			if (!Enum.TryParse<Item.ItemType>(typeString, out var type))
+			foreach (KeyValuePair<string, Type> pair in ItemTypes)
 			{
-				Debug.LogWarning($"{ID} assumed to be none type, read type {typeString}");
-				type = Item.ItemType.none;
+				if (pair.Key != element.Name)
+					continue;
+				itemType = pair.Value;
 			}
 
-			Vector2Int size = new(sizeX, sizeY);
-			Item item = new(
-			  ID, name, health, spoilageRate,
-			  decayRate, flamiblity, @volatile,
-			  description, type, maxStack, size,
-			  weight
-			);
+			XmlSerializer serializer = new(itemType);
+
+			using StringReader reader = new(element.OuterXml);
+			BaseItem item = (BaseItem)serializer.Deserialize(reader);
 
 			return item;
 		}
@@ -245,12 +280,26 @@ namespace CH.Items
 		/// <param name="ID">The ID of the item</param>
 		/// <returns>An item with the same ID</returns>
 		/// <exception cref="NullReferenceException">Thrown if the item couldn't be found</exception>
-		public Item GetItem(string ID)
+		public BaseItem GetItem(string ID) => GetItem<BaseItem>(ID);
+
+		/// <inheritdoc cref="GetItem(string)"/>
+		/// <typeparam name="TItem">The type of Item being retrieved</typeparam>
+		public TItem GetItem<TItem>(string ID) where TItem : BaseItem
 		{
-			Item item = Items[ID];
-			if (item == null)
+			if (Items[ID] is not TItem item)
 				throw new NullReferenceException($"Item ({ID}) couldn't be found");
 			return item;
+		}
+
+		private void LoadAllItemTypes()
+		{
+			var itemTypes = Helper.GetTypesWithAttribute<ItemAttribute>(GetType().Assembly);
+
+			foreach (Type tp in itemTypes)
+			{
+				ItemAttribute itemAtt = (ItemAttribute)Attribute.GetCustomAttribute(tp, typeof(ItemAttribute));
+				ItemTypes.Add(itemAtt.XMLName, tp);
+			}
 		}
 
 		private void PreloadAllItems()
@@ -260,7 +309,8 @@ namespace CH.Items
 
 			foreach (XmlElement itemElem in itemElements)
 			{
-				Item item = ConvertXMLToItem(itemElem);
+				BaseItem item = ConvertXMLToItem(itemElem);
+
 				Items.Add(item.ID, item);
 				loaded++;
 			}
@@ -271,7 +321,7 @@ namespace CH.Items
 		{
 			Debug.Log("Trying to get test-item for testing purposes");
 
-			Item itm;
+			BaseItem itm;
 
 			try
 			{
@@ -287,20 +337,15 @@ namespace CH.Items
 			return;
 		}
 
-		public DroppedItem CreateDroppedItem(Item item, int amount, Vector3 pos)
+		public DroppedItem CreateDroppedItem(BaseItem item, int amount, Vector3 pos)
 		{
 			GameObject obj = Instantiate(DroppedPrefab, null, false);
-
-			obj.SetActive(false); // Unity thing or whatever
+			obj.transform.SetParent(null);
+			obj.transform.position = pos;
 
 			DroppedItem dropped = obj.GetComponent<DroppedItem>();
 			dropped.RefItem = new(item.ID, amount);
 			dropped._Health = item.MaxHealth;
-
-			obj.transform.SetParent(null);
-			obj.transform.position = pos;
-
-			obj.SetActive(true);
 
 			return dropped;
 		}
@@ -324,6 +369,7 @@ namespace CH.Items
 			ItemsDocument = new XmlDocument();
 			ItemsDocument.Load(Application.streamingAssetsPath + "\\" + PathToItemsXML);
 
+			LoadAllItemTypes();
 			PreloadAllItems();
 			TestForItemGetting();
 		}
