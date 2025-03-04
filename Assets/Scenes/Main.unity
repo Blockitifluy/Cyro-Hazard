@@ -458,7 +458,7 @@ MonoBehaviour:
   PivotOffset: {x: 0, y: 0, z: 0}
   AmplitudeGain: 0.3
   FrequencyGain: 1
-  m_NoiseOffsets: {x: 0, y: 0, z: 0}
+  m_NoiseOffsets: {x: -917.42395, y: -365.59473, z: 133.28491}
 --- !u!114 &430554005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -739,6 +739,7 @@ GameObject:
   - component: {fileID: 703645946}
   - component: {fileID: 703645945}
   - component: {fileID: 703645947}
+  - component: {fileID: 703645948}
   m_Layer: 5
   m_Name: BackpackUI
   m_TagString: Untagged
@@ -766,7 +767,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -242.5, y: 27.5}
-  m_SizeDelta: {x: -515, y: -85}
+  m_SizeDelta: {x: -515, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &703645945
 MonoBehaviour:
@@ -827,9 +828,21 @@ MonoBehaviour:
   InteractMenu: {fileID: 1986821821}
   InteractAction: {fileID: 8447769198830628242, guid: a5da0a7242bab634a8e094eaee5a7a16, type: 3}
   InteractionMenuDisappearDistance: 100
-  ItemActionHandlers:
-  - {fileID: 11400000, guid: b6d57d66ce22b714fbaa04dec840a36e, type: 2}
   InteractCanvas: {fileID: 1986821829}
+--- !u!114 &703645948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703645943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 1
+  m_AspectRatio: 0.7225376
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -1991,11 +2004,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: ID
-      value: test-item
+      value: test-variant-item
       objectReference: {fileID: 0}
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: ItemID
       value: test-item
+      objectReference: {fileID: 0}
+    - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
+      propertyPath: RefItem._ID
+      value: test-variant-item
       objectReference: {fileID: 0}
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: RefItem._Amount

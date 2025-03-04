@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8651533257966335913}
   - component: {fileID: 7356699330262137757}
   - component: {fileID: 3793802054709179357}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DroppedItem
   m_TagString: Dropped Items
   m_Icon: {fileID: 0}
@@ -95,7 +95,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46d079071bf5cf046bfb3798c698a732, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ItemID: 
+  _Health: 100
+  RefItem:
+    _ID: 
+    _Amount: 0
 --- !u!1 &5671532236979041115
 GameObject:
   m_ObjectHideFlags: 0
@@ -107,7 +110,7 @@ GameObject:
   - component: {fileID: 1928115319676219136}
   - component: {fileID: 5420573173803295079}
   - component: {fileID: 1184974772751142961}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Billboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,6 +149,9 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

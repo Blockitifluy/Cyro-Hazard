@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -103,5 +106,16 @@ public static class Helper
 			Mathf.Max(vector.x, other.x),
 			Mathf.Max(vector.y, other.y)
 		);
+	}
+
+	public static IEnumerable<Type> GetTypesWithAttribute<TAttribute>(Assembly assembly) where TAttribute : Attribute
+	{
+		foreach (Type type in assembly.GetTypes())
+		{
+			if (type.GetCustomAttributes(typeof(TAttribute), true).Length > 0)
+			{
+				yield return type;
+			}
+		}
 	}
 }
