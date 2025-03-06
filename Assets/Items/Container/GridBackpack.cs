@@ -110,8 +110,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Convert x and y to a slot's index.
 		/// </summary>
-		/// <param name="x">The x component.</param>
-		/// <param name="y">The y component.</param>
+		/// <param name="x">The x axis..</param>
+		/// <param name="y">The y axis..</param>
 		/// <returns>The slot's index.</returns>
 		public int XYToIndex(int x, int y)
 		{
@@ -138,7 +138,7 @@ namespace CH.Items.Container
 
 			foreach (StoredItem strd in _StoredItems)
 			{
-				Item item = strd.Item;
+				BaseItem item = strd.Item;
 				Vector2Int pos = strd.Position;
 				int area = item.Size.x * item.Size.y;
 
@@ -166,7 +166,7 @@ namespace CH.Items.Container
 
 			foreach (StoredItem strd in _StoredItems)
 			{
-				Item item = strd.Item;
+				BaseItem item = strd.Item;
 				Vector2Int pos = strd.Position;
 				int area = item.Size.x * item.Size.y;
 
@@ -221,8 +221,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Checks if a slot is freed.
 		/// </summary>
-		/// <param name="x">The x component</param>
-		/// <param name="y">The y component</param>
+		/// <param name="x">The x axis.</param>
+		/// <param name="y">The y axis.</param>
 		/// <returns>True if the slot is occupied.</returns>
 		/// <exception cref="ArgumentOutOfRangeException">If a location is out of range.</exception>
 		public bool IsSlotOccupied(int x, int y)
@@ -262,8 +262,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Checks if a coorninate is in range
 		/// </summary>
-		/// <param name="x">The x component</param>
-		/// <param name="y">The y component</param>
+		/// <param name="x">The x axis.</param>
+		/// <param name="y">The y axis.</param>
 		/// <returns>True, if a coorninate is in range of the backpack size</returns>
 		public bool IsCoordOutOfRange(int x, int y)
 		{
@@ -319,7 +319,7 @@ namespace CH.Items.Container
 		/// <param name="item">The item</param>
 		/// <param name="reason">Provides a reason the placement would have failed</param>
 		/// <returns>True if the item can be placed there.</returns>
-		public bool CanPlaceItem(Vector2Int pos, Item item, out EPlacementReason reason)
+		public bool CanPlaceItem(Vector2Int pos, BaseItem item, out EPlacementReason reason)
 		{
 			if (AreSlotsOccupied(pos, item.Size))
 			{
@@ -338,26 +338,36 @@ namespace CH.Items.Container
 			return true;
 		}
 
+		/// <inheritdoc cref="AddItemAt(StoredItem, Vector2Int)"/>
+		/// <param name="item">The item to be added.</param>
+		/// <param name="amount">The amount of stack.</param>
+		/// <returns>The stored item.</returns>
+		public StoredItem AddItemAt(BaseItem item, int amount, Vector2Int at)
+		{
+			StoredItem storedItem = new(item, amount, at);
+
+			AddItemAt(storedItem, at);
+
+			return storedItem;
+		}
+
 		/// <summary>
 		/// Adds an item to the backpack.
 		/// </summary>
-		/// <param name="item">The item to be added.</param>
-		/// <param name="amount">The amount of stack.</param>
-		/// <param name="at">The location where <paramref name="item"/> is going to added.</param>
-		/// <returns></returns>
+		/// <param name="stored">The item to be added.</param>
+		/// <param name="at">The location where item is going to added.</param>
 		/// <exception cref="PlacementException"></exception>
-		public StoredItem AddItemAt(Item item, int amount, Vector2Int at)
+		public void AddItemAt(StoredItem stored, Vector2Int at)
 		{
+			BaseItem item = stored.Item;
 			if (!CanPlaceItem(at, item, out EPlacementReason reason))
 				throw new PlacementException($"Can't place item (with size {item.Size}) at {at} (reason: {reason})");
 
-			StoredItem storedItem = new(item, amount, at);
-			_StoredItems.Add(storedItem);
+			stored.Position = at;
+			_StoredItems.Add(stored);
 
-			ItemAdded?.Invoke(this, storedItem);
+			ItemAdded?.Invoke(this, stored);
 			BackpackUpdated?.Invoke(this, EventArgs.Empty);
-
-			return storedItem;
 		}
 
 		/// <summary>
@@ -366,7 +376,7 @@ namespace CH.Items.Container
 		/// <param name="item">The item wanting to be placed.</param>
 		/// <param name="pos">The returning position.</param>
 		/// <returns>If a space has been found for the <paramref name="item"/>.</returns>
-		public bool CanFindPlacementFor(Item item, out Vector2Int pos)
+		public bool CanFindPlacementFor(BaseItem item, out Vector2Int pos)
 		{
 			OccupancyID occupancy = GetOccupancy();
 
@@ -383,18 +393,42 @@ namespace CH.Items.Container
 			return false;
 		}
 
+		/// <inheritdoc cref="AddItem(StoredItem, bool)"/>		
+		/// <param name="item">The item wanting to be placed.</param>
+		/// <param name="amount">The amount of item.</param>
+		/// <returns>The <seealso cref="StoredItem"/> that had been place.</returns>
+		public StoredItem AddItem(BaseItem item, int amount, bool dropIfNotFound = false)
+		{
+			StoredItem stored = new(item, amount, -Vector2Int.one);
+
+			AddItem(stored, dropIfNotFound);
+
+			return stored;
+		}
+
 		/// <summary>
 		/// Adds an item to the backpack, automatically finding a placement.
 		/// </summary>
-		/// <param name="item">The item wanting to be placed</param>
-		/// <param name="amount">The amount of item</param>
-		/// <returns>The <seealso cref="StoredItem"/> that had been place</returns>
-		/// <exception cref="PlacementException">Returned if no space had been found</exception>
-		public StoredItem AddItem(Item item, int amount)
+		/// <param name="stored">The stored item wanting to be placed.</param>
+		/// <param name="dropIfNotFound">Drop the item, when no space is found.</param>
+		/// <exception cref="PlacementException">Returned if no space had been found.</exception>
+		public void AddItem(StoredItem stored, bool dropIfNotFound = false)
 		{
-			if (!CanFindPlacementFor(item, out Vector2Int at))
-				throw new PlacementException($"Couldn't find placement for {item}");
-			return AddItemAt(item, amount, at);
+			bool canFindPlace = CanFindPlacementFor(stored.Item, out Vector2Int at);
+
+			if (canFindPlace)
+			{
+				AddItemAt(stored, at);
+				return;
+			}
+
+			if (!dropIfNotFound)
+				throw new PlacementException($"Couldn't find placement for {stored}");
+
+			ItemManager itemManager = ItemManager.Manager;
+			itemManager.CreateDroppedItem(stored.Item, stored.Amount, transform.position);
+
+			return;
 		}
 
 		// Modifing
@@ -438,7 +472,7 @@ namespace CH.Items.Container
 				return;
 			}
 
-			Item item = stored.Item;
+			BaseItem item = stored.Item;
 			if (newAmount > item.MaxStack)
 				throw new ModifingException($"newAmount {newAmount} exceedes maxStack of Item {item}");
 
@@ -467,7 +501,7 @@ namespace CH.Items.Container
 		{
 			if (!ContainsItem(stored))
 				throw new ModifingException($"Item {stored} wasn't in in backpack!");
-			Item item = stored.Item;
+			BaseItem item = stored.Item;
 
 			bool occupied = AreSlotsOccupied(to, item.Size);
 			if (occupied)
@@ -522,8 +556,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Removes the item at a location.
 		/// </summary>
-		/// <param name="x">The x component.</param>
-		/// <param name="y">The y component.</param>
+		/// <param name="x">The x axis..</param>
+		/// <param name="y">The y axis..</param>
 		/// <returns>The stored item that was removed.</returns>
 		/// <exception cref="RemoveException">If no item as found at the location.</exception>
 		public StoredItem RemoveItemAt(int x, int y)
@@ -547,14 +581,14 @@ namespace CH.Items.Container
 			if (!ContainsItem(stored))
 				throw new RemoveException($"Item {stored} wasn't in Backpack!");
 			RemoveItem(stored);
-			ItemManager itemManager = ItemManager.GetManager();
+			ItemManager itemManager = ItemManager.Manager;
 			var dropped = itemManager.CreateDroppedItem(stored.Item, stored.Amount, pos);
 			return dropped;
 		}
 
 		/// <inheritdoc cref="DropItem(StoredItem, Vector3)"/>
-		/// <param name="x">The x component</param>
-		/// <param name="y">The y component</param>
+		/// <param name="x">The x axis.</param>
+		/// <param name="y">The y axis.</param>
 		public DroppedItem DropItem(int x, int y, Vector3 pos)
 		{
 			var stored = GetItemAt(x, y);
@@ -587,8 +621,8 @@ namespace CH.Items.Container
 		/// <summary>
 		/// Get an item by location based on what slots it sits on.
 		/// </summary>
-		/// <param name="x">The x component</param>
-		/// <param name="y">The y component</param>
+		/// <param name="x">The x axis.</param>
+		/// <param name="y">The y axis.</param>
 		/// <returns>The item at the slot</returns>
 		public StoredItem GetItemAt(int x, int y)
 		{
@@ -616,7 +650,7 @@ namespace CH.Items.Container
 		[ContextMenu("Add `test-item` To Backpack")]
 		public void AddTestItemToFirst()
 		{
-			AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
+			AddItem(ItemManager.Manager.GetItem("test-item"), 1);
 		}
 #endif
 	}

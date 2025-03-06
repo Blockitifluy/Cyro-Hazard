@@ -1,40 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE root SYSTEM "Items.dtd">
 <root>
-	<Item ID="test-item-2">
-		<type>none</type>
-    <name>Test Item 2</name>
-	  <description>Lorem Ipsum</description>
-	  <health>100</health>
-	  <spoilageRate>2</spoilageRate>
-	  <decayRate>5</decayRate>
-	  <flamiblity>1</flamiblity>
-	  <volitile>False</volitile>
-	  <recipe>
-	  	<ritem ID="wood" amount="5"/>
-	  </recipe>
-		<maxStack>16</maxStack>
-	  <sizeX>2</sizeX>
-	  <sizeY>2</sizeY>
+	<item ID="test-item-2">
+		<name>Test Item 2</name>
+		<description>Lorem Ipsum</description>
+		<health>100</health>
+		<spoilage-rate>2</spoilage-rate>
+		<decay-rate>5</decay-rate>
+		<flamiblity>1</flamiblity>
+		<volitile>False</volitile>
+		<max-stack>16</max-stack>
+		<size-x>2</size-x>
+		<size-y>2</size-y>
 		<weight>0.05</weight>
-  </Item>
+	</item>
 
-  <Item ID="test-item">
-		<type>none</type>
-    <name>Test Item</name>
-	  <description>Lorem Ipsum</description>
-	  <health>100</health>
-	  <spoilageRate>2</spoilageRate>
-	  <decayRate>5</decayRate>
-	  <flamiblity>1</flamiblity>
-	  <volitile>False</volitile>
-	  <recipe>
-	  	<ritem ID="wood" amount="5"/>
-	  </recipe>
-		<maxStack>1</maxStack>
-	  <sizeX>2</sizeX>
-	  <sizeY>1</sizeY>
+
+	<item ID="test-item">
+		<name>Test Item</name>
+		<description>Lorem Ipsum</description>
+		<health>100</health>
+		<spoilage-rate>2</spoilage-rate>
+		<decay-rate>5</decay-rate>
+		<flamiblity>1</flamiblity>
+		<volitile>False</volitile>
+		<max-stack>1</max-stack>
+		<size-x>2</size-x>
+		<size-y>1</size-y>
 		<weight>0.25</weight>
-  </Item>
+	</item>
+
+	<tool-item ID="tool-item">
+		<name>Test Tool Item</name>
+		<description>Lorem Ipsum</description>
+		<health>100</health>
+		<spoilage-rate>2</spoilage-rate>
+		<decay-rate>5</decay-rate>
+		<flamiblity>1</flamiblity>
+		<volitile>False</volitile>
+		<max-stack>1</max-stack>
+		<size-x>2</size-x>
+		<size-y>1</size-y>
+		<weight>0.25</weight>
+		<firerate>3</firerate>
+	</tool-item>
 </root>

@@ -8,11 +8,10 @@ using System;
 using UnityEngine.EventSystems;
 
 using InputButton = UnityEngine.EventSystems.PointerEventData.InputButton;
-using CH.Items.Interface.ActionHandler;
-using System.Drawing;
 
 namespace CH.Items.Interface
 {
+    [AddComponentMenu("Items/BackpackUI")]
     /// <summary>
     /// Controls the backpack's display UI,
     /// using a grid system UI (<see cref="GridBackpack"/>).
@@ -78,10 +77,6 @@ namespace CH.Items.Interface
         /// </summary>
         public float InteractionMenuDisappearDistance = 250.0f;
         /// <summary>
-        /// A list that handles different types of item's actions (see <see cref="ItemActionHandler.ItemAction"/>).
-        /// </summary>
-        public List<ItemActionHandler> ItemActionHandlers = new();
-        /// <summary>
         /// Controls the transparency on the <see cref="InteractMenu"/> (see <see cref="InteractionMenuDisappearDistance"/>).
         /// </summary>
         public CanvasGroup InteractCanvas;
@@ -143,21 +138,7 @@ namespace CH.Items.Interface
 
         // Selection
 
-        private ItemActionHandler GetItemActionHandler(Type ItemType)
-        {
-            ItemActionHandler res = null;
-
-            foreach (ItemActionHandler handler in ItemActionHandlers)
-            {
-                if (ItemType != handler.GetTargetType())
-                    continue;
-                res = handler;
-            }
-
-            return res;
-        }
-
-        private GameObject CreateInteractionTab(ItemActionHandler.ItemAction itemAction, StoredItem storedItem)
+        private GameObject CreateInteractionTab(BaseItem.ActionMenuItem itemAction, StoredItem storedItem)
         {
             GameObject ui = Instantiate(InteractAction);
             var textMesh = ui.GetComponent<TextMeshProUGUI>();
@@ -166,14 +147,14 @@ namespace CH.Items.Interface
             var clickable = ui.GetComponent<ClickableObject>();
             clickable.OnClick += (sender, data) =>
             {
-                ItemActionHandler.ActivateParams activateParams = new()
+                BaseItem.ItemActionParams activateParams = new()
                 {
-                    CommanderObject = Player.gameObject,
+                    CallerObject = Player.gameObject,
                     StoredItem = storedItem,
                     Backpack = CurrentBackpack
                 };
 
-                itemAction.Activate(activateParams);
+                itemAction.ItemAction(activateParams);
                 DisableInteractionMenu();
             };
 
@@ -218,8 +199,8 @@ namespace CH.Items.Interface
                 Destroy(child.gameObject);
             }
 
-            var handler = GetItemActionHandler(storedItem.Item.GetType());
-            foreach (var itemAction in handler.ItemActions)
+            var itemActions = storedItem.Item.GetItemActions();
+            foreach (var itemAction in itemActions)
             {
                 GameObject itemActionUI = CreateInteractionTab(itemAction, storedItem);
                 itemActionUI.transform.SetParent(rect);
@@ -248,7 +229,7 @@ namespace CH.Items.Interface
 
         private GameObject CreateItemUI(StoredItem stored, Vector2 translation, RectTransform parentRect)
         {
-            Item item = stored.Item;
+            BaseItem item = stored.Item;
             Vector2 pos = stored.Position;
 
             GameObject ui = Instantiate(ItemElement);

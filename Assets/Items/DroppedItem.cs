@@ -8,11 +8,6 @@ namespace CH.Items
 	[AddComponentMenu("Items/Dropped Item")]
 	public class DroppedItem : MonoBehaviour
 	{
-		/// <summary>
-		/// The item manager, hju!
-		/// </summary>
-		private ItemManager _ItemsManager;
-
 		[SerializeField]
 		/// <summary>
 		/// How much health does the item have.
@@ -21,10 +16,10 @@ namespace CH.Items
 		internal float _Health = 100.0f;
 
 		[SerializeField]
-		internal RefItem RefItem;
+		internal RefItem<BaseItem> RefItem;
 
 		/// <inheritdoc cref="_Item"/>
-		public Item Item
+		public BaseItem Item
 		{
 			get { return RefItem.Item; }
 			set { RefItem = new(value.ID, Amount); }
@@ -44,8 +39,6 @@ namespace CH.Items
 			set { RefItem.Amount = Mathf.Clamp(value, 1, Item.MaxStack); }
 		}
 
-		public string ID;
-
 		/// <summary>
 		/// Pickups up the dropped item, then destroying it.
 		/// </summary>
@@ -53,26 +46,18 @@ namespace CH.Items
 		/// <returns>The pickup represented as a stored item </returns>
 		public StoredItem PickupDropped(GridBackpack backpack)
 		{
-			StoredItem stored;
-
 			try
 			{
-				stored = backpack.AddItem(Item, Amount);
+				var stored = backpack.AddItem(Item, Amount);
+
+				Destroy(gameObject);
+				return stored;
 			}
-			catch (GridBackpack.ModifingException)
+			catch (GridBackpack.PlacementException)
 			{
 				Debug.Log($"There was no place to add {Item} to {backpack}");
 				throw;
 			}
-
-			Destroy(gameObject);
-			return stored;
-		}
-
-		public void Start()
-		{
-			_ItemsManager = ItemManager.GetManager();
-			RefItem = new(ID, Amount);
 		}
 
 		// void OnEnable() => Start();
