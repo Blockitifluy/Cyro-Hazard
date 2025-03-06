@@ -46,20 +46,18 @@ namespace CH.Items
 		/// <returns>The pickup represented as a stored item </returns>
 		public StoredItem PickupDropped(GridBackpack backpack)
 		{
-			StoredItem stored;
-
 			try
 			{
-				stored = backpack.AddItem(Item, Amount);
+				var stored = backpack.AddItem(Item, Amount);
+
+				Destroy(gameObject);
+				return stored;
 			}
-			catch (GridBackpack.ModifingException)
+			catch (GridBackpack.PlacementException)
 			{
 				Debug.Log($"There was no place to add {Item} to {backpack}");
 				throw;
 			}
-
-			Destroy(gameObject);
-			return stored;
 		}
 
 		// void OnEnable() => Start();

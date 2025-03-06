@@ -10,12 +10,28 @@ using System.Reflection;
 namespace CH.Items
 {
 	/// <summary>
+	/// The interface version of <see cref="RefItem"/>.
+	/// </summary>
+	/// <remarks>
+	/// <inheritdoc cref="RefItem<TItem>" path="/summary"/>
+	/// </remarks>
+	/// <typeparam name="TItem">The item</typeparam>
+	public interface IRefItem<out TItem> where TItem : BaseItem
+	{
+		public string ID { get; }
+
+		public int Amount { get; set; }
+
+		public TItem Item { get; }
+	}
+
+	/// <summary>
 	/// Refrences a <see cref="BaseItem"/> that is instanced.
 	/// Has an amount and other propetries.
 	/// </summary>
 	/// <typeparam name="TItem">The item being instanced.</typeparam>
 	[Serializable]
-	public class RefItem<TItem> where TItem : BaseItem
+	public class RefItem<TItem> : IRefItem<TItem> where TItem : BaseItem
 	{
 		[SerializeField]
 		private string _ID;
@@ -43,7 +59,7 @@ namespace CH.Items
 		{
 			get
 			{
-				var itemManager = ItemManager.GetManager();
+				var itemManager = ItemManager.Manager;
 				return itemManager.GetItem<TItem>(_ID);
 			}
 		}
@@ -52,7 +68,7 @@ namespace CH.Items
 		{
 			_ID = id;
 
-			var itemManager = ItemManager.GetManager();
+			var itemManager = ItemManager.Manager;
 			TItem item = itemManager.GetItem<TItem>(id);
 
 			if (0 < amount || amount <= item.MaxStack)
@@ -64,6 +80,9 @@ namespace CH.Items
 		public RefItem(TItem item, int amount) : this(item.ID, amount) { }
 	}
 
+	/// <summary>
+	/// Mark this mark this method as item, to be loaded.
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 	public class ItemAttribute : Attribute
 	{
@@ -75,6 +94,14 @@ namespace CH.Items
 		}
 	}
 
+	///	<summary>
+	///	Marks a method inside a Item with a name, then be able
+	/// to be called when right clicking a <see cref="StoredItem"/>.
+	/// </summary>
+	/// <remarks>
+	/// For a ItemAction be discoverable and valid, add the <see cref="ItemActionAttribute"/> to it
+	/// , and the return should be null and params be <see cref="ActivateParams"/>.
+	/// </remarks>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 	public class ItemActionAttribute : Attribute
 	{
@@ -87,100 +114,145 @@ namespace CH.Items
 	}
 
 	/// <summary>
-	/// The interface of all item types.
+	/// The base class of all item types.
 	/// </summary>
 	public abstract class BaseItem
 	{
-		public struct ActivateParams
+		/// <summary>
+		/// Parameters for <see cref="DItemAction"/>.
+		/// </summary>
+		public struct ItemActionParams
 		{
-			public GameObject CommanderObject;
+			public GameObject CallerObject;
 			public StoredItem StoredItem;
 			public GridBackpack Backpack;
 		}
 
-		public delegate void ItemAction(ActivateParams activate);
+		/// <summary>
+		/// A delegate of a <see cref="ItemActionAttribute"/>.
+		/// </summary>
+		/// <param name="params">
+		/// The parameters of <see cref="DItemAction"/> used by the Backpack UI.
+		/// 
+		/// <inheritdoc cref="ActionMenuItem" path="/summary"/>
+		///	</param>
+		public delegate void DItemAction(ItemActionParams @params);
 
+		/// <summary>
+		/// Represents a menu action in <see cref="Interface.BackpackUI"/>,
+		/// with a name and a <see cref="DItemAction"/> delegate.
+		/// </summary>
 		public struct ActionMenuItem
 		{
+			/// <summary>
+			/// The name of the <see cref="ActionMenuItem"/>
+			/// </summary>
 			public string Name;
-			public ItemAction ItemAction;
+			/// <inheritdoc cref="DItemAction"/>
+			public DItemAction ItemAction;
 		}
 
+		// Public Methods
 
+		/// <summary>
+		/// Gets and returns all item actions, with names and delegate.
+		/// </summary>
+		/// <remarks>
+		/// <inheritdoc cref="ItemActionAttribute" path="/remark"/>
+		/// </remarks>
+		/// <returns>All of the found Item Actions.</returns>
 		public IEnumerable<ActionMenuItem> GetItemActions()
 		{
 			MethodInfo[] methods = GetType().GetMethods();
 
 			foreach (MethodInfo method in methods)
 			{
-				var actionAttr = (ItemActionAttribute)method.GetCustomAttribute(typeof(ItemActionAttribute));
+				var actionAttr = method.GetCustomAttribute<ItemActionAttribute>();
 				if (actionAttr is null) continue;
 
 				string name = actionAttr.ActionName;
-				ItemAction action = (ItemAction)method.CreateDelegate(typeof(ItemAction), this);
+				DItemAction itemAction = GetActionFromMethodInfo(method);
 
 				yield return new()
 				{
 					Name = name,
-					ItemAction = action
+					ItemAction = itemAction
 				};
 			}
 		}
 
-		[ItemAction("Drop")] // TODO - Implement
-		public void DropAction(ActivateParams activate)
+		[ItemAction("Drop")]
+		public void DropAction(ItemActionParams @params)
 		{
-			var backpack = activate.Backpack;
-			var pos = activate.CommanderObject.transform.position;
-			backpack.DropItem(activate.StoredItem, pos);
+			var backpack = @params.Backpack;
+			var pos = @params.CallerObject.transform.position;
+			backpack.DropItem(@params.StoredItem, pos);
 		}
 
-		[XmlAttribute("ID")]
+		// Private Methods
+
+		private DItemAction GetActionFromMethodInfo(MethodInfo method)
+		{
+			try
+			{
+				DItemAction action = (DItemAction)method.CreateDelegate(typeof(DItemAction), this);
+				return action;
+			}
+			catch (Exception)
+			{
+				Debug.LogWarning($"{method.Name} is marked with {nameof(ItemActionAttribute)} but doesn't follow the return type or params of {nameof(DItemAction)}.");
+				return null;
+			}
+		}
+
+		#region ItemPropetries
+
 		/// <summary>
 		/// The ID of the item
 		/// </summary>
+		[XmlAttribute("ID")]
 		public string ID { get; set; }
 
-		[XmlElement("name")]
 		/// <summary>
 		/// The displayed name of the item
 		/// </summary>
+		[XmlElement("name")]
 		public string Name { get; set; }
 
-		[XmlElement("description")]
 		/// <summary>
 		/// The long, long description of the item.
 		/// </summary>
+		[XmlElement("description")]
 		public string Description { get; set; }
 
-		[XmlElement("health")]
 		/// <summary>
 		/// The maximium amount of health the item can have
 		/// </summary>
+		[XmlElement("health")]
 		public float MaxHealth { get; set; }
 
-		[XmlElement("spoilage-rate")]
 		/// <summary>
 		/// How much the item spoils per day, when not kept in the right conditions.
 		/// </summary>
+		[XmlElement("spoilage-rate")]
 		public float SpoilageRate { get; set; }
 
-		[XmlElement("decay-rate")]
 		/// <summary>
 		/// How much the item decays per day, when not kept in the right conditions.
 		/// </summary>
+		[XmlElement("decay-rate")]
 		public float DecayRate { get; set; }
 
-		[XmlElement("flamibility")]
 		/// <summary>
 		/// How flamible the item is.
 		/// </summary>
+		[XmlElement("flamibility")]
 		public float Flamiblity { get; set; }
 
-		[XmlElement("flamiblity")]
 		/// <summary>
 		/// Will the item explode when killed 
 		/// </summary>
+		[XmlElement("flamiblity")]
 		public bool Volitile { get; set; }
 
 		[XmlElement("size-x")]
@@ -194,19 +266,26 @@ namespace CH.Items
 		/// </summary>
 		public Vector2Int Size => new(SizeX, SizeY);
 
-		[XmlElement("max-stack")]
 		/// <summary>
 		/// The maximum stack of item
 		/// </summary>
+		[XmlElement("max-stack")]
 		public int MaxStack { get; set; }
 
-		[XmlElement("weight")]
 		/// <summary>
 		/// The weight in kg per item
 		/// </summary>
+		[XmlElement("weight")]
 		public float Weight { get; set; }
 
-		public virtual RefItem<BaseItem> Instaniate(int amount)
+		#endregion
+
+		/// <summary>
+		/// Creates a RefItem based on the item.
+		/// </summary>
+		/// <param name="amount">The amount of item supplied.</param>
+		/// <returns>The reference item.</returns>
+		public virtual IRefItem<BaseItem> Instantiate(int amount)
 		{
 			RefItem<BaseItem> refItem = new(this, amount);
 
@@ -214,6 +293,10 @@ namespace CH.Items
 		}
 	}
 
+	/// <summary>
+	/// Incharge of revieving, loading and dropping items. 
+	/// </summary>
+	[AddComponentMenu("Items/Item Manager")]
 	public class ItemManager : MonoBehaviour
 	{
 		/// <summary>
@@ -224,6 +307,7 @@ namespace CH.Items
 		const string ItemManagerTag = "ItemManager";
 
 		public GameObject DroppedPrefab;
+		public GameObject ToolPrefab;
 
 		/// <summary>
 		/// Thrown if a item can't be found
@@ -264,14 +348,17 @@ namespace CH.Items
 			return item;
 		}
 
-		static public ItemManager GetManager()
+		static public ItemManager Manager
 		{
-			if (_Manager != null)
-				return _Manager;
-			var obj = GameObject.FindGameObjectWithTag(ItemManagerTag);
-			ItemManager itemManager = obj.GetComponent<ItemManager>();
-			_Manager = itemManager;
-			return itemManager;
+			get
+			{
+				if (_Manager != null)
+					return _Manager;
+				var obj = GameObject.FindGameObjectWithTag(ItemManagerTag);
+				ItemManager itemManager = obj.GetComponent<ItemManager>();
+				_Manager = itemManager;
+				return itemManager;
+			}
 		}
 
 		/// <summary>

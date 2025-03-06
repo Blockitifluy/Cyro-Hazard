@@ -425,7 +425,7 @@ namespace CH.Items.Container
 			if (!dropIfNotFound)
 				throw new PlacementException($"Couldn't find placement for {stored}");
 
-			ItemManager itemManager = ItemManager.GetManager();
+			ItemManager itemManager = ItemManager.Manager;
 			itemManager.CreateDroppedItem(stored.Item, stored.Amount, transform.position);
 
 			return;
@@ -581,7 +581,7 @@ namespace CH.Items.Container
 			if (!ContainsItem(stored))
 				throw new RemoveException($"Item {stored} wasn't in Backpack!");
 			RemoveItem(stored);
-			ItemManager itemManager = ItemManager.GetManager();
+			ItemManager itemManager = ItemManager.Manager;
 			var dropped = itemManager.CreateDroppedItem(stored.Item, stored.Amount, pos);
 			return dropped;
 		}
@@ -650,7 +650,7 @@ namespace CH.Items.Container
 		[ContextMenu("Add `test-item` To Backpack")]
 		public void AddTestItemToFirst()
 		{
-			AddItem(ItemManager.GetManager().GetItem("test-item"), 1);
+			AddItem(ItemManager.Manager.GetItem("test-item"), 1);
 		}
 #endif
 	}

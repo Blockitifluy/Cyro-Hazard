@@ -15,6 +15,7 @@
 		<weight>0.05</weight>
 	</item>
 
+
 	<item ID="test-item">
 		<name>Test Item</name>
 		<description>Lorem Ipsum</description>
@@ -29,8 +30,8 @@
 		<weight>0.25</weight>
 	</item>
 
-	<variant-item ID="test-variant-item">
-		<name>Test Variant Item</name>
+	<tool-item ID="tool-item">
+		<name>Test Tool Item</name>
 		<description>Lorem Ipsum</description>
 		<health>100</health>
 		<spoilage-rate>2</spoilage-rate>
@@ -41,6 +42,6 @@
 		<size-x>2</size-x>
 		<size-y>1</size-y>
 		<weight>0.25</weight>
-		<test-value>A </test-value>
-	</variant-item>
+		<firerate>3</firerate>
+	</tool-item>
 </root>

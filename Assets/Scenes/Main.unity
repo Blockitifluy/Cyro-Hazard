@@ -232,7 +232,7 @@ Transform:
   m_GameObject: {fileID: 131176270}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
+  m_LocalPosition: {x: 0, y: 2, z: -0}
   m_LocalScale: {x: 0.5, y: 1, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -295,7 +295,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MovementBasics: {fileID: 131176279}
   CharacterHealth: {fileID: 0}
-  Handle: {fileID: 1430421224}
+  Handle: {fileID: 1430421225}
   ControlCamera: 1
   Controls: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   Senitivity: {x: 250, y: -75}
@@ -1072,6 +1072,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DroppedPrefab: {fileID: 4896635235673647282, guid: e565fd63679771a40aa921a39653fd33, type: 3}
+  ToolPrefab: {fileID: 6184334773030760024, guid: ffcf3423b79636a4c9d923ac9646de20, type: 3}
 --- !u!4 &909784692
 Transform:
   m_ObjectHideFlags: 0
@@ -2012,7 +2013,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: RefItem._ID
-      value: test-variant-item
+      value: tool-item
       objectReference: {fileID: 0}
     - target: {fileID: 3793802054709179357, guid: e565fd63679771a40aa921a39653fd33, type: 3}
       propertyPath: RefItem._Amount

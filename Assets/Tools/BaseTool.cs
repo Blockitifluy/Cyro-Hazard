@@ -1,17 +1,19 @@
 using System;
 using CH.Character;
 using CH.Items.Container;
+using CH.Items.ItemVariants;
 using UnityEngine;
 
 namespace CH.Tools
 {
-    public abstract class BaseTool : MonoBehaviour
+    public class BaseTool : MonoBehaviour
     {
         public CharacterControl Controller => _Controller;
-        public StoredItem LinkedItem => _LinkedItem;
+        public StoredItem StoredItem => _StoredItem;
         public GridBackpack Backpack => _Backpack;
+        public ToolItem ToolItem;
 
-        private StoredItem _LinkedItem;
+        private StoredItem _StoredItem;
         private CharacterControl _Controller;
         private GridBackpack _Backpack;
 
@@ -21,18 +23,22 @@ namespace CH.Tools
 
             if (!hasItem)
                 throw new NullReferenceException($"Item {stored} wasn't in any Backpack!");
+            if (stored.Item is not ToolItem toolItem)
+                throw new InvalidCastException($"The item type doesn't derive from {StoredItem.Item.GetType().FullName}");
 
-            _LinkedItem = stored;
+            _StoredItem = stored;
             _Controller = controller;
             _Backpack = backpack;
+            ToolItem = toolItem;
 
             Backpack.RemoveItem(stored);
         }
 
         public virtual void Unequip()
         {
-            Backpack.AddItem(_LinkedItem, true);
-            _LinkedItem = null;
+            Backpack.AddItem(_StoredItem, true);
+            _StoredItem = null;
+            Destroy(gameObject);
         }
     }
 }

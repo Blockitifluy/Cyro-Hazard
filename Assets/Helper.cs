@@ -112,10 +112,14 @@ public static class Helper
 	{
 		foreach (Type type in assembly.GetTypes())
 		{
-			if (type.GetCustomAttributes(typeof(TAttribute), true).Length > 0)
-			{
-				yield return type;
-			}
+			if (type.GetCustomAttributes(typeof(TAttribute), true).Length == 0)
+				continue;
+			yield return type;
 		}
+	}
+
+	public static TAttribute GetCustomAttribute<TAttribute>(this MemberInfo memberInfo) where TAttribute : Attribute
+	{
+		return (TAttribute)Attribute.GetCustomAttribute(memberInfo, typeof(TAttribute));
 	}
 }

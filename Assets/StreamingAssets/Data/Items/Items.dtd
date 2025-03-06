@@ -1,5 +1,6 @@
-<!ELEMENT root (item*, variant-item*)>
-<!ELEMENT item (name, description, health, spoilage-rate, decay-rate, flamiblity, volitile, max-stack, size-x, size-y, weight)>
+<!ELEMENT root (item*, tool-item*)>
+<!ELEMENT item (name, description, health, spoilage-rate, decay-rate,
+    flamiblity, volitile, max-stack, size-x, size-y, weight)>
 <!ATTLIST item
     ID ID #REQUIRED
     xmlns CDATA "item">
@@ -15,8 +16,9 @@
 <!ELEMENT size-y (#PCDATA)>
 <!ELEMENT weight (#PCDATA)>
 
-<!ELEMENT variant-item (name, description, health, spoilage-rate, decay-rate, flamiblity, volitile, max-stack, size-x, size-y, weight, test-value)>
-<!ATTLIST variant-item
+<!ELEMENT tool-item (name, description, health, spoilage-rate, decay-rate,
+    flamiblity, volitile, max-stack, size-x, size-y, weight, firerate)>
+<!ATTLIST tool-item
     ID ID #REQUIRED
     xmlns CDATA "item">
-<!ELEMENT test-value (#PCDATA)>
+<!ELEMENT firerate (#PCDATA)>

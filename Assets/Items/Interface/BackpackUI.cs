@@ -11,6 +11,7 @@ using InputButton = UnityEngine.EventSystems.PointerEventData.InputButton;
 
 namespace CH.Items.Interface
 {
+    [AddComponentMenu("Items/BackpackUI")]
     /// <summary>
     /// Controls the backpack's display UI,
     /// using a grid system UI (<see cref="GridBackpack"/>).
@@ -146,9 +147,9 @@ namespace CH.Items.Interface
             var clickable = ui.GetComponent<ClickableObject>();
             clickable.OnClick += (sender, data) =>
             {
-                BaseItem.ActivateParams activateParams = new()
+                BaseItem.ItemActionParams activateParams = new()
                 {
-                    CommanderObject = Player.gameObject,
+                    CallerObject = Player.gameObject,
                     StoredItem = storedItem,
                     Backpack = CurrentBackpack
                 };

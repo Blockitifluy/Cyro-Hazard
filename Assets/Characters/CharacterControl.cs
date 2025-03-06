@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using CH.Items.Container;
+using CH.Tools;
+using System;
+using CH.Items.ItemVariants;
 
 namespace CH.Character
 {
@@ -8,11 +11,51 @@ namespace CH.Character
 	[RequireComponent(typeof(CharacterHealth))]
 	public abstract class CharacterControl : MonoBehaviour
 	{
+
 		[HideInInspector]
 		public MovementBasics MovementBasics;
 		[HideInInspector]
 		public CharacterHealth CharacterHealth;
-		public GameObject Handle;
+		public Transform Handle;
+
+		protected BaseTool _Tool;
+
+		public TTool GetTool<TTool>() where TTool : BaseTool
+		{
+			return (TTool)_Tool;
+		}
+
+		public BaseTool GetTool()
+		{
+			return GetTool<BaseTool>();
+		}
+
+		public void UnequipCurrentTool(bool throwIfNoTool = true)
+		{
+			if (_Tool == null)
+			{
+				if (!throwIfNoTool)
+					return;
+				throw new NullReferenceException("Tried to unequip, No Tool Found!");
+			}
+
+			_Tool.Unequip();
+		}
+
+		public void Equip(StoredItem stored, bool autoUnequip = false)
+		{
+			if (stored.Item is not ToolItem)
+				throw new InvalidCastException($"");
+
+			if (autoUnequip)
+				UnequipCurrentTool(throwIfNoTool: false);
+
+			BaseTool tool = ToolItem.CreateTool<ToolItem>();
+			tool.Equip(stored, this);
+			tool.transform.SetParent(Handle, worldPositionStays: false);
+
+			_Tool = tool;
+		}
 
 		public bool FindItemInBackpacks(StoredItem stored, out GridBackpack backpack)
 		{
@@ -72,6 +115,11 @@ namespace CH.Character
 
 			return null;
 		}
+
+#if UNITY_EDITOR
+		[ContextMenu("Unequip Current Tool")]
+		public void TestUnequip() => UnequipCurrentTool();
+#endif
 
 		public virtual void Awake()
 		{

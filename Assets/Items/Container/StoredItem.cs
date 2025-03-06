@@ -12,7 +12,7 @@ namespace CH.Items.Container
 		/// <summary>
 		/// A <see cref="ItemManager.RefItem"/> structure with item and amount. 
 		/// </summary>
-		private RefItem<BaseItem> _RefItem;
+		private readonly IRefItem<BaseItem> _RefItem;
 
 		/// <summary>
 		/// The position of the stored item.
@@ -61,7 +61,7 @@ namespace CH.Items.Container
 		/// <param name="amount">The amount of items</param>
 		public StoredItem(BaseItem item, int amount, Vector2Int pos)
 		{
-			_RefItem = new(item.ID, amount);
+			_RefItem = item.Instantiate(amount);
 			Position = pos;
 		}
 	}
