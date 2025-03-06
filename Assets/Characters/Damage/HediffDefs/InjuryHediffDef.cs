@@ -1,23 +1,26 @@
-using System;
+using System.Xml.Serialization;
 using CH.Character.Damage.Hediffs;
 
 namespace CH.Character.Damage.HediffDefs
 {
-    public class InjuryHediffDef : HediffDef<InjuryHediff>
+    [HediffDef("injury-hediff"), XmlRoot("injury-hediff"), XmlType("injury-hediff")]
+    public class InjuryHediffDef : HediffDef
     {
         /// <summary>
         /// The amount of bleeding the injury causes.
         /// </summary>
+        [XmlElement("bleeding")]
         public float Bleeding;
         /// <summary>
         /// The amount of pain the injury causes.
         /// </summary>
+        [XmlElement("pain")]
         public float Pain;
 
-        public override InjuryHediff CreatesAppliedHediff()
+        public override IHediff CreateAppliedHediff(BodyPart bodyPart)
         {
-            InjuryHediff applied = new();
-            return applied;
+            InjuryHediff applied = new(this, bodyPart);
+            return (IHediff)applied;
         }
     }
 }

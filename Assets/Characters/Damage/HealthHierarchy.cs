@@ -51,18 +51,14 @@ namespace CH.Character.Damage
                 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
         }
 
-        public TemplatePart[] GetChildBodyPart(TemplatePart parentPart)
+        public IEnumerable<TemplatePart> GetChildBodyPart(TemplatePart parentPart)
         {
-            List<TemplatePart> bodyParts = new();
-
             foreach (TemplatePart other in TemplateParts)
             {
                 if (other.ParentName != parentPart.Name)
                     continue;
-                bodyParts.Add(other);
+                yield return other;
             }
-
-            return bodyParts.ToArray();
         }
 
         public TemplatePart GetParent(TemplatePart childPart)
@@ -77,22 +73,16 @@ namespace CH.Character.Damage
             return null;
         }
 
-        public TemplatePart[] GetAllBodyPartAncestors(TemplatePart childPart)
+        public IEnumerable<TemplatePart> GetAllBodyPartAncestors(TemplatePart childPart)
         {
-            if (childPart.IsRootPart())
-                return Array.Empty<TemplatePart>();
-
-            List<TemplatePart> result = new();
             TemplatePart current = GetParent(childPart);
 
             while (!current.IsRootPart())
             {
                 TemplatePart now = GetParent(current);
-                result.Add(now);
+                yield return now;
                 current = now;
             }
-
-            return result.ToArray();
         }
 
         /// <summary>

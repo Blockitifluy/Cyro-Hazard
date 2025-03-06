@@ -242,24 +242,19 @@ namespace CH.Generation
 		/// </summary>
 		/// <param name="mappings">The chunk mappings.</param>
 		/// <returns></returns>
-		private List<Vector2Int> CleanOutOfRangeChunks(Vector2Int[] mappings)
+		private IEnumerable<Vector2Int> CleanOutOfRangeChunks(Vector2Int[] mappings)
 		{
 			var copyList = new List<Vector2Int>(_ChunkDict.Keys);
-
-			List<Vector2Int> kept = new();
-
 			foreach (var pos in copyList)
 			{
 				if (mappings.Contains(pos))
 				{
-					kept.Add(pos);
+					yield return pos;
 					continue;
 				}
 
 				UnloadChunk(pos);
 			}
-
-			return kept;
 		}
 
 		public void ClearChunks()

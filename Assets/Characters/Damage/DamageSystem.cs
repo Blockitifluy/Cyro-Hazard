@@ -2,7 +2,8 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Xml;
-using CH.Character.Damage.HediffDefs;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace CH.Character.Damage
 {
@@ -14,11 +15,17 @@ namespace CH.Character.Damage
     /// </remarks>
     public enum EArmourType : ushort
     {
+        [XmlEnum("Sharp")]
         Sharp,
+        [XmlEnum("Blunt")]
         Blunt,
+        [XmlEnum("Flame")]
         Flame,
+        [XmlEnum("Blast")]
         Blast,
+        [XmlEnum("Chemical")]
         Chemical,
+        [XmlEnum("None")]
         None
     }
 
@@ -33,50 +40,49 @@ namespace CH.Character.Damage
         /// A definition of damage type.
         /// Controls how it applies damage.
         /// </summary>
+        [XmlRoot("damage-type"), XmlType("damage-type")]
         public class DamageType
         {
             /// <summary>
             /// Name of the DamageType (of the format <c>foo bar</c>)
             /// </summary>
-            public readonly string Name;
+            [XmlAttribute("name")]
+            public string Name { get; set; }
             /// <summary>
             /// Does this type pierce through parent body parts when attacking a child.
             /// </summary>
-            public readonly bool Piercing;
+            [XmlElement("piercing")]
+            public bool Piercing { get; set; }
             /// <summary>
             /// How long does it stun a character (in seconds).
             /// </summary>
-            public readonly float StunTime;
+            [XmlElement("stun-time")]
+            public float StunTime { get; set; }
             /// <summary>
             /// The armour type that this targets.
             /// </summary>
-            public readonly EArmourType ArmourType;
+            [XmlElement("armour-category")]
+            public EArmourType ArmourType { get; set; }
             /// <summary>
             /// Applies this damage type on hit.
             /// </summary>
-            public readonly InjuryHediffDef Applies;
+            [XmlElement("applies")]
+            public string Applies { get; set; }
             /// <summary>
             /// Applies this damage type on piercing.
             /// </summary>
             /// <remarks>
             /// May be <c>null</c> when <see cref="Piercing"/> is <c>false</c>.
             /// </remarks>
-            public readonly InjuryHediffDef AppliesPiercing;
+            [XmlElement("applies-piercing", IsNullable = true)]
+            public string AppliesPiercing { get; set; }
 
             public override string ToString()
             {
                 return Name;
             }
 
-            internal DamageType(string name, bool piercing, float stunTime, EArmourType armourType, InjuryHediffDef applies, InjuryHediffDef appliesPiercing)
-            {
-                Name = name;
-                Piercing = piercing;
-                StunTime = stunTime;
-                ArmourType = armourType;
-                Applies = applies;
-                AppliesPiercing = appliesPiercing;
-            }
+            public DamageType() { }
         }
 
         // Constants
@@ -142,19 +148,12 @@ namespace CH.Character.Damage
         /// <exception cref="InvalidCastException">The armour category couldn't be converted <see cref="EArmourType"/>.</exception>
         private DamageType ConvertXmlToType(XmlElement element)
         {
-            string name = element.GetAttribute("name"),
-            armourCat = element.GetNodeText("armour-category");
-            bool piercing = bool.Parse(element.GetNodeText("piercing"));
-            float stunTime = float.Parse(element.GetNodeText("stun-time"));
-            InjuryHediffDef applies = GetHediffDef<InjuryHediffDef>(element.GetNodeText("applies")),
-            appliesPiercing = null;
+            XmlSerializer serializer = new(typeof(DamageType));
 
-            if (piercing)
-                appliesPiercing = GetHediffDef<InjuryHediffDef>(element.GetNodeText("applies-piercing"));
+            using StringReader reader = new(element.OuterXml);
+            DamageType damageType = (DamageType)serializer.Deserialize(reader);
 
-            if (!Enum.TryParse<EArmourType>(armourCat, out var armourType))
-                throw new InvalidCastException($"Tried to convert {armourCat} to an armour type");
-            return new DamageType(name, piercing, stunTime, armourType, applies, appliesPiercing);
+            return damageType;
         }
 
         /// <summary>
@@ -205,7 +204,9 @@ namespace CH.Character.Damage
             TypesDocument = new();
             TypesDocument.Load(Application.streamingAssetsPath + "\\" + PathToDamageTypesXML);
 
-            PreloadAllHediffs();
+            PreloadHediffTypes();
+            PreloadHediffs();
+
             PreloadAllDamageTypes();
         }
     }

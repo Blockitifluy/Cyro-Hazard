@@ -17,10 +17,10 @@ namespace CH.Items.ItemVariants
             player.Equip(@params.StoredItem, autoUnequip: true);
         }
 
-        public override IRefItem<BaseItem> Instantiate(int amount)
+        public override IRefItem Instantiate(int amount)
         {
             RefItem<BaseItem> refToolItem = new(ID, amount);
-            return refToolItem;
+            return (IRefItem)refToolItem;
         }
 
         public static BaseTool CreateTool<TItem>() where TItem : ToolItem

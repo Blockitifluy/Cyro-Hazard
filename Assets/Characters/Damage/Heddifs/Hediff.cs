@@ -2,19 +2,30 @@ using CH.Character.Damage.HediffDefs;
 
 namespace CH.Character.Damage.Hediffs
 {
-    /// <summary>
-    /// The base class of all Hediffs (excluding HediffDefs).
-    /// </summary>
-    public abstract class Hediff
+    public interface IHediff<out TDef> where TDef : HediffDef
     {
         /// <summary>
         /// This hediff applied to this body part.
         /// </summary>
-        public BodyPart AppliedTo;
+        public BodyPart AppliedTo { get; set; }
         /// <summary>
         /// The hediff definition, this hediff is based on.
         /// </summary>
-        public IDef HediffDef;
+        public TDef HediffDef { get; }
+
+        public void OnUpdate();
+        public void OnApplied();
+    }
+
+    public interface IHediff : IHediff<HediffDef> { }
+
+    /// <summary>
+    /// The base class of all Hediffs (excluding HediffDefs).
+    /// </summary>
+    public abstract class Hediff<TDef> : IHediff<TDef> where TDef : HediffDef
+    {
+        public BodyPart AppliedTo { get; set; }
+        public TDef HediffDef { get; }
 
         public virtual string Name
         {
@@ -26,9 +37,14 @@ namespace CH.Character.Damage.Hediffs
             return HediffDef.Name;
         }
 
-        public abstract void OnUpdate();
+        public virtual void OnUpdate() { }
 
-        public abstract void OnApplied();
+        public virtual void OnApplied() { }
 
+        public Hediff(TDef def, BodyPart bodyPart)
+        {
+            HediffDef = def;
+            AppliedTo = bodyPart;
+        }
     }
 }

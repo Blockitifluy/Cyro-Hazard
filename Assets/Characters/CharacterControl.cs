@@ -75,10 +75,9 @@ namespace CH.Character
 			return false;
 		}
 
-		public List<GridBackpack> DetectBackpacks()
+		public IEnumerable<GridBackpack> DetectBackpacks()
 		{
 			var allBackpacks = GameObject.FindGameObjectsWithTag("Backpack");
-			List<GridBackpack> actualPacks = new();
 
 			foreach (GameObject obj in allBackpacks)
 			{
@@ -90,10 +89,8 @@ namespace CH.Character
 					continue;
 				}
 
-				actualPacks.Add(backpack);
+				yield return backpack;
 			}
-
-			return actualPacks;
 		}
 
 		public GridBackpack GetFirstBackpack()

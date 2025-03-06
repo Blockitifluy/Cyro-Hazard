@@ -3,6 +3,7 @@ using CH.Character.Damage;
 using CH.Character.Damage.Hediffs;
 using System;
 using UnityEngine;
+using CH.Character.Damage.HediffDefs;
 
 namespace CH.Character
 {
@@ -335,7 +336,7 @@ namespace CH.Character
         {
             foreach (BodyPart bodyPart in BodyParts)
             {
-                foreach (Hediff hediff in bodyPart.AppliedHedfiffs)
+                foreach (IHediff hediff in bodyPart.AppliedHedfiffs)
                 {
                     hediff.OnUpdate();
                 }
@@ -394,7 +395,7 @@ namespace CH.Character
             {
                 float health = TemplateBP.MaxHealth;
 
-                foreach (Hediff hediff in AppliedHedfiffs)
+                foreach (IHediff hediff in AppliedHedfiffs)
                 {
                     if (hediff is not InjuryHediff injury)
                         continue;
@@ -414,11 +415,11 @@ namespace CH.Character
             {
                 float pain = 0;
 
-                foreach (Hediff hediff in AppliedHedfiffs)
+                foreach (IHediff hediff in AppliedHedfiffs)
                 {
                     if (hediff is not InjuryHediff injury)
                         continue;
-                    pain += injury.InjuryHediffDef.Pain * injury.Severity;
+                    pain += injury.Pain;
                 }
 
                 return pain;
@@ -445,7 +446,7 @@ namespace CH.Character
         /// <summary>
         /// The hediffs being applied on the body part.
         /// </summary>
-        public List<Hediff> AppliedHedfiffs;
+        public List<IHediff> AppliedHedfiffs;
 
         public override readonly string ToString()
         {

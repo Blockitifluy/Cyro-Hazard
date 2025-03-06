@@ -1,24 +1,26 @@
+using System;
+using System.Xml.Serialization;
 using CH.Character.Damage.Hediffs;
 
 namespace CH.Character.Damage.HediffDefs
 {
-    public interface IDef
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    sealed class HediffDefAttribute : Attribute
     {
-        /// <summary>
-        /// The name of the definition.
-        /// </summary>
-        public string Name
+        public readonly string XMLName;
+
+        public HediffDefAttribute(string xmlName)
         {
-            get; set;
+            XMLName = xmlName;
         }
     }
 
     /// <summary>
     /// The base type of all HediffDefs.
     /// </summary>
-    /// <typeparam name="Applied">The applied hediff version.</typeparam>
-    public abstract class HediffDef<Applied> : IDef where Applied : Hediff
+    public abstract class HediffDef
     {
+        [XmlAttribute("name")]
         public string Name { get; set; } = "Unnamed Def";
 
         public override string ToString()
@@ -26,10 +28,8 @@ namespace CH.Character.Damage.HediffDefs
             return $"{Name} (Def)";
         }
 
-        /// <summary>
-        //1/ Creates the applied hediff.
-        /// </summary>
-        /// <returns>Applied</returns>
-        public abstract Applied CreatesAppliedHediff();
+        public abstract IHediff CreateAppliedHediff(BodyPart bodyPart);
+
+        public HediffDef() { }
     }
 }

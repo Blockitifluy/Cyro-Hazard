@@ -12,7 +12,7 @@ namespace CH.Items.Container
 		/// <summary>
 		/// A <see cref="ItemManager.RefItem"/> structure with item and amount. 
 		/// </summary>
-		private readonly IRefItem<BaseItem> _RefItem;
+		private readonly IRefItem _RefItem;
 
 		/// <summary>
 		/// The position of the stored item.

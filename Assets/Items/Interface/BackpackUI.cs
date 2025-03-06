@@ -319,7 +319,7 @@ namespace CH.Items.Interface
         {
             RemoveAllBackpackTabs();
 
-            List<GridBackpack> backpacks = Player.DetectBackpacks();
+            var backpacks = Player.DetectBackpacks();
 
             foreach (GridBackpack back in backpacks)
             {

@@ -1,16 +1,20 @@
+using System.Xml.Serialization;
 using CH.Character.Damage.Hediffs;
 
 namespace CH.Character.Damage.HediffDefs
 {
-    public class SeverityHediffDef : HediffDef<SeverityHediff>
+    [HediffDef("severity-hediff"), XmlRoot("severity-hediff"), XmlType("severity-hediff")]
+    public class SeverityHediffDef : HediffDef
     {
+        [XmlElement("max-severity")]
         public float MaxSeverity = 1;
+        [XmlElement("severity-gain")]
         public float SeverityGain = 0.005f;
 
-        public override SeverityHediff CreatesAppliedHediff()
+        public override IHediff CreateAppliedHediff(BodyPart bodyPart)
         {
-            SeverityHediff severityHediff = new();
-            return severityHediff;
+            SeverityHediff applied = new(this, bodyPart);
+            return (IHediff)applied;
         }
     }
 }

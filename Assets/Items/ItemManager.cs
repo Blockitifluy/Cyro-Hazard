@@ -25,6 +25,9 @@ namespace CH.Items
 		public TItem Item { get; }
 	}
 
+	/// <inheritdoc cref="IRefItem&lt;TItem&gt;"/>
+	public interface IRefItem : IRefItem<BaseItem> { }
+
 	/// <summary>
 	/// Refrences a <see cref="BaseItem"/> that is instanced.
 	/// Has an amount and other propetries.
@@ -78,6 +81,13 @@ namespace CH.Items
 		}
 
 		public RefItem(TItem item, int amount) : this(item.ID, amount) { }
+	}
+
+	/// <inheritdoc cref="RefItem&lt;TItem&gt;"/>
+	public class RefItem : RefItem<BaseItem>
+	{
+		public RefItem(string id, int amount) : base(id, amount) { }
+		public RefItem(BaseItem item, int amount) : base(item, amount) { }
 	}
 
 	/// <summary>
@@ -285,11 +295,10 @@ namespace CH.Items
 		/// </summary>
 		/// <param name="amount">The amount of item supplied.</param>
 		/// <returns>The reference item.</returns>
-		public virtual IRefItem<BaseItem> Instantiate(int amount)
+		public virtual IRefItem Instantiate(int amount)
 		{
 			RefItem<BaseItem> refItem = new(this, amount);
-
-			return refItem;
+			return (IRefItem)refItem;
 		}
 	}
 

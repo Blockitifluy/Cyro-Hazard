@@ -4,7 +4,8 @@ using System.Xml;
 using System.Collections.Generic;
 using CH.Character.Damage.Hediffs;
 using CH.Character.Damage.HediffDefs;
-using CH.Character.Damage.DefParser;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace CH.Character.Damage
 {
@@ -23,16 +24,14 @@ namespace CH.Character.Damage
         // Constants
 
         /// <summary>
-        /// Path to Hediff Types xml. Used for <see cref="PreloadAllHediffs"/>.
+        /// Path to Hediff Types xml. Used for <see cref="PreloadHediffs"/>.
         /// </summary>
         public const string PathToHediffTypes = "Data\\DamageSystem\\Hediffs\\Hediff.xml";
 
         // Pre-Loading
 
-        public List<DefParser.DefParser> DefParsers;
-
         /// <summary>
-        /// The XML document used to load in all <see cref="IDef"/>s.
+        /// The XML document used to load in all <see cref="IHediffDef"/>s.
         /// </summary>
         static private XmlDocument HediffDocument;
 
@@ -40,26 +39,31 @@ namespace CH.Character.Damage
         /// Preloads all hediff types. Preferable on the awake function.
         /// </summary>
         /// <exception cref="InvalidCastException">The element type can not be converted.</exception>
-        private void PreloadAllHediffs()
+        private void PreloadHediffs()
         {
             var hediffElements = HediffDocument.DocumentElement.ChildNodes;
             int loaded = 0;
 
-            foreach (XmlElement hediffElem in hediffElements)
+            foreach (XmlElement element in hediffElements)
             {
-                IDef hediff = null;
-                foreach (DefParser.DefParser parser in DefParsers)
+                Type hediffType = default;
+
+                foreach (KeyValuePair<string, Type> pair in HediffTypes)
                 {
-                    string typeName = parser.GetTypeName();
-                    if (typeName != hediffElem.Name)
+                    if (pair.Key != element.Name)
                         continue;
-                    hediff = parser.Load(hediffElem);
+                    hediffType = pair.Value;
                 }
 
-                if (hediff is null)
-                    throw new InvalidCastException($"Hediff name {hediffElem.Name} is invailid");
+                XmlSerializer serializer = new(hediffType);
 
-                string keyName = hediffElem.GetAttribute("name").Replace('-', ' ');
+                using StringReader reader = new(element.OuterXml);
+                HediffDef hediff = (HediffDef)serializer.Deserialize(reader);
+
+                if (hediff is null)
+                    throw new InvalidCastException($"Hediff name {element.Name} is invailid");
+
+                string keyName = element.GetAttribute("name").Replace('-', ' ');
 
                 hediff.Name = keyName;
                 Hediffs[keyName] = hediff;
@@ -69,28 +73,44 @@ namespace CH.Character.Damage
             Debug.Log($"Loaded all {loaded} hediff(s)");
         }
 
+        private void PreloadHediffTypes()
+        {
+            var itemTypes = Helper.GetTypesWithAttribute<HediffDefAttribute>(GetType().Assembly);
+
+            foreach (Type tp in itemTypes)
+            {
+                HediffDefAttribute itemAtt = (HediffDefAttribute)Attribute.GetCustomAttribute(tp, typeof(HediffDefAttribute));
+                HediffTypes.Add(itemAtt.XMLName, tp);
+            }
+        }
+
         // Retrieving
 
-        /// <summary>
+        /// <inheritdoc cref="GetHediffDef"/>
+        public DefT GetHediffDef<DefT>(string name) where DefT : HediffDef
+        {
+            return GetHediffDef(name) as DefT;
+        }
+
+        // <summary>
         /// Gets the HediffDef by name then converts it to <typeparamref name="DefT"/> param type.
         /// </summary>
-        /// <typeparam name="DefT">Needs to derive from <see cref="IDef"/>.</typeparam>
+        /// <typeparam name="DefT">Needs to derive from <see cref="IHediffDef"/>.</typeparam>
         /// <param name="name">The name of the <see cref="HediffDef"/>.</param>
         /// <returns>The HediffDef</returns>
         /// <exception cref="InvalidCastException">Thrown of the Hediff could be converted in to <typeparamref name="DefT"/>.</exception>
-        public DefT GetHediffDef<DefT>(string name) where DefT : IDef
+        public HediffDef GetHediffDef(string name)
         {
             var hediff = Hediffs[name];
 
-            if (hediff is DefT h)
-                return h;
-            throw new InvalidCastException($"Could't convert {name} to {typeof(DefT).FullName}");
+            return hediff;
         }
 
         /// <summary>
         /// All the hediff types (in name, IDef format)
         /// </summary>
-        private readonly Dictionary<string, IDef> Hediffs = new();
+        private readonly Dictionary<string, HediffDef> Hediffs = new();
+        private readonly Dictionary<string, Type> HediffTypes = new();
 
         // Injury
 
@@ -109,7 +129,7 @@ namespace CH.Character.Damage
         {
             DamageType damageType = GetDamageTypeFromName(damageName);
 
-            var hediff = ApplyHediff<InjuryHediffDef, InjuryHediff>(damageType.Applies, bodyPart);
+            var hediff = (InjuryHediff)ApplyHediff(damageType.Applies, bodyPart);
             hediff.Severity = damage;
             hediff.IsPermanent = isPermanent;
 
@@ -125,12 +145,10 @@ namespace CH.Character.Damage
         // Applitation
 
         /// <inheritdoc cref="ApplyHediff(string, BodyPart)"/>
-        /// <param name="hediff">A hediff defination.</param>
-        public HediffT ApplyHediff<DefT, HediffT>(DefT hediff, BodyPart bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
+        /// <param name="def">A hediff defination.</param>
+        public IHediff ApplyHediff<TDef>(TDef def, BodyPart bodyPart) where TDef : HediffDef
         {
-            HediffT applied = hediff.CreatesAppliedHediff();
-            applied.AppliedTo = bodyPart;
-            applied.HediffDef = hediff;
+            var applied = def.CreateAppliedHediff(bodyPart);
             bodyPart.AppliedHedfiffs.Add(applied);
             applied.OnApplied();
             return applied;
@@ -142,13 +160,18 @@ namespace CH.Character.Damage
         /// <typeparam name="DefT">The hediff definition.</typeparam>
         /// <typeparam name="HediffT">The applied definition.</typeparam>
         /// <param name="bodyPart">The bodypart, the hediff is going to be applied on.</param>
-        /// <param name="hediffName">The name of hediff</param>
+        /// <param name="defName">The name of hediff def</param>
         /// <returns>The hediff.</returns>
-        public HediffT ApplyHediff<DefT, HediffT>(string hediffName, BodyPart bodyPart) where DefT : HediffDef<HediffT> where HediffT : Hediff
+        public HediffT ApplyHediff<DefT, HediffT>(string defName, BodyPart bodyPart) where DefT : HediffDef where HediffT : IHediff
         {
-            DefT hediffDef = GetHediffDef<DefT>(hediffName);
+            DefT hediffDef = GetHediffDef<DefT>(defName);
+            return (HediffT)ApplyHediff(hediffDef, bodyPart);
+        }
 
-            return ApplyHediff<DefT, HediffT>(hediffDef, bodyPart);
+        public IHediff ApplyHediff(string defName, BodyPart bodyPart)
+        {
+            HediffDef hediffDef = GetHediffDef(defName);
+            return ApplyHediff(hediffDef, bodyPart);
         }
 
 #if UNITY_EDITOR
