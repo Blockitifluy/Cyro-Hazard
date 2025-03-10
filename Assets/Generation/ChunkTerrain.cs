@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace CH.Generation
 {
+    [PreferBinarySerialization]
     /// <summary>
     /// A chunk's data storing it's vertices and triangles.  
     /// </summary>
@@ -45,13 +46,16 @@ namespace CH.Generation
         /// <returns>An array of vertices.</returns>
         private Vector3[] GenerateVertices(Vector2Int chunkPos)
         {
+            Constructor.OnPreGenerate(chunkPos);
+
             Vector3[] vertices = new Vector3[Constructor.VerticesPerChunk];
 
             for (int i = 0, y = 0; y <= Constructor.TilesPerAxis; y++)
             {
                 for (int x = 0; x <= Constructor.TilesPerAxis; x++)
                 {
-                    float height = (Constructor.GenerateVertexHeight(x, y, chunkPos) - 0.5f) * 2.0f;
+                    Vector2Int pos = new(x, y);
+                    float height = (Constructor.GenerateVertexHeight(pos, i, chunkPos) - 0.5f) * 2.0f;
                     vertices[i] = new(x * Constructor.TileSize, height, y * Constructor.TileSize);
                     i++;
                 }

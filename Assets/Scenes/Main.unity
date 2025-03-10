@@ -585,9 +585,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917ec51436b160e44a3040a0d48864b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefParsers:
-  - {fileID: 11400000, guid: c34741968c9153640bfc13d3eab9048f, type: 2}
-  - {fileID: 11400000, guid: d228022c62ee5c846a253c202ef737e3, type: 2}
 --- !u!1 &597870346
 GameObject:
   m_ObjectHideFlags: 0
@@ -1557,12 +1554,13 @@ MonoBehaviour:
     GameObj: {fileID: 131176270}
     LastPosition: {x: 0, y: 0, z: 0}
   ChunkPrefab: {fileID: 832967652031903853, guid: 729e911a9705c474e940893ea6d9d4e3, type: 3}
-  ChunkRenderingRadius: 8
-  TilesPerAxis: 32
-  TileSize: 1
+  ChunkRenderingRadius: 4
+  TilesPerAxis: 64
+  TileSize: 0.75
   Materials:
   - {fileID: 6486337823946423804, guid: f37cb2d2058a96e4dbbd9ce37c7ae0d1, type: 3}
-  UVScale: 2
+  UVScale: 3
+  Compute: {fileID: 7200000, guid: a54bd82cbeb5a324e8659b9e7df1acfd, type: 3}
   HeightMultipler: 5
   Noise:
     mSeed: 1337
@@ -1582,6 +1580,7 @@ MonoBehaviour:
     mDomainWarpType: 0
     mWarpTransformType3D: 0
     mDomainWarpAmp: 0
+  _HeightMap: []
 --- !u!1 &1794093989
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,17 @@
+#pragma kernel CSMain
+
+RWTexture2D<float> Result;
+int2 ChunkPos;
+int ChunkSize;
+
+int2 GetWorldPosition(uint i)
+{
+    int2 localPos = int2(i % ChunkSize, i / ChunkSize);
+    return localPos + (ChunkPos * ChunkSize);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint2 id : SV_DispatchThreadID)
+{
+    Result[id.xy] = 0.0;
+}

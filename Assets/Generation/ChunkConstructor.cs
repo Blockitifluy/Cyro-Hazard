@@ -118,7 +118,12 @@ namespace CH.Generation
 		/// <summary>
 		/// How many vertices are in a chunk
 		/// </summary>
-		public int VerticesPerChunk => (TilesPerAxis + 1) * (TilesPerAxis + 1);
+		public int VerticesPerChunk => VerticesPerAxis * VerticesPerAxis;
+
+		/// <summary>
+		/// How many vertices are in an axis
+		/// </summary>
+		public int VerticesPerAxis => TilesPerAxis + 1;
 
 		// Private Propetries and Fields
 
@@ -171,7 +176,9 @@ namespace CH.Generation
 
 		// Chunk Generation
 
-		public abstract float GenerateVertexHeight(int x, int y, Vector2Int chunkPos);
+		public abstract float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos);
+
+		public virtual void OnPreGenerate(Vector2Int chunkPos) { }
 
 		// Chunk Loading
 
@@ -305,7 +312,7 @@ namespace CH.Generation
 		}
 
 		// Start is called before the first frame update
-		public void Start()
+		public virtual void Start()
 		{
 			RefreshChunks();
 		}
