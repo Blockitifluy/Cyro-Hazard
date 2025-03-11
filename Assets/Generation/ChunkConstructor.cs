@@ -125,6 +125,12 @@ namespace CH.Generation
 		/// </summary>
 		public int VerticesPerAxis => TilesPerAxis + 1;
 
+		[HideInInspector]
+		public int[] Triangles;
+
+		[HideInInspector]
+		public Vector2[] UVs;
+
 		// Private Propetries and Fields
 
 		/// <summary>
@@ -179,6 +185,53 @@ namespace CH.Generation
 		public abstract float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos);
 
 		public virtual void OnPreGenerate(Vector2Int chunkPos) { }
+
+		[ContextMenu("Load Triangles")]
+		public void LoadTriangles()
+		{
+			int[] triangles = new int[TilesPerChunk * 6];
+
+			int vert = 0,
+			tris = 0;
+			for (int y = 0; y < TilesPerAxis; y++)
+			{
+				for (int x = 0; x < TilesPerAxis; x++)
+				{
+					triangles[tris] = vert;
+					triangles[tris + 1] = vert + TilesPerAxis + 1;
+					triangles[tris + 2] = vert + 1;
+					triangles[tris + 3] = vert + 1;
+					triangles[tris + 4] = vert + TilesPerAxis + 1;
+					triangles[tris + 5] = vert + TilesPerAxis + 2;
+
+					vert++;
+					tris += 6;
+				}
+				vert++;
+			}
+
+			Triangles = triangles;
+		}
+
+		[ContextMenu("Load UVs")]
+		public void LoadUVs()
+		{
+			Vector2[] uvs = new Vector2[VerticesPerChunk];
+
+			for (int i = 0, y = 0; y <= TilesPerAxis; y++)
+			{
+				for (int x = 0; x <= TilesPerAxis; x++)
+				{
+					uvs[i] = new(
+						x / UVScale,
+						y / UVScale
+					);
+					i++;
+				}
+			}
+
+			UVs = uvs;
+		}
 
 		// Chunk Loading
 
@@ -314,6 +367,9 @@ namespace CH.Generation
 		// Start is called before the first frame update
 		public virtual void Start()
 		{
+			LoadTriangles();
+			LoadUVs();
+
 			RefreshChunks();
 		}
 

@@ -6,31 +6,18 @@ namespace CH.Generation
     {
         [Header("Generation")]
         public ComputeShader Compute;
+        public int Seed = 1337;
         public float HeightMultipler = 1.0f;
-        public FastNoiseLite Noise;
 
         [SerializeField]
         private Texture2D _ChunkTexture;
 
-        private float GenerateHeightNoise(Vector2 pos)
-        {
-            float rawNoise = Noise.GetNoise(pos.x, pos.y);
-            float quad = Mathf.Pow(rawNoise, 4);
-
-            return quad * HeightMultipler;
-        }
-
-        private Vector2Int GetWorldPos(int x, int y, Vector2Int chunkPos)
-        {
-            return new(
-                x + (chunkPos.x * TilesPerAxis),
-                y + (chunkPos.y * TilesPerAxis)
-            );
-        }
-
         public override float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos)
         {
-            return _ChunkTexture.GetPixel(tilePos.x, tilePos.y).grayscale;
+            Color pixelColour = _ChunkTexture.GetPixel(tilePos.x, tilePos.y);
+            float height = pixelColour.grayscale;
+
+            return (height - 0.5f) * HeightMultipler;
         }
 
         public override void OnPreGenerate(Vector2Int chunkPos)
@@ -40,16 +27,18 @@ namespace CH.Generation
             RenderTexture renderTexture = new(VerticesPerAxis, VerticesPerAxis, 32)
             {
                 enableRandomWrite = true,
-
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
             };
 
             renderTexture.Create();
 
             Compute.SetTexture(0, "Result", renderTexture);
-            Compute.SetInt("ChunkSize", TilesPerChunk);
+            Compute.SetInt("ChunkSize", TilesPerAxis);
+            Compute.SetInt("Seed", Seed);
             Compute.SetInts("ChunkPos", chunkPos.x, chunkPos.y);
 
-            int numThreadGroups = VerticesPerAxis / 8;
+            int numThreadGroups = VerticesPerAxis / 32 + 1;
             Compute.Dispatch(0, numThreadGroups, numThreadGroups, 1);
 
             _ChunkTexture = renderTexture.ToTexture2D();

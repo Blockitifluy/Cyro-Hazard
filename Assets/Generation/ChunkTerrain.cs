@@ -67,55 +67,6 @@ namespace CH.Generation
         // Functions
 
         /// <summary>
-        /// Generates the triangle indices for a chunk. See <seealso cref="Triangles"/>.
-        /// </summary>
-        /// <returns>An array of triangle.</returns>
-        private int[] GenerateTriangle()
-        {
-            int[] triangles = new int[Constructor.TilesPerChunk * 6];
-
-            int vert = 0,
-            tris = 0;
-            for (int y = 0; y < Constructor.TilesPerAxis; y++)
-            {
-                for (int x = 0; x < Constructor.TilesPerAxis; x++)
-                {
-                    triangles[tris] = vert;
-                    triangles[tris + 1] = vert + Constructor.TilesPerAxis + 1;
-                    triangles[tris + 2] = vert + 1;
-                    triangles[tris + 3] = vert + 1;
-                    triangles[tris + 4] = vert + Constructor.TilesPerAxis + 1;
-                    triangles[tris + 5] = vert + Constructor.TilesPerAxis + 2;
-
-                    vert++;
-                    tris += 6;
-                }
-                vert++;
-            }
-
-            return triangles;
-        }
-
-        private Vector2[] GenerateUVs()
-        {
-            Vector2[] uvs = new Vector2[Constructor.VerticesPerChunk];
-
-            for (int i = 0, y = 0; y <= Constructor.TilesPerAxis; y++)
-            {
-                for (int x = 0; x <= Constructor.TilesPerAxis; x++)
-                {
-                    uvs[i] = new(
-                        x / Constructor.UVScale,
-                        y / Constructor.UVScale
-                    );
-                    i++;
-                }
-            }
-
-            return uvs;
-        }
-
-        /// <summary>
         /// Generates the mesh for a chunk.
         /// </summary>
         /// <param name="chunkPos">The chunk's position.</param>
@@ -123,19 +74,17 @@ namespace CH.Generation
         public Mesh GenerateMesh(Vector2Int chunkPos)
         {
             Vector3[] vertices = GenerateVertices(chunkPos);
-            int[] triangles = GenerateTriangle();
-            Vector2[] uvs = GenerateUVs();
 
             Mesh mesh = new()
             {
                 vertices = vertices,
-                triangles = triangles,
-                uv = uvs
+                triangles = Constructor.Triangles,
+                uv = Constructor.UVs
             };
 
             mesh.RecalculateNormals();
             Vertices = vertices;
-            Triangles = triangles;
+            Triangles = Constructor.Triangles;
             return mesh;
         }
 
