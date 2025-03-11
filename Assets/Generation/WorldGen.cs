@@ -7,7 +7,8 @@ namespace CH.Generation
         [Header("Generation")]
         public ComputeShader Compute;
         public int Seed = 1337;
-        public float HeightMultipler = 1.0f;
+        public float HeightMultipler = 5.0f;
+        public float NoiseScale = 50.0f;
 
         [SerializeField]
         private Texture2D _ChunkTexture;
@@ -27,15 +28,14 @@ namespace CH.Generation
             RenderTexture renderTexture = new(VerticesPerAxis, VerticesPerAxis, 32)
             {
                 enableRandomWrite = true,
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp
             };
 
             renderTexture.Create();
 
             Compute.SetTexture(0, "Result", renderTexture);
             Compute.SetInt("ChunkSize", TilesPerAxis);
-            Compute.SetInt("Seed", Seed);
+            Compute.SetFloat("Seed", Seed);
+            Compute.SetFloat("NoiseScale", NoiseScale);
             Compute.SetInts("ChunkPos", chunkPos.x, chunkPos.y);
 
             int numThreadGroups = VerticesPerAxis / 32 + 1;
