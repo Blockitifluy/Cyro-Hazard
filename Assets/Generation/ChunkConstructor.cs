@@ -2,9 +2,83 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace CH.Generation
 {
+	public class ChunkPool
+	{
+		public GameObject Prefab;
+		public ObjectPool<ChunkTerrain> Pool;
+
+		private readonly ChunkConstructor Constructor = ChunkConstructor.GetConstructor();
+
+		private const int DefaultSize = 81;
+		private const int MaxSize = 32 * 32;
+
+		public ChunkTerrain CreatePooledObject()
+		{
+			GameObject chunk = UnityEngine.Object.Instantiate(Constructor.ChunkPrefab);
+
+			ChunkTerrain terrain = chunk.GetComponent<ChunkTerrain>();
+
+			return terrain;
+		}
+
+		private void OnGetFromPool(ChunkTerrain pooledObject)
+		{
+			pooledObject.gameObject.SetActive(true);
+		}
+
+		private void OnDestroyPooledObject(ChunkTerrain pooledObject)
+		{
+			UnityEngine.Object.Destroy(pooledObject);
+		}
+
+		private void OnReturnToPool(ChunkTerrain pooledObject)
+		{
+			pooledObject.gameObject.SetActive(false);
+		}
+
+		public ChunkTerrain GetObject(Vector2Int pos)
+		{
+			var constructor = ChunkConstructor.GetConstructor();
+
+			ChunkTerrain terrain = Pool.Get();
+			GameObject chunk = terrain.gameObject;
+
+			Vector3 worldSize = new(
+				pos.x * constructor.TileSize * constructor.TilesPerAxis,
+				0,
+				pos.y * constructor.TileSize * constructor.TilesPerAxis
+			);
+
+			terrain.LoadMesh(pos);
+			chunk.name = $"Chunk ({pos.x}, {pos.y})";
+			chunk.transform.position = worldSize;
+			chunk.transform.parent = constructor.transform;
+			chunk.tag = ChunkConstructor.ChunkTag;
+			return terrain;
+		}
+
+		public void ReleaseObject(ChunkTerrain obj)
+		{
+			Pool.Release(obj);
+		}
+
+		public ChunkPool(GameObject prefab)
+		{
+			Prefab = prefab;
+			Pool = new ObjectPool<ChunkTerrain>(
+				CreatePooledObject,
+				OnGetFromPool,
+				OnReturnToPool,
+				OnDestroyPooledObject,
+				true, DefaultSize, MaxSize
+			);
+		}
+	}
+
 	/// <summary>
 	/// Constructs chunk based on the focuses position.
 	/// </summary>
@@ -136,6 +210,7 @@ namespace CH.Generation
 		/// <summary>
 		/// The chunk dictionary. Contains all chunks loaded by the <see cref="ChunkConstructor"/>
 		/// </summary>
+		private ChunkPool _ChunkPool;
 		private readonly Dictionary<Vector2Int, ChunkTerrain> _ChunkDict = new();
 
 		// Generator Getter
@@ -240,26 +315,11 @@ namespace CH.Generation
 		/// </summary>
 		/// <param name="pos">The chunk's position.</param>
 		/// <returns>The chunk object.</returns>
-		public GameObject LoadChunk(Vector2Int pos)
+		public ChunkTerrain LoadChunk(Vector2Int pos)
 		{
-			GameObject chunk = Instantiate(ChunkPrefab);
+			var terrain = _ChunkPool.GetObject(pos);
 
-			Vector3 worldSize = new(
-				pos.x * TileSize * TilesPerAxis,
-				0,
-				pos.y * TileSize * TilesPerAxis
-			);
-
-			ChunkTerrain terrain = chunk.GetComponent<ChunkTerrain>();
-			terrain.LoadMesh(pos);
-			chunk.name = $"Chunk ({pos.x}, {pos.y})";
-			chunk.transform.position = worldSize;
-			chunk.transform.parent = transform;
-			chunk.tag = ChunkTag;
-
-			_ChunkDict.Add(pos, terrain);
-
-			return chunk;
+			return terrain;
 		}
 
 		/// <summary>
@@ -274,8 +334,7 @@ namespace CH.Generation
 			if (terrain == null)
 				throw new NullReferenceException($"Couldn't unload chunk at {pos}, because it doesn't exist.");
 
-			_ChunkDict.Remove(pos);
-			Destroy(terrain.gameObject);
+			_ChunkPool.ReleaseObject(terrain);
 		}
 
 		/// <summary>
@@ -367,6 +426,7 @@ namespace CH.Generation
 		// Start is called before the first frame update
 		public virtual void Start()
 		{
+			_ChunkPool = new(ChunkPrefab);
 			LoadTriangles();
 			LoadUVs();
 
@@ -374,7 +434,7 @@ namespace CH.Generation
 		}
 
 		// Update is called once per frame
-		void Update()
+		private void Update()
 		{
 			if (Focus.DidMove())
 			{
