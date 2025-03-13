@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Xml.Serialization;
 
-namespace CH.Items.ItemVariants
+namespace CyroHazard.Items.ItemVariants
 {
     [Item("item"), XmlRoot("item"), XmlType("item")]
     /// <summary>

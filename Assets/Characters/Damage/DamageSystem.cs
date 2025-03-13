@@ -5,7 +5,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO;
 
-namespace CH.Character.Damage
+namespace CyroHazard.Character.Damage
 {
     /// <summary>
     /// The type of armour used.

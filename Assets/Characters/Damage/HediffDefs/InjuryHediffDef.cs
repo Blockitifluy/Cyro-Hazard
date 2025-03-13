@@ -1,7 +1,7 @@
 using System.Xml.Serialization;
-using CH.Character.Damage.Hediffs;
+using CyroHazard.Character.Damage.Hediffs;
 
-namespace CH.Character.Damage.HediffDefs
+namespace CyroHazard.Character.Damage.HediffDefs
 {
     [HediffDef("injury-hediff"), XmlRoot("injury-hediff"), XmlType("injury-hediff")]
     public class InjuryHediffDef : HediffDef

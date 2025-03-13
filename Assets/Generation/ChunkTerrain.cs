@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CH.Generation
+namespace CyroHazard.Generation
 {
     [PreferBinarySerialization]
     /// <summary>

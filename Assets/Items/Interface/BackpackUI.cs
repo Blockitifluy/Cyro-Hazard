@@ -1,6 +1,6 @@
 using UnityEngine;
-using CH.Items.Container;
-using CH.Character.Player;
+using CyroHazard.Items.Container;
+using CyroHazard.Character.Player;
 using TMPro;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 
 using InputButton = UnityEngine.EventSystems.PointerEventData.InputButton;
 
-namespace CH.Items.Interface
+namespace CyroHazard.Items.Interface
 {
     [AddComponentMenu("Items/BackpackUI")]
     /// <summary>

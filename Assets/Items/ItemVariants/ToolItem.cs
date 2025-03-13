@@ -1,9 +1,9 @@
 using System.Xml.Serialization;
-using CH.Character.Player;
-using CH.Tools;
+using CyroHazard.Character.Player;
+using CyroHazard.Tools;
 using UnityEngine;
 
-namespace CH.Items.ItemVariants
+namespace CyroHazard.Items.ItemVariants
 {
     [Item("tool-item"), XmlRoot("tool-item"), XmlType("tool-item")]
     public class ToolItem : BaseItem
@@ -17,10 +17,10 @@ namespace CH.Items.ItemVariants
             player.Equip(@params.StoredItem, autoUnequip: true);
         }
 
-        public override IRefItem Instantiate(int amount)
+        public override IRefItem<BaseItem> Instantiate(int amount)
         {
-            RefItem<BaseItem> refToolItem = new(ID, amount);
-            return (IRefItem)refToolItem;
+            RefItem<ToolItem> refToolItem = new(ID, amount);
+            return refToolItem;
         }
 
         public static BaseTool CreateTool<TItem>() where TItem : ToolItem

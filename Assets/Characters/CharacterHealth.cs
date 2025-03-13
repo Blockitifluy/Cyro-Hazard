@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using CH.Character.Damage;
-using CH.Character.Damage.Hediffs;
+using CyroHazard.Character.Damage;
+using CyroHazard.Character.Damage.Hediffs;
 using System;
 using UnityEngine;
-using CH.Character.Damage.HediffDefs;
+using CyroHazard.Character.Damage.HediffDefs;
 
-namespace CH.Character
+namespace CyroHazard.Character
 {
     /// <summary>
     /// The type of capabilities.

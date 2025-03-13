@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
-using CH.Items.Container;
-using CH.Tools;
+using CyroHazard.Items.Container;
+using CyroHazard.Tools;
 using System;
-using CH.Items.ItemVariants;
+using CyroHazard.Items.ItemVariants;
 
-namespace CH.Character
+namespace CyroHazard.Character
 {
 	[RequireComponent(typeof(MovementBasics))]
 	[RequireComponent(typeof(CharacterHealth))]

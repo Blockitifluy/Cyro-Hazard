@@ -4,10 +4,10 @@ using System.Xml;
 using UnityEngine;
 using System.Xml.Serialization;
 using System.IO;
-using CH.Items.Container;
+using CyroHazard.Items.Container;
 using System.Reflection;
 
-namespace CH.Items
+namespace CyroHazard.Items
 {
 	/// <summary>
 	/// The interface version of <see cref="RefItem"/>.
@@ -24,9 +24,6 @@ namespace CH.Items
 
 		public TItem Item { get; }
 	}
-
-	/// <inheritdoc cref="IRefItem&lt;TItem&gt;"/>
-	public interface IRefItem : IRefItem<BaseItem> { }
 
 	/// <summary>
 	/// Refrences a <see cref="BaseItem"/> that is instanced.
@@ -295,10 +292,10 @@ namespace CH.Items
 		/// </summary>
 		/// <param name="amount">The amount of item supplied.</param>
 		/// <returns>The reference item.</returns>
-		public virtual IRefItem Instantiate(int amount)
+		public virtual IRefItem<BaseItem> Instantiate(int amount)
 		{
 			RefItem<BaseItem> refItem = new(this, amount);
-			return (IRefItem)refItem;
+			return refItem;
 		}
 	}
 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CH.Character.Damage
+namespace CyroHazard.Character.Damage
 {
     /// <summary>
     /// A skeleton hierachry used for health.

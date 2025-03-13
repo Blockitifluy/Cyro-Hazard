@@ -1,6 +1,6 @@
-using CH.Character.Damage.HediffDefs;
+using CyroHazard.Character.Damage.HediffDefs;
 
-namespace CH.Character.Damage.Hediffs
+namespace CyroHazard.Character.Damage.Hediffs
 {
     public interface IHediff<out TDef> where TDef : HediffDef
     {

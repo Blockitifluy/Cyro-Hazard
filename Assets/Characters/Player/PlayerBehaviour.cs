@@ -1,9 +1,9 @@
 using UnityEngine.InputSystem;
 using UnityEngine;
-using CH.Items;
-using CH.Items.Container;
+using CyroHazard.Items;
+using CyroHazard.Items.Container;
 
-namespace CH.Character.Player
+namespace CyroHazard.Character.Player
 {
 	public class PlayerBehaviour : CharacterControl
 	{

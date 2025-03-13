@@ -4,7 +4,7 @@ using UnityEngine;
 
 using OccupancyID = System.UInt64;
 
-namespace CH.Items.Container
+namespace CyroHazard.Items.Container
 {
 	/// <summary>
 	/// This class refers to anything that can contain items

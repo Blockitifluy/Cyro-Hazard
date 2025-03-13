@@ -1,10 +1,10 @@
 using System;
-using CH.Character;
-using CH.Items.Container;
-using CH.Items.ItemVariants;
+using CyroHazard.Character;
+using CyroHazard.Items.Container;
+using CyroHazard.Items.ItemVariants;
 using UnityEngine;
 
-namespace CH.Tools
+namespace CyroHazard.Tools
 {
     public class BaseTool : MonoBehaviour
     {

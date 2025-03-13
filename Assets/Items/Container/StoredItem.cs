@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace CH.Items.Container
+namespace CyroHazard.Items.Container
 {
 	/// <summary>
 	/// An item inside of a <see cref="GridBackpack"/>.
@@ -12,7 +12,7 @@ namespace CH.Items.Container
 		/// <summary>
 		/// A <see cref="ItemManager.RefItem"/> structure with item and amount. 
 		/// </summary>
-		private readonly IRefItem _RefItem;
+		private readonly IRefItem<BaseItem> _RefItem;
 
 		/// <summary>
 		/// The position of the stored item.

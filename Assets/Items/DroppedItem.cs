@@ -1,8 +1,8 @@
 using System;
-using CH.Items.Container;
+using CyroHazard.Items.Container;
 using UnityEngine;
 
-namespace CH.Items
+namespace CyroHazard.Items
 {
 	[DisallowMultipleComponent]
 	[AddComponentMenu("Items/Dropped Item")]

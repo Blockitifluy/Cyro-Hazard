@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using CH.Character;
+using CyroHazard.Character;
 
-namespace CH.Character
+namespace CyroHazard.Character
 {
 	/// <summary>
 	/// This class adds movement to an object; a secondary script is need to control the movement.

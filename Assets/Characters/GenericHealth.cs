@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace CH.Character
+namespace CyroHazard.Character
 {
     /// <summary>
     /// Extended from <see cref="CharacterHealth"/>.
