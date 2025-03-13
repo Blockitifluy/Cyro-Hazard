@@ -1,10 +1,85 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace CH.Generation
 {
+	public class ChunkPool
+	{
+		public GameObject Prefab;
+		public ObjectPool<ChunkTerrain> Pool;
+
+		private ChunkConstructor Constructor => ChunkConstructor.GetConstructor();
+
+		private const int DefaultSize = 81;
+		private const int MaxSize = 32 * 32;
+
+		public ChunkTerrain CreatePooledObject()
+		{
+			GameObject chunk = UnityEngine.Object.Instantiate(Constructor.ChunkPrefab);
+
+			ChunkTerrain terrain = chunk.GetComponent<ChunkTerrain>();
+
+			return terrain;
+		}
+
+		private void OnGetFromPool(ChunkTerrain pooledObject)
+		{
+			pooledObject.gameObject.SetActive(true);
+		}
+
+		private void OnDestroyPooledObject(ChunkTerrain pooledObject)
+		{
+			UnityEngine.Object.Destroy(pooledObject);
+		}
+
+		private void OnReturnToPool(ChunkTerrain pooledObject)
+		{
+			pooledObject.gameObject.SetActive(false);
+		}
+
+		public ChunkTerrain GetObject(Vector2Int pos)
+		{
+			var constructor = ChunkConstructor.GetConstructor();
+
+			ChunkTerrain terrain = Pool.Get();
+			GameObject chunk = terrain.gameObject;
+
+			Vector3 worldSize = new(
+				pos.x * constructor.TileSize * constructor.TilesPerAxis,
+				0,
+				pos.y * constructor.TileSize * constructor.TilesPerAxis
+			);
+
+			terrain.LoadMesh(pos);
+			chunk.name = $"Chunk ({pos.x}, {pos.y})";
+			chunk.transform.position = worldSize;
+			chunk.transform.parent = constructor.transform;
+			chunk.tag = ChunkConstructor.ChunkTag;
+			return terrain;
+		}
+
+		public void ReleaseObject(ChunkTerrain obj)
+		{
+			Pool.Release(obj);
+		}
+
+		public ChunkPool(GameObject prefab)
+		{
+			Prefab = prefab;
+			Pool = new ObjectPool<ChunkTerrain>(
+				CreatePooledObject,
+				OnGetFromPool,
+				OnReturnToPool,
+				OnDestroyPooledObject,
+				true, DefaultSize, MaxSize
+			);
+		}
+	}
+
 	/// <summary>
 	/// Constructs chunk based on the focuses position.
 	/// </summary>
@@ -118,13 +193,25 @@ namespace CH.Generation
 		/// <summary>
 		/// How many vertices are in a chunk
 		/// </summary>
-		public int VerticesPerChunk => (TilesPerAxis + 1) * (TilesPerAxis + 1);
+		public int VerticesPerChunk => VerticesPerAxis * VerticesPerAxis;
+
+		/// <summary>
+		/// How many vertices are in an axis
+		/// </summary>
+		public int VerticesPerAxis => TilesPerAxis + 1;
+
+		[HideInInspector]
+		public int[] Triangles;
+
+		[HideInInspector]
+		public Vector2[] UVs;
 
 		// Private Propetries and Fields
 
 		/// <summary>
 		/// The chunk dictionary. Contains all chunks loaded by the <see cref="ChunkConstructor"/>
 		/// </summary>
+		private ChunkPool _ChunkPool;
 		private readonly Dictionary<Vector2Int, ChunkTerrain> _ChunkDict = new();
 
 		// Generator Getter
@@ -171,7 +258,80 @@ namespace CH.Generation
 
 		// Chunk Generation
 
-		public abstract float GenerateVertexHeight(int x, int y, Vector2Int chunkPos);
+		public abstract float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos);
+
+		public virtual void OnPreGenerate(Vector2Int chunkPos) { }
+
+		/// <summary>
+		/// Generates the vertices for a chunk. See <seealso cref="Vertices"/>.
+		/// </summary>
+		/// <param name="chunkPos">The chunk's position</param>
+		/// <returns>An array of vertices.</returns>
+		public Vector3[] GenerateVertices(Vector2Int chunkPos)
+		{
+			OnPreGenerate(chunkPos);
+
+			Vector3[] vertices = new Vector3[VerticesPerChunk];
+
+			for (int i = 0; i < VerticesPerChunk; i++)
+			{
+				int x = i % VerticesPerAxis,
+				y = i / VerticesPerAxis;
+
+				Vector2Int pos = new(x, y);
+				float height = (GenerateVertexHeight(pos, i, chunkPos) - 0.5f) * 2.0f;
+				vertices[i] = new(x * TileSize, height, y * TileSize);
+			}
+
+			return vertices;
+		}
+
+		[ContextMenu("Load Triangles")]
+		public void LoadTriangles()
+		{
+			int[] triangles = new int[TilesPerChunk * 6];
+
+			int vert = 0,
+			tris = 0;
+			for (int y = 0; y < TilesPerAxis; y++)
+			{
+				for (int x = 0; x < TilesPerAxis; x++)
+				{
+					triangles[tris] = vert;
+					triangles[tris + 1] = vert + TilesPerAxis + 1;
+					triangles[tris + 2] = vert + 1;
+					triangles[tris + 3] = vert + 1;
+					triangles[tris + 4] = vert + TilesPerAxis + 1;
+					triangles[tris + 5] = vert + TilesPerAxis + 2;
+
+					vert++;
+					tris += 6;
+				}
+				vert++;
+			}
+
+			Triangles = triangles;
+		}
+
+		[ContextMenu("Load UVs")]
+		public void LoadUVs()
+		{
+			Vector2[] uvs = new Vector2[VerticesPerChunk];
+
+			for (int i = 0, y = 0; y <= TilesPerAxis; y++)
+			{
+				for (int x = 0; x <= TilesPerAxis; x++)
+				{
+					uvs[i] = new(
+						x / UVScale,
+						y / UVScale
+					);
+					i++;
+				}
+			}
+
+			UVs = uvs;
+		}
 
 		// Chunk Loading
 
@@ -180,26 +340,13 @@ namespace CH.Generation
 		/// </summary>
 		/// <param name="pos">The chunk's position.</param>
 		/// <returns>The chunk object.</returns>
-		public GameObject LoadChunk(Vector2Int pos)
+		public ChunkTerrain LoadChunk(Vector2Int pos)
 		{
-			GameObject chunk = Instantiate(ChunkPrefab);
-
-			Vector3 worldSize = new(
-				pos.x * TileSize * TilesPerAxis,
-				0,
-				pos.y * TileSize * TilesPerAxis
-			);
-
-			ChunkTerrain terrain = chunk.GetComponent<ChunkTerrain>();
-			terrain.LoadMesh(pos);
-			chunk.name = $"Chunk ({pos.x}, {pos.y})";
-			chunk.transform.position = worldSize;
-			chunk.transform.parent = transform;
-			chunk.tag = ChunkTag;
+			var terrain = _ChunkPool.GetObject(pos);
 
 			_ChunkDict.Add(pos, terrain);
 
-			return chunk;
+			return terrain;
 		}
 
 		/// <summary>
@@ -214,8 +361,8 @@ namespace CH.Generation
 			if (terrain == null)
 				throw new NullReferenceException($"Couldn't unload chunk at {pos}, because it doesn't exist.");
 
+			_ChunkPool.ReleaseObject(terrain);
 			_ChunkDict.Remove(pos);
-			Destroy(terrain.gameObject);
 		}
 
 		/// <summary>
@@ -305,13 +452,17 @@ namespace CH.Generation
 		}
 
 		// Start is called before the first frame update
-		public void Start()
+		public virtual void Start()
 		{
+			_ChunkPool = new(ChunkPrefab);
+			LoadTriangles();
+			LoadUVs();
+
 			RefreshChunks();
 		}
 
 		// Update is called once per frame
-		void Update()
+		private void Update()
 		{
 			if (Focus.DidMove())
 			{

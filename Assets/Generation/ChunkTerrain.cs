@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace CH.Generation
 {
+    [PreferBinarySerialization]
     /// <summary>
     /// A chunk's data storing it's vertices and triangles.  
     /// </summary>
@@ -38,78 +39,7 @@ namespace CH.Generation
         private MeshCollider _MeshCollider;
         private MeshRenderer _MeshRenderer;
 
-        /// <summary>
-        /// Generates the vertices for a chunk. See <seealso cref="Vertices"/>.
-        /// </summary>
-        /// <param name="chunkPos">The chunk's position</param>
-        /// <returns>An array of vertices.</returns>
-        private Vector3[] GenerateVertices(Vector2Int chunkPos)
-        {
-            Vector3[] vertices = new Vector3[Constructor.VerticesPerChunk];
-
-            for (int i = 0, y = 0; y <= Constructor.TilesPerAxis; y++)
-            {
-                for (int x = 0; x <= Constructor.TilesPerAxis; x++)
-                {
-                    float height = (Constructor.GenerateVertexHeight(x, y, chunkPos) - 0.5f) * 2.0f;
-                    vertices[i] = new(x * Constructor.TileSize, height, y * Constructor.TileSize);
-                    i++;
-                }
-            }
-
-            return vertices;
-        }
-
         // Functions
-
-        /// <summary>
-        /// Generates the triangle indices for a chunk. See <seealso cref="Triangles"/>.
-        /// </summary>
-        /// <returns>An array of triangle.</returns>
-        private int[] GenerateTriangle()
-        {
-            int[] triangles = new int[Constructor.TilesPerChunk * 6];
-
-            int vert = 0,
-            tris = 0;
-            for (int y = 0; y < Constructor.TilesPerAxis; y++)
-            {
-                for (int x = 0; x < Constructor.TilesPerAxis; x++)
-                {
-                    triangles[tris] = vert;
-                    triangles[tris + 1] = vert + Constructor.TilesPerAxis + 1;
-                    triangles[tris + 2] = vert + 1;
-                    triangles[tris + 3] = vert + 1;
-                    triangles[tris + 4] = vert + Constructor.TilesPerAxis + 1;
-                    triangles[tris + 5] = vert + Constructor.TilesPerAxis + 2;
-
-                    vert++;
-                    tris += 6;
-                }
-                vert++;
-            }
-
-            return triangles;
-        }
-
-        private Vector2[] GenerateUVs()
-        {
-            Vector2[] uvs = new Vector2[Constructor.VerticesPerChunk];
-
-            for (int i = 0, y = 0; y <= Constructor.TilesPerAxis; y++)
-            {
-                for (int x = 0; x <= Constructor.TilesPerAxis; x++)
-                {
-                    uvs[i] = new(
-                        x / Constructor.UVScale,
-                        y / Constructor.UVScale
-                    );
-                    i++;
-                }
-            }
-
-            return uvs;
-        }
 
         /// <summary>
         /// Generates the mesh for a chunk.
@@ -118,20 +48,18 @@ namespace CH.Generation
         /// <returns>A mesh for a chunk.</returns>
         public Mesh GenerateMesh(Vector2Int chunkPos)
         {
-            Vector3[] vertices = GenerateVertices(chunkPos);
-            int[] triangles = GenerateTriangle();
-            Vector2[] uvs = GenerateUVs();
+            Vector3[] vertices = Constructor.GenerateVertices(chunkPos);
 
             Mesh mesh = new()
             {
                 vertices = vertices,
-                triangles = triangles,
-                uv = uvs
+                triangles = Constructor.Triangles,
+                uv = Constructor.UVs
             };
 
             mesh.RecalculateNormals();
             Vertices = vertices;
-            Triangles = triangles;
+            Triangles = Constructor.Triangles;
             return mesh;
         }
 

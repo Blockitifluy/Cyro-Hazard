@@ -1,0 +1,28 @@
+#pragma kernel CSMain
+
+RWTexture2D<float> Result;
+int2 ChunkPos;
+int ChunkSize;
+float NoiseScale;
+float Seed;
+
+#include "Packages/jp.keijiro.noiseshader/Shader/SimplexNoise3D.hlsl"
+
+int2 GetWorldPosition(uint2 pos)
+{
+    return pos + (ChunkPos * ChunkSize);
+}
+
+[numthreads(32,32,1)]
+void CSMain (uint2 pos : SV_DispatchThreadID)
+{
+    float2 tilePos = GetWorldPosition(pos);
+    float3 worldPos = float3(tilePos.x, tilePos.y, Seed);
+
+    float3 scaled = worldPos / NoiseScale;
+    scaled.z = Seed;
+    float height = SimplexNoise(scaled);
+    float height2 = SimplexNoise(scaled * 0.75) * 0.75;
+
+    Result[pos.xy] = (pow(height, 4) + height2) /  1.75;
+}

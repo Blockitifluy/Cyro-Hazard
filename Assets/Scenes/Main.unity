@@ -232,7 +232,7 @@ Transform:
   m_GameObject: {fileID: 131176270}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: -0}
+  m_LocalPosition: {x: 0, y: 10, z: -0}
   m_LocalScale: {x: 0.5, y: 1, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -436,7 +436,7 @@ Transform:
   m_GameObject: {fileID: 430554001}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 2.7, z: -2}
+  m_LocalPosition: {x: 0.5, y: 10.7, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -585,9 +585,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 917ec51436b160e44a3040a0d48864b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefParsers:
-  - {fileID: 11400000, guid: c34741968c9153640bfc13d3eab9048f, type: 2}
-  - {fileID: 11400000, guid: d228022c62ee5c846a253c202ef737e3, type: 2}
 --- !u!1 &597870346
 GameObject:
   m_ObjectHideFlags: 0
@@ -1175,7 +1172,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 2.7, z: -2}
+  m_LocalPosition: {x: 0.5, y: 10.7, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1557,31 +1554,19 @@ MonoBehaviour:
     GameObj: {fileID: 131176270}
     LastPosition: {x: 0, y: 0, z: 0}
   ChunkPrefab: {fileID: 832967652031903853, guid: 729e911a9705c474e940893ea6d9d4e3, type: 3}
-  ChunkRenderingRadius: 8
-  TilesPerAxis: 32
-  TileSize: 1
+  ChunkRenderingRadius: 4
+  TilesPerAxis: 64
+  TileSize: 0.75
   Materials:
   - {fileID: 6486337823946423804, guid: f37cb2d2058a96e4dbbd9ce37c7ae0d1, type: 3}
-  UVScale: 2
+  UVScale: 3
+  Triangles: 
+  UVs: []
+  Compute: {fileID: 7200000, guid: a54bd82cbeb5a324e8659b9e7df1acfd, type: 3}
+  Seed: 1337
   HeightMultipler: 5
-  Noise:
-    mSeed: 1337
-    mFrequency: 0.004
-    mNoiseType: 0
-    mRotationType3D: 0
-    mFractalType: 4
-    mOctaves: 3
-    mLacunarity: 2
-    mGain: 0.5
-    mWeightedStrength: 3
-    mPingPongStrength: 0
-    mFractalBounding: 0
-    mCellularDistanceFunction: 0
-    mCellularReturnType: 0
-    mCellularJitterModifier: 0
-    mDomainWarpType: 0
-    mWarpTransformType3D: 0
-    mDomainWarpAmp: 0
+  NoiseScale: 175
+  _ChunkTexture: {fileID: 0}
 --- !u!1 &1794093989
 GameObject:
   m_ObjectHideFlags: 0
