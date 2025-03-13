@@ -319,6 +319,8 @@ namespace CH.Generation
 		{
 			var terrain = _ChunkPool.GetObject(pos);
 
+			_ChunkDict.Add(pos, terrain);
+
 			return terrain;
 		}
 
@@ -335,6 +337,7 @@ namespace CH.Generation
 				throw new NullReferenceException($"Couldn't unload chunk at {pos}, because it doesn't exist.");
 
 			_ChunkPool.ReleaseObject(terrain);
+			_ChunkDict.Remove(pos);
 		}
 
 		/// <summary>
