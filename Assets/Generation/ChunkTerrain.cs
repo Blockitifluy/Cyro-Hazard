@@ -39,31 +39,6 @@ namespace CH.Generation
         private MeshCollider _MeshCollider;
         private MeshRenderer _MeshRenderer;
 
-        /// <summary>
-        /// Generates the vertices for a chunk. See <seealso cref="Vertices"/>.
-        /// </summary>
-        /// <param name="chunkPos">The chunk's position</param>
-        /// <returns>An array of vertices.</returns>
-        private Vector3[] GenerateVertices(Vector2Int chunkPos)
-        {
-            Constructor.OnPreGenerate(chunkPos);
-
-            Vector3[] vertices = new Vector3[Constructor.VerticesPerChunk];
-
-            for (int i = 0, y = 0; y <= Constructor.TilesPerAxis; y++)
-            {
-                for (int x = 0; x <= Constructor.TilesPerAxis; x++)
-                {
-                    Vector2Int pos = new(x, y);
-                    float height = (Constructor.GenerateVertexHeight(pos, i, chunkPos) - 0.5f) * 2.0f;
-                    vertices[i] = new(x * Constructor.TileSize, height, y * Constructor.TileSize);
-                    i++;
-                }
-            }
-
-            return vertices;
-        }
-
         // Functions
 
         /// <summary>
@@ -73,7 +48,7 @@ namespace CH.Generation
         /// <returns>A mesh for a chunk.</returns>
         public Mesh GenerateMesh(Vector2Int chunkPos)
         {
-            Vector3[] vertices = GenerateVertices(chunkPos);
+            Vector3[] vertices = Constructor.GenerateVertices(chunkPos);
 
             Mesh mesh = new()
             {

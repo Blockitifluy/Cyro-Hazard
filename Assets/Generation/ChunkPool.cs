@@ -1,5 +1,0 @@
-
-namespace CyroHazard.Generation
-{
-
-}

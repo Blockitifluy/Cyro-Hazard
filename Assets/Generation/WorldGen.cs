@@ -18,7 +18,7 @@ namespace CH.Generation
             Color pixelColour = _ChunkTexture.GetPixel(tilePos.x, tilePos.y);
             float height = pixelColour.grayscale;
 
-            return (height - 0.5f) * HeightMultipler;
+            return height * HeightMultipler;
         }
 
         public override void OnPreGenerate(Vector2Int chunkPos)

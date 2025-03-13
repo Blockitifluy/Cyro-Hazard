@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -11,7 +12,7 @@ namespace CH.Generation
 		public GameObject Prefab;
 		public ObjectPool<ChunkTerrain> Pool;
 
-		private readonly ChunkConstructor Constructor = ChunkConstructor.GetConstructor();
+		private ChunkConstructor Constructor => ChunkConstructor.GetConstructor();
 
 		private const int DefaultSize = 81;
 		private const int MaxSize = 32 * 32;
@@ -260,6 +261,30 @@ namespace CH.Generation
 		public abstract float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos);
 
 		public virtual void OnPreGenerate(Vector2Int chunkPos) { }
+
+		/// <summary>
+		/// Generates the vertices for a chunk. See <seealso cref="Vertices"/>.
+		/// </summary>
+		/// <param name="chunkPos">The chunk's position</param>
+		/// <returns>An array of vertices.</returns>
+		public Vector3[] GenerateVertices(Vector2Int chunkPos)
+		{
+			OnPreGenerate(chunkPos);
+
+			Vector3[] vertices = new Vector3[VerticesPerChunk];
+
+			for (int i = 0; i < VerticesPerChunk; i++)
+			{
+				int x = i % VerticesPerAxis,
+				y = i / VerticesPerAxis;
+
+				Vector2Int pos = new(x, y);
+				float height = (GenerateVertexHeight(pos, i, chunkPos) - 0.5f) * 2.0f;
+				vertices[i] = new(x * TileSize, height, y * TileSize);
+			}
+
+			return vertices;
+		}
 
 		[ContextMenu("Load Triangles")]
 		public void LoadTriangles()
