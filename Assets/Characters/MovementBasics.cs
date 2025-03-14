@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using CyroHazard.Character;
 
 namespace CyroHazard.Character
 {

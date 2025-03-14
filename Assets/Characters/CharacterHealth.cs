@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using CyroHazard.Character.Damage;
-using CyroHazard.Character.Damage.Hediffs;
+using CyroHazard.Damage;
+using CyroHazard.Damage.Hediffs;
 using System;
 using UnityEngine;
-using CyroHazard.Character.Damage.HediffDefs;
 
 namespace CyroHazard.Character
 {

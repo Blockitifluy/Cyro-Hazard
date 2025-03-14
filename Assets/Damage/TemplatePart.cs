@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using CyroHazard.Character;
 
-namespace CyroHazard.Character.Damage
+namespace CyroHazard.Damage
 {
     /// <summary>
     /// The template body part used by <see cref="HealthHierarchy"/>.

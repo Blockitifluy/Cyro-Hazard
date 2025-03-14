@@ -1,6 +1,7 @@
-using CyroHazard.Character.Damage.HediffDefs;
+using CyroHazard.Damage.HediffDefs;
+using CyroHazard.Character;
 
-namespace CyroHazard.Character.Damage.Hediffs
+namespace CyroHazard.Damage.Hediffs
 {
     public class InjuryHediff : Hediff<InjuryHediffDef>
     {

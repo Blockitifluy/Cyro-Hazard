@@ -28,6 +28,17 @@ namespace CyroHazard.Character.Player
 			return _InputActionMap;
 		}
 
+		private bool CanPickupDistance(Transform dropTrans, RaycastHit mouseHit)
+		{
+			float charDist = (transform.position - dropTrans.position).sqrMagnitude,
+			mouseDist = (mouseHit.point - dropTrans.position).sqrMagnitude;
+
+			bool charCheck = charDist <= CharacterPickupDist * CharacterPickupDist,
+			mouseCheck = mouseDist <= MousePickupDist * MousePickupDist;
+
+			return charCheck && mouseCheck;
+		}
+
 		public void TryToPickup(InputAction.CallbackContext _)
 		{
 			RaycastHit? nullableMouseHit = Helper.GetMouseRayHitInfo(_Camera);
@@ -39,19 +50,13 @@ namespace CyroHazard.Character.Player
 			if (!hasTag) return;
 			Transform dropTrans = mouseHit.transform;
 
-			float charDist = (transform.position - dropTrans.position).sqrMagnitude,
-			mouseDist = (mouseHit.point - dropTrans.position).sqrMagnitude;
+			bool check = CanPickupDistance(dropTrans, mouseHit);
 
-			bool charCheck = charDist <= CharacterPickupDist * CharacterPickupDist,
-			mouseCheck = mouseDist <= MousePickupDist * MousePickupDist;
+			if (!check || !dropTrans.TryGetComponent<DroppedItem>(out var dropped)) return;
 
-			if (charCheck && mouseCheck)
-			{
-				// TODO - Add surport for multiple Backpacks
-				DroppedItem dropped = dropTrans.GetComponent<DroppedItem>();
-				GridBackpack firstBackpack = GetFirstBackpack();
-				dropped.PickupDropped(firstBackpack);
-			}
+			GridBackpack firstBackpack = GetFirstBackpack();
+			if (firstBackpack == null) return;
+			dropped.PickupDropped(firstBackpack);
 		}
 
 		private void ControlMovementOnInput()

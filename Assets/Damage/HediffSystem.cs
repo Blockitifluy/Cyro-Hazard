@@ -2,12 +2,13 @@ using UnityEngine;
 using System;
 using System.Xml;
 using System.Collections.Generic;
-using CyroHazard.Character.Damage.Hediffs;
-using CyroHazard.Character.Damage.HediffDefs;
+using CyroHazard.Damage.Hediffs;
+using CyroHazard.Damage.HediffDefs;
 using System.Xml.Serialization;
 using System.IO;
+using CyroHazard.Character;
 
-namespace CyroHazard.Character.Damage
+namespace CyroHazard.Damage
 {
     public struct InjuryResult
     {

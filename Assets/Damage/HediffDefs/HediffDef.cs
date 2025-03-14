@@ -1,8 +1,9 @@
 using System;
 using System.Xml.Serialization;
-using CyroHazard.Character.Damage.Hediffs;
+using CyroHazard.Damage.Hediffs;
+using CyroHazard.Character;
 
-namespace CyroHazard.Character.Damage.HediffDefs
+namespace CyroHazard.Damage.HediffDefs
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     sealed class HediffDefAttribute : Attribute
