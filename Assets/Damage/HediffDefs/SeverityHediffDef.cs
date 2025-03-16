@@ -13,10 +13,10 @@ namespace CyroHazard.Damage.HediffDefs
         [XmlElement("severity-gain")]
         public float SeverityGain = 0.005f;
 
-        public override IHediff CreateAppliedHediff(BodyPart bodyPart)
+        public override IHediff<HediffDef> CreateAppliedHediff(BodyPart bodyPart)
         {
             SeverityHediff applied = new(this, bodyPart);
-            return (IHediff)applied;
+            return applied;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace CyroHazard.Damage.HediffDefs
             return $"{Name} (Def)";
         }
 
-        public abstract IHediff CreateAppliedHediff(BodyPart bodyPart);
+        public abstract IHediff<HediffDef> CreateAppliedHediff(BodyPart bodyPart);
 
         public HediffDef() { }
     }

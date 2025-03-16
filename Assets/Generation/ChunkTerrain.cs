@@ -54,7 +54,8 @@ namespace CyroHazard.Generation
             {
                 vertices = vertices,
                 triangles = Constructor.Triangles,
-                uv = Constructor.UVs
+                uv = Constructor.UVs,
+                subMeshCount = Constructor.Materials.Length
             };
 
             mesh.RecalculateNormals();

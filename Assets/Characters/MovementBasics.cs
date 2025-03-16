@@ -64,7 +64,7 @@ namespace CyroHazard.Character
 		{
 			float uncapped = CurrentMovementSpeed + MovementAcceleration * Time.deltaTime,
 			movementMult = CharacterHealth.GetCapability(ECapability.Movement);
-			return Mathf.Min(uncapped, MovementMaxSpeed) * movementMult;
+			return Mathf.Min(uncapped, MovementMaxSpeed * movementMult);
 		}
 
 		/// <summary>

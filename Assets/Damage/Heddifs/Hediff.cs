@@ -18,8 +18,6 @@ namespace CyroHazard.Damage.Hediffs
         public void OnApplied();
     }
 
-    public interface IHediff : IHediff<HediffDef> { }
-
     /// <summary>
     /// The base class of all Hediffs (excluding HediffDefs).
     /// </summary>

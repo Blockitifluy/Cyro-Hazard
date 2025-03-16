@@ -147,7 +147,7 @@ namespace CyroHazard.Damage
 
         /// <inheritdoc cref="ApplyHediff(string, BodyPart)"/>
         /// <param name="def">A hediff defination.</param>
-        public IHediff ApplyHediff<TDef>(TDef def, BodyPart bodyPart) where TDef : HediffDef
+        public IHediff<HediffDef> ApplyHediff<TDef>(TDef def, BodyPart bodyPart) where TDef : HediffDef
         {
             var applied = def.CreateAppliedHediff(bodyPart);
             bodyPart.AppliedHedfiffs.Add(applied);
@@ -163,13 +163,13 @@ namespace CyroHazard.Damage
         /// <param name="bodyPart">The bodypart, the hediff is going to be applied on.</param>
         /// <param name="defName">The name of hediff def</param>
         /// <returns>The hediff.</returns>
-        public HediffT ApplyHediff<DefT, HediffT>(string defName, BodyPart bodyPart) where DefT : HediffDef where HediffT : IHediff
+        public HediffT ApplyHediff<DefT, HediffT>(string defName, BodyPart bodyPart) where DefT : HediffDef where HediffT : IHediff<HediffDef>
         {
             DefT hediffDef = GetHediffDef<DefT>(defName);
             return (HediffT)ApplyHediff(hediffDef, bodyPart);
         }
 
-        public IHediff ApplyHediff(string defName, BodyPart bodyPart)
+        public IHediff<HediffDef> ApplyHediff(string defName, BodyPart bodyPart)
         {
             HediffDef hediffDef = GetHediffDef(defName);
             return ApplyHediff(hediffDef, bodyPart);

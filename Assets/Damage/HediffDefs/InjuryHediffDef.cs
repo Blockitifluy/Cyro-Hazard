@@ -18,10 +18,10 @@ namespace CyroHazard.Damage.HediffDefs
         [XmlElement("pain")]
         public float Pain;
 
-        public override IHediff CreateAppliedHediff(BodyPart bodyPart)
+        public override IHediff<HediffDef> CreateAppliedHediff(BodyPart bodyPart)
         {
             InjuryHediff applied = new(this, bodyPart);
-            return (IHediff)applied;
+            return applied;
         }
     }
 }

@@ -3,6 +3,8 @@ using CyroHazard.Damage;
 using CyroHazard.Damage.Hediffs;
 using System;
 using UnityEngine;
+using System.Reflection;
+using CyroHazard.Damage.HediffDefs;
 
 namespace CyroHazard.Character
 {
@@ -49,6 +51,17 @@ namespace CyroHazard.Character
         {
             Affected = affected;
             DestroyedReduction = destroyedReduction;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class CapabilityCalAttribute : Attribute
+    {
+        public readonly ECapability Capability;
+
+        public CapabilityCalAttribute(ECapability capability)
+        {
+            Capability = capability;
         }
     }
 
@@ -321,6 +334,12 @@ namespace CyroHazard.Character
 
             Debug.Log(string.Join(", ", operations));
         }
+
+        [ContextMenu("Print Total Pain")]
+        public void PrintTotalPain()
+        {
+            Debug.Log(Pain);
+        }
 #endif
         // Protected Methods
 
@@ -335,7 +354,7 @@ namespace CyroHazard.Character
         {
             foreach (BodyPart bodyPart in BodyParts)
             {
-                foreach (IHediff hediff in bodyPart.AppliedHedfiffs)
+                foreach (IHediff<HediffDef> hediff in bodyPart.AppliedHedfiffs)
                 {
                     hediff.OnUpdate();
                 }
@@ -356,7 +375,24 @@ namespace CyroHazard.Character
             }
         }
 
-        protected abstract void LoadCapabilities();
+        private void LoadCapabilities()
+        {
+            MethodInfo[] methodInfos = GetType().GetMethods();
+            Dictionary<ECapability, CapabilityCal> calculators = new();
+
+            foreach (MethodInfo method in methodInfos)
+            {
+                var capAttr = method.GetCustomAttribute<CapabilityCalAttribute>();
+                if (capAttr is null) continue;
+
+                ECapability appliesTo = capAttr.Capability;
+                var del = (CapabilityCal)method.CreateDelegate(typeof(CapabilityCal), this);
+                calculators.Add(appliesTo, del);
+            }
+
+            foreach (KeyValuePair<ECapability, CapabilityCal> pair in calculators)
+                BodyCalculations.Add(pair.Key, pair.Value);
+        }
 
         // Unity
 
@@ -394,7 +430,7 @@ namespace CyroHazard.Character
             {
                 float health = TemplateBP.MaxHealth;
 
-                foreach (IHediff hediff in AppliedHedfiffs)
+                foreach (IHediff<HediffDef> hediff in AppliedHedfiffs)
                 {
                     if (hediff is not InjuryHediff injury)
                         continue;
@@ -414,7 +450,7 @@ namespace CyroHazard.Character
             {
                 float pain = 0;
 
-                foreach (IHediff hediff in AppliedHedfiffs)
+                foreach (IHediff<HediffDef> hediff in AppliedHedfiffs)
                 {
                     if (hediff is not InjuryHediff injury)
                         continue;
@@ -445,7 +481,7 @@ namespace CyroHazard.Character
         /// <summary>
         /// The hediffs being applied on the body part.
         /// </summary>
-        public List<IHediff> AppliedHedfiffs;
+        public List<IHediff<HediffDef>> AppliedHedfiffs;
 
         public override readonly string ToString()
         {
