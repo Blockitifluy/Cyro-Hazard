@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CyroHazard.Items.ItemVariants
 {
     [Item("tool-item"), XmlRoot("tool-item"), XmlType("tool-item")]
-    public class ToolItem : BaseItem
+    public class ToolItem : Item
     {
         [ItemAction("Equip")]
         public void EquipAction(ItemActionParams @params)
@@ -17,7 +17,7 @@ namespace CyroHazard.Items.ItemVariants
             player.Equip(@params.StoredItem, autoUnequip: true);
         }
 
-        public override IRefItem<BaseItem> Instantiate(int amount)
+        public override IRefItem<Item> Instantiate(int amount)
         {
             RefItem<ToolItem> refToolItem = new(ID, amount);
             return refToolItem;

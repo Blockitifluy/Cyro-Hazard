@@ -1,5 +1,5 @@
-using System;
 using CyroHazard.Items.Container;
+using CyroHazard.Character;
 using UnityEngine;
 
 namespace CyroHazard.Items
@@ -16,10 +16,10 @@ namespace CyroHazard.Items
 		internal float _Health = 100.0f;
 
 		[SerializeField]
-		internal RefItem<BaseItem> RefItem;
+		internal RefItem<Item> RefItem;
 
 		/// <inheritdoc cref="_Item"/>
-		public BaseItem Item
+		public Item Item
 		{
 			get { return RefItem.Item; }
 			set { RefItem = new(value.ID, Amount); }
@@ -58,6 +58,17 @@ namespace CyroHazard.Items
 				Debug.Log($"There was no place to add {Item} to {backpack}");
 				throw;
 			}
+		}
+
+		public bool PickupDropped(CharacterControl character, out StoredItem storedItem)
+		{
+			bool success = character.TryToAddItemToBackpacks(Item, Amount, out storedItem);
+
+			if (!success)
+				return false;
+
+			Destroy(gameObject);
+			return true;
 		}
 
 		// void OnEnable() => Start();

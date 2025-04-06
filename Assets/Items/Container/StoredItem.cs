@@ -12,7 +12,7 @@ namespace CyroHazard.Items.Container
 		/// <summary>
 		/// A <see cref="ItemManager.RefItem"/> structure with item and amount. 
 		/// </summary>
-		private readonly IRefItem<BaseItem> _RefItem;
+		private readonly IRefItem<Item> _RefItem;
 
 		/// <summary>
 		/// The position of the stored item.
@@ -22,7 +22,7 @@ namespace CyroHazard.Items.Container
 		/// <summary>
 		/// The item of the <see cref="StoredItem"/> 
 		/// </summary>
-		public BaseItem Item
+		public Item Item
 		{
 			get
 			{
@@ -59,7 +59,7 @@ namespace CyroHazard.Items.Container
 		/// </summary>
 		/// <param name="item">An item</param>
 		/// <param name="amount">The amount of items</param>
-		public StoredItem(BaseItem item, int amount, Vector2Int pos)
+		public StoredItem(Item item, int amount, Vector2Int pos)
 		{
 			_RefItem = item.Instantiate(amount);
 			Position = pos;

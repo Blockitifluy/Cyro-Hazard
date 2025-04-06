@@ -4,6 +4,7 @@ using CyroHazard.Items.Container;
 using CyroHazard.Tools;
 using System;
 using CyroHazard.Items.ItemVariants;
+using CyroHazard.Items;
 
 namespace CyroHazard.Character
 {
@@ -111,6 +112,50 @@ namespace CyroHazard.Character
 			}
 
 			return null;
+		}
+
+
+		/// <inheritdoc cref="TryToAddItemToBackpacks(StoredItem)"/>
+		/// <param name="item">The item to be added.</param>
+		/// <param name="amount">The amount item added.</param>
+		/// <returns>If adding the item was successful.</returns>
+		public bool TryToAddItemToBackpacks(Item item, int amount, out StoredItem storedItem)
+		{
+			var backpacks = DetectBackpacks();
+
+			foreach (GridBackpack pack in backpacks)
+			{
+				bool successul = pack.CanFindPlacementFor(item, out var pos);
+
+				if (!successul)
+					continue;
+
+				storedItem = pack.AddItemAt(item, amount, pos);
+				return true;
+			}
+
+			storedItem = null;
+			return false;
+		}
+
+		/// <summary>
+		/// Trys to add an item to all backpacks that the character has access to.
+		/// </summary>
+		/// <param name="storedItem">StoredItem</param>
+		public void TryToAddItemToBackpacks(StoredItem storedItem)
+		{
+			var backpacks = DetectBackpacks();
+
+			foreach (GridBackpack pack in backpacks)
+			{
+				bool successul = pack.CanFindPlacementFor(storedItem.Item, out var pos);
+
+				if (!successul)
+					continue;
+
+				pack.AddItemAt(storedItem, pos);
+				return;
+			}
 		}
 
 #if UNITY_EDITOR

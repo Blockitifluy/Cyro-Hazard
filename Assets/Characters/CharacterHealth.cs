@@ -370,7 +370,7 @@ namespace CyroHazard.Character
 
             foreach (TemplatePart templPart in Hierachry.TemplateParts)
             {
-                BodyPart bodyPart = new(templPart);
+                BodyPart bodyPart = new(templPart, this);
                 BodyParts.Add(bodyPart);
             }
         }
@@ -417,6 +417,7 @@ namespace CyroHazard.Character
         /// The body part that the object derives from.
         /// </summary>
         public readonly TemplatePart TemplateBP;
+        public readonly CharacterHealth CharacterHealth;
 
         /// <summary>
         /// The health of the body part.
@@ -430,7 +431,7 @@ namespace CyroHazard.Character
             {
                 float health = TemplateBP.MaxHealth;
 
-                foreach (IHediff<HediffDef> hediff in AppliedHedfiffs)
+                foreach (var hediff in AppliedHedfiffs)
                 {
                     if (hediff is not InjuryHediff injury)
                         continue;
@@ -450,14 +451,31 @@ namespace CyroHazard.Character
             {
                 float pain = 0;
 
-                foreach (IHediff<HediffDef> hediff in AppliedHedfiffs)
+                foreach (var hediff in AppliedHedfiffs)
                 {
-                    if (hediff is not InjuryHediff injury)
+                    if (hediff is not IHediffPain hPain)
                         continue;
-                    pain += injury.Pain;
+                    pain += hPain.Pain;
                 }
 
                 return pain;
+            }
+        }
+
+        public readonly float Bleeding
+        {
+            get
+            {
+                float bleeding = 0;
+
+                foreach (var hediff in AppliedHedfiffs)
+                {
+                    if (hediff is not IHediffBleeding hBleed)
+                        continue;
+                    bleeding = hBleed.Bleeding;
+                }
+
+                return bleeding;
             }
         }
 
@@ -488,9 +506,10 @@ namespace CyroHazard.Character
             return $"{TemplateBP.Name} ({Health})";
         }
 
-        public BodyPart(TemplatePart bodyPart)
+        public BodyPart(TemplatePart bodyPart, CharacterHealth characterHealth)
         {
             TemplateBP = bodyPart;
+            CharacterHealth = characterHealth;
             AppliedHedfiffs = new();
         }
     }

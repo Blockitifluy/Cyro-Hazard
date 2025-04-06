@@ -8,7 +8,7 @@ namespace CyroHazard.Items.ItemVariants
     /// <summary>
 	/// Non-contrete class of item data
 	/// </summary>
-    public class BasicItem : BaseItem
+    public class BasicItem : Item
     {
         public override string ToString()
         {

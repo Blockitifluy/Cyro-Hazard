@@ -169,7 +169,6 @@ namespace CyroHazard.Generation
 		/// </summary>
 		public float TileSize = 0.5f;
 
-
 		[Header("Materials")]
 		public Material[] Materials;
 		public float UVScale;
@@ -255,11 +254,14 @@ namespace CyroHazard.Generation
 			return final;
 		}
 
+		public int MaterialCount => Materials.Length;
+
 		// Chunk Generation
 
 		public abstract float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos);
+		public abstract byte GetTriangleMaterial(int triangleIndex, Vector2Int chunkPos);
 
-		public virtual void OnPreGenerate(Vector2Int chunkPos) { }
+		public virtual void PrepareGeneration(Vector2Int chunkPos) { }
 
 		/// <summary>
 		/// Generates the vertices for a chunk. See <seealso cref="Vertices"/>.
@@ -268,7 +270,7 @@ namespace CyroHazard.Generation
 		/// <returns>An array of vertices.</returns>
 		public Vector3[] GenerateVertices(Vector2Int chunkPos)
 		{
-			OnPreGenerate(chunkPos);
+			PrepareGeneration(chunkPos);
 
 			Vector3[] vertices = new Vector3[VerticesPerChunk];
 

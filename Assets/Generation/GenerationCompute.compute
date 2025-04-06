@@ -22,7 +22,7 @@ void CSMain (uint2 pos : SV_DispatchThreadID)
     float3 scaled = worldPos / NoiseScale;
     scaled.z = Seed;
     float height = SimplexNoise(scaled);
-    float height2 = SimplexNoise(scaled * 0.75) * 0.75;
+    float height2 = SimplexNoise(scaled * 0.75 + 5) * 0.75;
 
     Result[pos.xy] = (pow(height, 4) + height2) /  1.75;
 }

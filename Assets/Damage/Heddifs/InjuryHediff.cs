@@ -3,7 +3,7 @@ using CyroHazard.Character;
 
 namespace CyroHazard.Damage.Hediffs
 {
-    public class InjuryHediff : Hediff<InjuryHediffDef>
+    public class InjuryHediff : Hediff<InjuryHediffDef>, IHediffPain, IHediffBleeding
     {
         public float Severity;
         public bool IsPermanent = false;

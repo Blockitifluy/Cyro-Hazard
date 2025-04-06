@@ -16,7 +16,7 @@ namespace CyroHazard.Items
 	/// <inheritdoc cref="RefItem<TItem>" path="/summary"/>
 	/// </remarks>
 	/// <typeparam name="TItem">The item</typeparam>
-	public interface IRefItem<out TItem> where TItem : BaseItem
+	public interface IRefItem<out TItem> where TItem : Item
 	{
 		public string ID { get; }
 
@@ -26,12 +26,12 @@ namespace CyroHazard.Items
 	}
 
 	/// <summary>
-	/// Refrences a <see cref="BaseItem"/> that is instanced.
+	/// Refrences a <see cref="Items.Item"/> that is instanced.
 	/// Has an amount and other propetries.
 	/// </summary>
 	/// <typeparam name="TItem">The item being instanced.</typeparam>
 	[Serializable]
-	public class RefItem<TItem> : IRefItem<TItem> where TItem : BaseItem
+	public class RefItem<TItem> : IRefItem<TItem> where TItem : Item
 	{
 		[SerializeField]
 		private string _ID;
@@ -81,10 +81,10 @@ namespace CyroHazard.Items
 	}
 
 	/// <inheritdoc cref="RefItem&lt;TItem&gt;"/>
-	public class RefItem : RefItem<BaseItem>
+	public class RefItem : RefItem<Item>
 	{
 		public RefItem(string id, int amount) : base(id, amount) { }
-		public RefItem(BaseItem item, int amount) : base(item, amount) { }
+		public RefItem(Item item, int amount) : base(item, amount) { }
 	}
 
 	/// <summary>
@@ -123,7 +123,7 @@ namespace CyroHazard.Items
 	/// <summary>
 	/// The base class of all item types.
 	/// </summary>
-	public abstract class BaseItem
+	public abstract class Item
 	{
 		/// <summary>
 		/// Parameters for <see cref="DItemAction"/>.
@@ -292,9 +292,9 @@ namespace CyroHazard.Items
 		/// </summary>
 		/// <param name="amount">The amount of item supplied.</param>
 		/// <returns>The reference item.</returns>
-		public virtual IRefItem<BaseItem> Instantiate(int amount)
+		public virtual IRefItem<Item> Instantiate(int amount)
 		{
-			RefItem<BaseItem> refItem = new(this, amount);
+			RefItem<Item> refItem = new(this, amount);
 			return refItem;
 		}
 	}
@@ -332,10 +332,10 @@ namespace CyroHazard.Items
 		static private XmlDocument ItemsDocument;
 		static private ItemManager _Manager;
 
-		private readonly Dictionary<string, BaseItem> Items = new();
+		private readonly Dictionary<string, Item> Items = new();
 		private readonly Dictionary<string, Type> ItemTypes = new();
 
-		private BaseItem ConvertXMLToItem(XmlElement element)
+		private Item ConvertXMLToItem(XmlElement element)
 		{
 			Type itemType = default;
 
@@ -349,7 +349,7 @@ namespace CyroHazard.Items
 			XmlSerializer serializer = new(itemType);
 
 			using StringReader reader = new(element.OuterXml);
-			BaseItem item = (BaseItem)serializer.Deserialize(reader);
+			Item item = (Item)serializer.Deserialize(reader);
 
 			return item;
 		}
@@ -373,11 +373,11 @@ namespace CyroHazard.Items
 		/// <param name="ID">The ID of the item</param>
 		/// <returns>An item with the same ID</returns>
 		/// <exception cref="NullReferenceException">Thrown if the item couldn't be found</exception>
-		public BaseItem GetItem(string ID) => GetItem<BaseItem>(ID);
+		public Item GetItem(string ID) => GetItem<Item>(ID);
 
 		/// <inheritdoc cref="GetItem(string)"/>
 		/// <typeparam name="TItem">The type of Item being retrieved</typeparam>
-		public TItem GetItem<TItem>(string ID) where TItem : BaseItem
+		public TItem GetItem<TItem>(string ID) where TItem : Item
 		{
 			if (Items[ID] is not TItem item)
 				throw new NullReferenceException($"Item ({ID}) couldn't be found");
@@ -402,7 +402,7 @@ namespace CyroHazard.Items
 
 			foreach (XmlElement itemElem in itemElements)
 			{
-				BaseItem item = ConvertXMLToItem(itemElem);
+				Item item = ConvertXMLToItem(itemElem);
 
 				Items.Add(item.ID, item);
 				loaded++;
@@ -414,7 +414,7 @@ namespace CyroHazard.Items
 		{
 			Debug.Log("Trying to get test-item for testing purposes");
 
-			BaseItem itm;
+			Item itm;
 
 			try
 			{
@@ -430,7 +430,7 @@ namespace CyroHazard.Items
 			return;
 		}
 
-		public DroppedItem CreateDroppedItem(BaseItem item, int amount, Vector3 pos)
+		public DroppedItem CreateDroppedItem(Item item, int amount, Vector3 pos)
 		{
 			GameObject obj = Instantiate(DroppedPrefab, null, false);
 			obj.transform.SetParent(null);

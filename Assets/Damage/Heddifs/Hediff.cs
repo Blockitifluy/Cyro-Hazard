@@ -3,38 +3,86 @@ using CyroHazard.Character;
 
 namespace CyroHazard.Damage.Hediffs
 {
+    // Main Heddiff Interface
+
+    /// <summary>
+    /// The interface version of hediff. Only used for it's out propetry.                                          
+    /// </summary>
+    /// <inheritdoc cref="Hediff&lt;TDef&gt;" path="/typeparam[@name='TDef']"/>
     public interface IHediff<out TDef> where TDef : HediffDef
     {
         /// <summary>
         /// This hediff applied to this body part.
         /// </summary>
-        public BodyPart AppliedTo { get; set; }
+        public BodyPart AppliedTo { get; }
+        /// <summary>
+        /// The Character Health script that the Hediff is attached
+        /// </summary>
+        public CharacterHealth AppliedToHealth { get; }
         /// <summary>
         /// The hediff definition, this hediff is based on.
         /// </summary>
         public TDef HediffDef { get; }
+        /// <summary>
+        /// The displayed name of the Hediff.
+        /// </summary>
+        public string Name { get; }
 
+        /// <summary>
+        /// Fires every frame (similar to Unity's Update).
+        /// </summary>
         public void OnUpdate();
+        /// <summary>
+        /// Fires when the hediff is first applied.
+        /// </summary>
         public void OnApplied();
     }
 
+    // Other Interfaces
+
+    public interface IHediffPain
+    {
+        public float Pain { get; }
+    }
+
+    public interface IHediffBleeding
+    {
+        public float Bleeding { get; }
+    }
+
+    public struct HediffCapability
+    {
+        public enum EHediffCapabilityMode
+        {
+            Additive,
+            Multiple,
+            Max
+        }
+
+        public EHediffCapabilityMode CapabilityMode;
+        public float Factor;
+    }
+
+    public interface IHediffCapabilityMod
+    {
+        public HediffCapability GetHediffCapability(ECapability capability);
+    }
+
+    // Main Class
+
     /// <summary>
-    /// The base class of all Hediffs (excluding HediffDefs).
+    /// The base class of all Hediffs (not HediffDefs).
     /// </summary>
+    /// <typeparam name="TDef">The HediffDef linked to this Hediff.</typeparam>
     public abstract class Hediff<TDef> : IHediff<TDef> where TDef : HediffDef
     {
-        public BodyPart AppliedTo { get; set; }
+        public BodyPart AppliedTo { get; }
+        public CharacterHealth AppliedToHealth { get; }
         public TDef HediffDef { get; }
 
-        public virtual string Name
-        {
-            get { return HediffDef.Name; }
-        }
+        public virtual string Name => HediffDef.Name;
 
-        public override string ToString()
-        {
-            return HediffDef.Name;
-        }
+        public sealed override string ToString() => HediffDef.Name;
 
         public virtual void OnUpdate() { }
 
@@ -44,6 +92,7 @@ namespace CyroHazard.Damage.Hediffs
         {
             HediffDef = def;
             AppliedTo = bodyPart;
+            AppliedToHealth = bodyPart.CharacterHealth;
         }
     }
 }

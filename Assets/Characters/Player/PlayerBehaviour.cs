@@ -56,7 +56,7 @@ namespace CyroHazard.Character.Player
 
 			GridBackpack firstBackpack = GetFirstBackpack();
 			if (firstBackpack == null) return;
-			dropped.PickupDropped(firstBackpack);
+			dropped.PickupDropped(this, out var _);
 		}
 
 		private void ControlMovementOnInput()

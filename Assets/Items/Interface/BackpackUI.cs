@@ -138,7 +138,7 @@ namespace CyroHazard.Items.Interface
 
         // Selection
 
-        private GameObject CreateInteractionTab(BaseItem.ActionMenuItem itemAction, StoredItem storedItem)
+        private GameObject CreateInteractionTab(Item.ActionMenuItem itemAction, StoredItem storedItem)
         {
             GameObject ui = Instantiate(InteractAction);
             var textMesh = ui.GetComponent<TextMeshProUGUI>();
@@ -147,7 +147,7 @@ namespace CyroHazard.Items.Interface
             var clickable = ui.GetComponent<ClickableObject>();
             clickable.OnClick += (sender, data) =>
             {
-                BaseItem.ItemActionParams activateParams = new()
+                Item.ItemActionParams activateParams = new()
                 {
                     CallerObject = Player.gameObject,
                     StoredItem = storedItem,
@@ -229,7 +229,7 @@ namespace CyroHazard.Items.Interface
 
         private GameObject CreateItemUI(StoredItem stored, Vector2 translation, RectTransform parentRect)
         {
-            BaseItem item = stored.Item;
+            Item item = stored.Item;
             Vector2 pos = stored.Position;
 
             GameObject ui = Instantiate(ItemElement);

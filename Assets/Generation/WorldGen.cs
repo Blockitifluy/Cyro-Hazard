@@ -10,7 +10,6 @@ namespace CyroHazard.Generation
         public float HeightMultipler = 5.0f;
         public float NoiseScale = 50.0f;
 
-        [SerializeField]
         private Texture2D _ChunkTexture;
 
         public override float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos)
@@ -21,13 +20,22 @@ namespace CyroHazard.Generation
             return height * HeightMultipler;
         }
 
-        public override void OnPreGenerate(Vector2Int chunkPos)
+        public override byte GetTriangleMaterial(int triangleIndex, Vector2Int chunkPos)
         {
-            base.OnPreGenerate(chunkPos);
+            // TODO: TEST REMOVE LATER
+            byte materialIndex = (byte)(triangleIndex % 2);
+
+            return materialIndex;
+        }
+
+        public override void PrepareGeneration(Vector2Int chunkPos)
+        {
+            base.PrepareGeneration(chunkPos);
 
             RenderTexture renderTexture = new(VerticesPerAxis, VerticesPerAxis, 32)
             {
                 enableRandomWrite = true,
+                filterMode = FilterMode.Point
             };
 
             renderTexture.Create();

@@ -138,7 +138,7 @@ namespace CyroHazard.Items.Container
 
 			foreach (StoredItem strd in _StoredItems)
 			{
-				BaseItem item = strd.Item;
+				Item item = strd.Item;
 				Vector2Int pos = strd.Position;
 				int area = item.Size.x * item.Size.y;
 
@@ -166,7 +166,7 @@ namespace CyroHazard.Items.Container
 
 			foreach (StoredItem strd in _StoredItems)
 			{
-				BaseItem item = strd.Item;
+				Item item = strd.Item;
 				Vector2Int pos = strd.Position;
 				int area = item.Size.x * item.Size.y;
 
@@ -319,7 +319,7 @@ namespace CyroHazard.Items.Container
 		/// <param name="item">The item</param>
 		/// <param name="reason">Provides a reason the placement would have failed</param>
 		/// <returns>True if the item can be placed there.</returns>
-		public bool CanPlaceItem(Vector2Int pos, BaseItem item, out EPlacementReason reason)
+		public bool CanPlaceItem(Vector2Int pos, Item item, out EPlacementReason reason)
 		{
 			if (AreSlotsOccupied(pos, item.Size))
 			{
@@ -338,11 +338,11 @@ namespace CyroHazard.Items.Container
 			return true;
 		}
 
-		/// <inheritdoc cref="AddItemAt(StoredItem, Vector2Int)"/>
+		/// <inheritdoc cref="AddItemAt(StoredItem, Vector2Int, bool)"/>
 		/// <param name="item">The item to be added.</param>
 		/// <param name="amount">The amount of stack.</param>
 		/// <returns>The stored item.</returns>
-		public StoredItem AddItemAt(BaseItem item, int amount, Vector2Int at)
+		public StoredItem AddItemAt(Item item, int amount, Vector2Int at)
 		{
 			StoredItem storedItem = new(item, amount, at);
 
@@ -359,7 +359,7 @@ namespace CyroHazard.Items.Container
 		/// <exception cref="PlacementException"></exception>
 		public void AddItemAt(StoredItem stored, Vector2Int at)
 		{
-			BaseItem item = stored.Item;
+			Item item = stored.Item;
 			if (!CanPlaceItem(at, item, out EPlacementReason reason))
 				throw new PlacementException($"Can't place item (with size {item.Size}) at {at} (reason: {reason})");
 
@@ -376,7 +376,7 @@ namespace CyroHazard.Items.Container
 		/// <param name="item">The item wanting to be placed.</param>
 		/// <param name="pos">The returning position.</param>
 		/// <returns>If a space has been found for the <paramref name="item"/>.</returns>
-		public bool CanFindPlacementFor(BaseItem item, out Vector2Int pos)
+		public bool CanFindPlacementFor(Item item, out Vector2Int pos)
 		{
 			OccupancyID occupancy = GetOccupancy();
 
@@ -397,7 +397,7 @@ namespace CyroHazard.Items.Container
 		/// <param name="item">The item wanting to be placed.</param>
 		/// <param name="amount">The amount of item.</param>
 		/// <returns>The <seealso cref="StoredItem"/> that had been place.</returns>
-		public StoredItem AddItem(BaseItem item, int amount, bool dropIfNotFound = false)
+		public StoredItem AddItem(Item item, int amount, bool dropIfNotFound = false)
 		{
 			StoredItem stored = new(item, amount, -Vector2Int.one);
 
@@ -472,7 +472,7 @@ namespace CyroHazard.Items.Container
 				return;
 			}
 
-			BaseItem item = stored.Item;
+			Item item = stored.Item;
 			if (newAmount > item.MaxStack)
 				throw new ModifingException($"newAmount {newAmount} exceedes maxStack of Item {item}");
 
@@ -501,7 +501,7 @@ namespace CyroHazard.Items.Container
 		{
 			if (!ContainsItem(stored))
 				throw new ModifingException($"Item {stored} wasn't in in backpack!");
-			BaseItem item = stored.Item;
+			Item item = stored.Item;
 
 			bool occupied = AreSlotsOccupied(to, item.Size);
 			if (occupied)
