@@ -1,5 +1,3 @@
-using System;
-using UnityEngine;
 using System.Xml.Serialization;
 
 namespace CyroHazard.Items.ItemVariants

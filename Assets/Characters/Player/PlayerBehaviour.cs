@@ -2,6 +2,7 @@ using UnityEngine.InputSystem;
 using UnityEngine;
 using CyroHazard.Items;
 using CyroHazard.Items.Container;
+using CyroHazard.Tools;
 
 namespace CyroHazard.Character.Player
 {
@@ -10,6 +11,7 @@ namespace CyroHazard.Character.Player
 		private InputActionMap _InputActionMap;
 		private InputAction _MovementAction;
 		private InputAction _PickupAction;
+		private InputAction _FireAction;
 		private GameObject _CameraObject;
 		private GameObject _Pivot;
 		private Camera _Camera;
@@ -26,6 +28,14 @@ namespace CyroHazard.Character.Player
 		public InputActionMap GetInputAction()
 		{
 			return _InputActionMap;
+		}
+
+		public override Vector3 GetAimDirection()
+		{
+			Vector2 mousePos = Mouse.current.position.ReadValue();
+			Ray ray = _Camera.ScreenPointToRay(mousePos);
+
+			return ray.direction;
 		}
 
 		private bool CanPickupDistance(Transform dropTrans, RaycastHit mouseHit)
@@ -90,9 +100,17 @@ namespace CyroHazard.Character.Player
 			_Pivot = GameObject.FindGameObjectWithTag("CameraHandle");
 
 			_PickupAction = _InputActionMap.FindAction("Pickup");
+			_FireAction = _InputActionMap.FindAction("Fire");
 
 			Cursor.lockState = CursorLockMode.Locked;
 			Cursor.visible = true;
+		}
+
+		private void InteractTool(InputAction.CallbackContext context)
+		{
+			if (GetTool() is not IInteractableTool interactT)
+				return;
+			interactT.OnFire();
 		}
 
 		public void Update()
@@ -101,6 +119,7 @@ namespace CyroHazard.Character.Player
 			MoveCamera();
 
 			_PickupAction.performed += TryToPickup;
+			_FireAction.performed += InteractTool;
 		}
 	}
 }

@@ -8,14 +8,28 @@ namespace CyroHazard.Tools
 {
     public class BaseTool : MonoBehaviour
     {
+        /// <summary>
+        /// The character that the tool is equipped with.
+        /// </summary>
         public CharacterControl Controller => _Controller;
-        public StoredItem StoredItem => _StoredItem;
-        public GridBackpack Backpack => _Backpack;
-        public ToolItem ToolItem;
-
-        private StoredItem _StoredItem;
+        /// <inheritdoc cref="Controller"/>
         private CharacterControl _Controller;
+
+        /// <summary>
+        /// The stored version of the tool.
+        /// </summary>
+        public StoredItem StoredItem => _StoredItem;
+        /// <inheritdoc cref="StoredItem"/>
+        private StoredItem _StoredItem;
+
+        /// <summary>
+        /// The backpack the tool is stored in.
+        /// </summary>
+        public GridBackpack Backpack => _Backpack;
+        /// <inheritdoc cref="Backpack"/>
         private GridBackpack _Backpack;
+
+        public BaseToolItem ToolItem;
 
         public virtual void Equip(StoredItem stored, CharacterControl controller)
         {
@@ -23,7 +37,7 @@ namespace CyroHazard.Tools
 
             if (!hasItem)
                 throw new NullReferenceException($"Item {stored} wasn't in any Backpack!");
-            if (stored.Item is not ToolItem toolItem)
+            if (stored.Item is not BaseToolItem toolItem)
                 throw new InvalidCastException($"The item type doesn't derive from {StoredItem.Item.GetType().FullName}");
 
             _StoredItem = stored;

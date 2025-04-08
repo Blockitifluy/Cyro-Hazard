@@ -6,7 +6,7 @@ using UnityEngine;
 namespace CyroHazard.Items.ItemVariants
 {
     [Item("tool-item"), XmlRoot("tool-item"), XmlType("tool-item")]
-    public class ToolItem : Item
+    public class BaseToolItem : Item
     {
         [ItemAction("Equip")]
         public void EquipAction(ItemActionParams @params)
@@ -19,11 +19,11 @@ namespace CyroHazard.Items.ItemVariants
 
         public override IRefItem<Item> Instantiate(int amount)
         {
-            RefItem<ToolItem> refToolItem = new(ID, amount);
+            RefItem<BaseToolItem> refToolItem = new(ID, amount);
             return refToolItem;
         }
 
-        public static BaseTool CreateTool<TItem>() where TItem : ToolItem
+        public virtual BaseTool CreateTool()
         {
             ItemManager itemManager = ItemManager.Manager;
 
@@ -32,8 +32,5 @@ namespace CyroHazard.Items.ItemVariants
 
             return tool;
         }
-
-        [XmlElement("firerate")]
-        public float Firerate;
     }
 }

@@ -30,7 +30,7 @@
 		<weight>0.25</weight>
 	</item>
 
-	<tool-item ID="tool-item">
+	<hitscan-item ID="tool-item">
 		<name>Test Tool Item</name>
 		<description>Lorem Ipsum</description>
 		<health>100</health>
@@ -43,5 +43,5 @@
 		<size-y>1</size-y>
 		<weight>0.25</weight>
 		<firerate>3</firerate>
-	</tool-item>
+	</hitscan-item>
 </root>

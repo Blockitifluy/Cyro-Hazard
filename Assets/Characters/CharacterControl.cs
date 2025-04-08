@@ -23,7 +23,7 @@ namespace CyroHazard.Character
 
 		public TTool GetTool<TTool>() where TTool : BaseTool
 		{
-			return (TTool)_Tool;
+			return _Tool as TTool;
 		}
 
 		public BaseTool GetTool()
@@ -41,17 +41,18 @@ namespace CyroHazard.Character
 			}
 
 			_Tool.Unequip();
+			_Tool = null;
 		}
 
 		public void Equip(StoredItem stored, bool autoUnequip = false)
 		{
-			if (stored.Item is not ToolItem)
-				throw new InvalidCastException($"");
+			if (stored.Item is not BaseToolItem item)
+				throw new InvalidCastException($"The item isn't a tool item!");
 
 			if (autoUnequip)
 				UnequipCurrentTool(throwIfNoTool: false);
 
-			BaseTool tool = ToolItem.CreateTool<ToolItem>();
+			BaseTool tool = item.CreateTool();
 			tool.Equip(stored, this);
 			tool.transform.SetParent(Handle, worldPositionStays: false);
 
@@ -114,6 +115,7 @@ namespace CyroHazard.Character
 			return null;
 		}
 
+		public abstract Vector3 GetAimDirection();
 
 		/// <inheritdoc cref="TryToAddItemToBackpacks(StoredItem)"/>
 		/// <param name="item">The item to be added.</param>
