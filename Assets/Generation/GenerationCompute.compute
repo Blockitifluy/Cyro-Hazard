@@ -24,5 +24,5 @@ void CSMain (uint2 pos : SV_DispatchThreadID)
     float height = SimplexNoise(scaled);
     float height2 = SimplexNoise(scaled * 0.75 + 5) * 0.75;
 
-    Result[pos.xy] = (pow((height + height2) / 1.75, 4) );
+    Result[pos.xy] = ((1 - pow(height , 4)) * 0.5 + height2) / 1.75;
 }

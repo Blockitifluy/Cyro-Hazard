@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -14,6 +15,12 @@ namespace CyroHazard.Generation
 
         private float[,] _Vertices;
 
+        public Vector3 GetVertCoord(Vector2Int pos)
+        {
+            return new(pos.x, _Vertices[pos.x, pos.y], pos.y);
+        }
+
+
         public override float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos)
         {
             return _Vertices[tilePos.x, tilePos.y] * HeightMultipler;
@@ -22,65 +29,22 @@ namespace CyroHazard.Generation
         const byte SnowMaterial = 0;
         const byte StoneMaterial = 1;
 
-        const int SurroundingsLength = 2;
-
-        public float[] GetSurroundingGradients(int[] surroundingSource, int tileIndex, Vector2Int pos, float center, bool isOnXAxis)
-        {
-            float[] gradients = new float[SurroundingsLength];
-
-            for (int i = 0; i < SurroundingsLength; i++)
-            {
-                int nextIndex = surroundingSource[i];
-                int local = tileIndex + nextIndex;
-
-                Vector2Int adj = GetPosByIndex(local);
-                bool inside = 0 < local && local <= (TilesPerAxis + 1) * (TilesPerAxis + 1);
-
-                float z = inside ? _Vertices[adj.x, adj.y] : center;
-
-                int delta = isOnXAxis ? (adj.x - pos.x) : (adj.y - pos.y);
-                float gradient = delta / (z - center);
-
-                if (float.IsNaN(gradient) || Mathf.Abs(gradient) == float.PositiveInfinity)
-                    continue;
-
-                gradients[i] = gradient;
-            }
-
-            return gradients;
-        }
-
         public override byte GetTriangleMaterial(int triangleIndex, Vector2Int chunkPos)
         {
-            int[] surroundingsX = new int[SurroundingsLength] { -1, 1 };
-            int[] surroundingsY = new int[SurroundingsLength] { -TilesPerAxis, TilesPerAxis };
-
             int tileIndex = triangleIndex / 2;
+            bool isFirst = triangleIndex % 2 == 0;
             Vector2Int pos = GetPosByIndex(tileIndex);
 
-            float center = _Vertices[pos.x, pos.y];
-            byte material = SnowMaterial;
+            Vector3 a = GetVertCoord(pos + (isFirst ? Vector2Int.zero : Vector2Int.one)),
+            b = GetVertCoord(pos + Vector2Int.right),
+            c = GetVertCoord(pos + Vector2Int.up);
 
-            float[] gradientX = GetSurroundingGradients(surroundingsX, tileIndex, pos, center, isOnXAxis: true),
-            gradientY = GetSurroundingGradients(surroundingsY, tileIndex, pos, center, isOnXAxis: false);
+            // float dir0 = Vector3.Dot(b - a, c - a),
+            // dir1 = Vector3.Dot(b - d, c - d),
+            float dir = Vector3.Angle(b - a, c - a),
+            factor = Mathf.Abs(dir - 90) * Mathf.Rad2Deg;
 
-            int i = 0;
-
-            float[] gradients = new float[SurroundingsLength * 2];
-            foreach (float grad in gradientX)
-            {
-                gradients[i] = grad;
-                i++;
-            }
-            foreach (float grad in gradientY)
-            {
-                gradients[i] = grad;
-                i++;
-            }
-
-            float gradMean = Helper.Mean(gradients);
-            if (Mathf.Abs(gradMean) > MountainGradient || Mathf.Abs(gradMean) >= 400)
-                material = StoneMaterial;
+            byte material = factor < MountainGradient ? SnowMaterial : StoneMaterial;
 
             return material;
         }
