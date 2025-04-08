@@ -414,6 +414,18 @@ namespace CyroHazard.Generation
 			}
 		}
 
+		// Other Functions
+
+		public (int, int) GetXYByIndex(int i)
+		{
+			return (i % TilesPerAxis, i / TilesPerAxis);
+		}
+
+		public Vector2Int GetPosByIndex(int i)
+		{
+			return new(i % TilesPerAxis, i / TilesPerAxis);
+		}
+
 #if UNITY_EDITOR
 		[ContextMenu("Refresh Chunks")]
 		public void ContextUnloadAllChunks()

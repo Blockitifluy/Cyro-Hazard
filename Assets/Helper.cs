@@ -6,6 +6,8 @@ using System.Xml;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// TODO - Split Helper into multiple classes
+
 public static class Helper
 {
 	static public RaycastHit? GetMouseRayHitInfo(Camera camera)
@@ -134,5 +136,15 @@ public static class Helper
 
 		RenderTexture.active = old_rt;
 		return tex;
+	}
+
+	public static float Mean(params float[] x)
+	{
+		float sum = 0;
+
+		foreach (float a in x)
+			sum += a;
+
+		return sum / x.Length;
 	}
 }

@@ -1578,7 +1578,7 @@ MonoBehaviour:
   TileSize: 0.75
   Materials:
   - {fileID: 6486337823946423804, guid: f37cb2d2058a96e4dbbd9ce37c7ae0d1, type: 3}
-  - {fileID: 6486337823946423804, guid: f37cb2d2058a96e4dbbd9ce37c7ae0d1, type: 3}
+  - {fileID: 2100000, guid: 16e1bd81bd09f7d4e93cb198e3aa786a, type: 2}
   UVScale: 3
   Triangles: 
   UVs: []
@@ -1586,6 +1586,7 @@ MonoBehaviour:
   Seed: 1337
   HeightMultipler: 5
   NoiseScale: 175
+  MountainGradient: 45
 --- !u!1 &1794093989
 GameObject:
   m_ObjectHideFlags: 0
