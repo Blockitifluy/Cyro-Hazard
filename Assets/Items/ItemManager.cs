@@ -390,7 +390,7 @@ namespace CyroHazard.Items
 
 			foreach (Type tp in itemTypes)
 			{
-				ItemAttribute itemAtt = (ItemAttribute)Attribute.GetCustomAttribute(tp, typeof(ItemAttribute));
+				ItemAttribute itemAtt = tp.GetCustomAttribute<ItemAttribute>();
 				ItemTypes.Add(itemAtt.XMLName, tp);
 			}
 		}

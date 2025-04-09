@@ -80,7 +80,7 @@ namespace CyroHazard.Damage
 
             foreach (Type tp in itemTypes)
             {
-                HediffDefAttribute itemAtt = (HediffDefAttribute)Attribute.GetCustomAttribute(tp, typeof(HediffDefAttribute));
+                HediffDefAttribute itemAtt = tp.GetCustomAttribute<HediffDefAttribute>();
                 HediffTypes.Add(itemAtt.XMLName, tp);
             }
         }

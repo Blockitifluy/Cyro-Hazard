@@ -1573,20 +1573,20 @@ MonoBehaviour:
     GameObj: {fileID: 131176270}
     LastPosition: {x: 0, y: 0, z: 0}
   ChunkPrefab: {fileID: 832967652031903853, guid: 729e911a9705c474e940893ea6d9d4e3, type: 3}
-  ChunkRenderingRadius: 4
+  ChunkRenderingRadius: 8
   TilesPerAxis: 64
-  TileSize: 0.75
+  TilePhysicalSize: 0.5
   Materials:
   - {fileID: 2100000, guid: 6ee7b1f00a8e60c4590a2a48df7a5b64, type: 2}
   - {fileID: 2100000, guid: 465a7dad600d03e408a58239b5f4c364, type: 2}
   UVScale: 3
   Triangles: 
   UVs: []
+  HeightMultipler: 5
+  NoiseScale: 75
+  MountainGradient: 0.005
   Compute: {fileID: 7200000, guid: a54bd82cbeb5a324e8659b9e7df1acfd, type: 3}
   Seed: 1337
-  HeightMultipler: 5
-  NoiseScale: 175
-  MountainGradient: 0.15
 --- !u!1 &1794093989
 GameObject:
   m_ObjectHideFlags: 0

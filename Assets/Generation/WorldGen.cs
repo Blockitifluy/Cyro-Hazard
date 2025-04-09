@@ -1,17 +1,41 @@
 using System;
 using System.Threading.Tasks;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace CyroHazard.Generation
 {
+    /// <summary>
+    /// The default world generation system used by Cyro Hazard.
+    /// <br/>
+    /// The vert noise is controlled by a compute shader.
+    /// </summary>
+    [AddComponentMenu("Generation/World Generation")]
     public class WorldGen : ChunkConstructor
     {
+        /// <summary>
+        /// Multiples the <see cref="_Vertices"/> array by this.
+        /// </summary>
+        [Header("Terrain Parameters")]
+        public float HeightMultipler = 5.0f;
+        /// <summary>
+        /// How much the noise scales, the lower the more compact the space.
+        /// </summary>
+        [Tooltip("How much the noise scales, the lower the more compact the space.")]
+        public float NoiseScale = 50.0f;
+        /// <summary>
+        /// The angle a triangle is set to a stone material.
+        /// </summary>
+        [Tooltip("The angle a triangle is set to a stone material.")]
+        public float MountainAngle = 0.005f;
+
         [Header("Generation")]
         public ComputeShader Compute;
+        /// <summary>
+        /// The DNA of the terrain.
+        /// </summary>
+        [Tooltip("The DNA of the terrain.")]
         public int Seed = 1337;
-        public float HeightMultipler = 5.0f;
-        public float NoiseScale = 50.0f;
-        public float MountainGradient = 2f;
 
         private float[,] _Vertices;
 
@@ -19,7 +43,6 @@ namespace CyroHazard.Generation
         {
             return new(pos.x, _Vertices[pos.x, pos.y], pos.y);
         }
-
 
         public override float GenerateVertexHeight(Vector2Int tilePos, int i, Vector2Int chunkPos)
         {
@@ -41,10 +64,10 @@ namespace CyroHazard.Generation
 
             // float dir0 = Vector3.Dot(b - a, c - a),
             // dir1 = Vector3.Dot(b - d, c - d),
-            float dir = Vector3.Angle(b - a, c - a),
-            factor = Mathf.Abs(dir - 90) * Mathf.Rad2Deg;
+            float dir = Vector3.Dot((b - a).Abs(), (c - a).Abs()),
+            factor = Mathf.Abs(dir * Mathf.Rad2Deg);
 
-            byte material = factor < MountainGradient ? SnowMaterial : StoneMaterial;
+            byte material = factor <= MountainAngle ? SnowMaterial : StoneMaterial;
 
             return material;
         }

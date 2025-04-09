@@ -22,7 +22,9 @@ void CSMain (uint2 pos : SV_DispatchThreadID)
     float3 scaled = worldPos / NoiseScale;
     scaled.z = Seed;
     float height = SimplexNoise(scaled);
-    float height2 = SimplexNoise(scaled * 0.75 + 5) * 0.75;
+    float height2 = SimplexNoise(scaled * 0.75 + 5) * 0.5;
 
-    Result[pos.xy] = ((1 - pow(height , 4)) * 0.5 + height2) / 1.75;
+    float terrainFloor = 1 - pow(height , 4); 
+
+    Result[pos.xy] = (terrainFloor + height2) / 1.5;
 }

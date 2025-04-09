@@ -48,9 +48,9 @@ namespace CyroHazard.Generation
 			GameObject chunk = terrain.gameObject;
 
 			Vector3 worldSize = new(
-				pos.x * constructor.TileSize * constructor.TilesPerAxis,
+				pos.x * constructor.TilePhysicalSize * constructor.TilesPerAxis,
 				0,
-				pos.y * constructor.TileSize * constructor.TilesPerAxis
+				pos.y * constructor.TilePhysicalSize * constructor.TilesPerAxis
 			);
 
 			terrain.LoadMesh(pos);
@@ -167,7 +167,7 @@ namespace CyroHazard.Generation
 		/// <summary>
 		/// The physical actual size of the tiles.
 		/// </summary>
-		public float TileSize = 0.5f;
+		public float TilePhysicalSize = 0.5f;
 
 		[Header("Materials")]
 		public Material[] Materials;
@@ -245,7 +245,7 @@ namespace CyroHazard.Generation
 		/// <returns>2D chunk grid position</returns>
 		public Vector2Int WorldPosToChunkPos(Vector3 pos)
 		{
-			var length = TilesPerAxis * TileSize;
+			var length = TilesPerAxis * TilePhysicalSize;
 			Vector3 div = pos / length;
 			Vector2Int final = new(
 				(int)div.x,
@@ -281,7 +281,7 @@ namespace CyroHazard.Generation
 
 				Vector2Int pos = new(x, y);
 				float height = (GenerateVertexHeight(pos, i, chunkPos) - 0.5f) * 2.0f;
-				vertices[i] = new(x * TileSize, height, y * TileSize);
+				vertices[i] = new(x * TilePhysicalSize, height, y * TilePhysicalSize);
 			}
 
 			return vertices;
