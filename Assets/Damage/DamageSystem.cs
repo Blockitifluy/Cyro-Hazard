@@ -199,10 +199,10 @@ namespace CyroHazard.Damage
         public void Awake()
         {
             HediffDocument = new();
-            HediffDocument.Load(Application.streamingAssetsPath + "\\" + PathToHediffTypes);
+            HediffDocument.Load(Application.streamingAssetsPath + @"\" + PathToHediffTypes);
 
             TypesDocument = new();
-            TypesDocument.Load(Application.streamingAssetsPath + "\\" + PathToDamageTypesXML);
+            TypesDocument.Load(Application.streamingAssetsPath + @"\" + PathToDamageTypesXML);
 
             PreloadHediffTypes();
             PreloadHediffs();

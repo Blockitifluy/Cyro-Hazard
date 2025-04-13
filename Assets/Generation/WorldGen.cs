@@ -27,7 +27,8 @@ namespace CyroHazard.Generation
         /// The angle a triangle is set to a stone material.
         /// </summary>
         [Tooltip("The angle a triangle is set to a stone material.")]
-        public float MountainAngle = 0.005f;
+        [Range(0f, 180f)]
+        public float MountainAngle = 160f;
 
         [Header("Generation")]
         public ComputeShader Compute;
@@ -58,19 +59,23 @@ namespace CyroHazard.Generation
             bool isFirst = triangleIndex % 2 == 0;
             Vector2Int pos = GetPosByIndex(tileIndex);
 
-            Vector3 a = GetVertCoord(pos + (isFirst ? Vector2Int.zero : Vector2Int.one)),
-            b = GetVertCoord(pos + Vector2Int.right),
-            c = GetVertCoord(pos + Vector2Int.up);
+            Vector2Int aGrid = pos + (isFirst ? Vector2Int.zero : Vector2Int.one),
+            bGrid = pos + (isFirst ? Vector2Int.right : Vector2Int.up),
+            cGrid = pos + (isFirst ? Vector2Int.up : Vector2Int.right);
 
-            // float dir0 = Vector3.Dot(b - a, c - a),
-            // dir1 = Vector3.Dot(b - d, c - d),
-            float dir = Vector3.Dot((b - a).Abs(), (c - a).Abs()),
-            factor = Mathf.Abs(dir * Mathf.Rad2Deg);
+            Vector3 a = GetVertCoord(aGrid),
+            b = GetVertCoord(bGrid),
+            c = GetVertCoord(cGrid);
 
-            byte material = factor <= MountainAngle ? SnowMaterial : StoneMaterial;
+            Vector3 dir = Vector3.Cross(b - a, c - a);
+            float angle = 180 - Mathf.Abs(Vector3.Angle(Vector3.up, dir));
+
+            byte material = angle <= MountainAngle ? SnowMaterial : StoneMaterial;
 
             return material;
         }
+
+        const string GenerateKernalName = "Generate";
 
         public override void PrepareGeneration(Vector2Int chunkPos)
         {

@@ -132,8 +132,12 @@ namespace CyroHazard.Items.Interface
             Vector2 mousePos = Mouse.current.position.value;
 
             var rectTrans = hoveredItem.UI.GetRectTransform();
+            var gridRect = GridDisplay.GetRectTransform();
 
-            rectTrans.position = mousePos;
+            Vector2 gridTrans = GetGridTranslation(gridRect),
+            globalPos = new(gridRect.position.x, gridRect.position.y);
+
+            rectTrans.position = ((mousePos - globalPos) / gridTrans).Round() * gridTrans + globalPos;
         }
 
         // Selection
@@ -219,7 +223,6 @@ namespace CyroHazard.Items.Interface
                     OnItemRightClick(data, storedItem);
                     break;
                 case InputButton.Left:
-                    rect.pivot = Vector2.one * 0.5f;
                     HoveredItem = new(clickable.gameObject, storedItem);
                     break;
             }

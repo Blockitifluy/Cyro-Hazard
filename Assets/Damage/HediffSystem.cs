@@ -47,13 +47,20 @@ namespace CyroHazard.Damage
 
             foreach (XmlElement element in hediffElements)
             {
-                Type hediffType = default;
+                Type hediffType = null;
 
                 foreach (KeyValuePair<string, Type> pair in HediffTypes)
                 {
                     if (pair.Key != element.Name)
                         continue;
                     hediffType = pair.Value;
+                }
+
+                if (hediffType == null)
+                {
+                    Debug.LogError(@$"Hediff (of type {element.Name}) doesn't exist.
+Have you added the HediffDef, XmlRoot, XmlType attributes to the def class, or a misspelling?");
+                    continue;
                 }
 
                 XmlSerializer serializer = new(hediffType);

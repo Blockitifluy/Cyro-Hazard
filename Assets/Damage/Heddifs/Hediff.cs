@@ -3,8 +3,6 @@ using CyroHazard.Character;
 
 namespace CyroHazard.Damage.Hediffs
 {
-    // Main Heddiff Interface
-
     /// <summary>
     /// The interface version of hediff. Only used for it's out propetry.                                          
     /// </summary>
@@ -37,38 +35,6 @@ namespace CyroHazard.Damage.Hediffs
         /// </summary>
         public void OnApplied();
     }
-
-    // Other Interfaces
-
-    public interface IHediffPain
-    {
-        public float Pain { get; }
-    }
-
-    public interface IHediffBleeding
-    {
-        public float Bleeding { get; }
-    }
-
-    public struct HediffCapability
-    {
-        public enum EHediffCapabilityMode
-        {
-            Additive,
-            Multiple,
-            Max
-        }
-
-        public EHediffCapabilityMode CapabilityMode;
-        public float Factor;
-    }
-
-    public interface IHediffCapabilityMod
-    {
-        public HediffCapability GetHediffCapability(ECapability capability);
-    }
-
-    // Main Class
 
     /// <summary>
     /// The base class of all Hediffs (not HediffDefs).

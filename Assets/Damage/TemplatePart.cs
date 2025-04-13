@@ -11,28 +11,6 @@ namespace CyroHazard.Damage
     [CreateAssetMenu(fileName = "TemplatePart", menuName = "Damage System/Template Part")]
     public class TemplatePart : ScriptableObject
     {
-        public override bool Equals(object obj)
-        {
-            if (obj is not TemplatePart template)
-                throw new InvalidOperationException();
-            return template.GetHashCode() == GetHashCode();
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Name, ParentName, IsInside, CanBleed, MaxHealth);
-        }
-
-        public static bool operator ==(TemplatePart first, TemplatePart second)
-        {
-            return first.Equals(second);
-        }
-
-        public static bool operator !=(TemplatePart first, TemplatePart second)
-        {
-            return !(first == second);
-        }
-
         public List<CapabilityReduction> CapabilityReductions;
 
         /// <summary>

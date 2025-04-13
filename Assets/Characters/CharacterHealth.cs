@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CyroHazard.Damage;
 using CyroHazard.Damage.Hediffs;
+using CyroHazard.Damage.Hediffs.Interface;
 using System;
 using UnityEngine;
 using System.Reflection;

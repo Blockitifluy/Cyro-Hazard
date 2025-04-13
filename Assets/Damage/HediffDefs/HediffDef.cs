@@ -31,6 +31,7 @@ namespace CyroHazard.Damage.HediffDefs
 
         public abstract IHediff<HediffDef> CreateAppliedHediff(BodyPart bodyPart);
 
+
         public HediffDef() { }
     }
 }

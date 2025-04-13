@@ -45,7 +45,7 @@ namespace CyroHazard.Damage
         [Serializable]
         public class RootPartNotFoundException : Exception
         {
-            public RootPartNotFoundException() { }
+            public RootPartNotFoundException() : base() { }
             protected RootPartNotFoundException(
                 System.Runtime.Serialization.SerializationInfo info,
                 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }

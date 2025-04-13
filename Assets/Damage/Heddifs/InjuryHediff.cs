@@ -1,5 +1,6 @@
 using CyroHazard.Damage.HediffDefs;
 using CyroHazard.Character;
+using CyroHazard.Damage.Hediffs.Interface;
 
 namespace CyroHazard.Damage.Hediffs
 {
