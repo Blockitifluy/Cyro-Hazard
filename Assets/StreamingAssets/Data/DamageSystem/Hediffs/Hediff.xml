@@ -40,9 +40,4 @@
         <bleeding>0.06</bleeding>
         <pain>1</pain>
     </injury-hediff>
-
-    <severity-hediff name="test-severity">
-        <severity-gain>0.005</severity-gain>
-        <max-severity>1</max-severity>
-    </severity-hediff>
 </root>

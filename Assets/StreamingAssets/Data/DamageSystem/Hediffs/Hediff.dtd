@@ -1,13 +1,7 @@
-<!ELEMENT root (injury-hediff*, severity-hediff*)>
+<!ELEMENT root (injury-hediff*)>
 
 <!ELEMENT injury-hediff (bleeding, pain)>
 <!ATTLIST injury-hediff name ID #REQUIRED>
 
 <!ELEMENT bleeding (#PCDATA)>
 <!ELEMENT pain (#PCDATA)>
-
-<!ELEMENT severity-hediff (severity-gain, max-severity)>
-<!ATTLIST severity-hediff name ID #REQUIRED>
-
-<!ELEMENT severity-gain (#PCDATA)>
-<!ELEMENT max-severity (#PCDATA)>
